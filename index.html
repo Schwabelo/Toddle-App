@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Toddle Study Hub</title>
+  <meta name="description" content="Assignments from Toddle sorted by class, plus a timer, flashcards, calendar and progress tracking.">
+  <meta name="theme-color" content="#4f46e5">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#view">Skip to content</a>
+  <nav class="nav" aria-label="Main">
+    <div class="brand"><img src="icon.svg" alt="" width="28" height="28"><span>Study Hub</span></div>
+    <a href="#/" data-nav="start"><i>🏠</i><span>Start</span></a>
+    <a href="#/classes" data-nav="classes"><i>📚</i><span>Classes</span></a>
+    <a href="#/calendar" data-nav="calendar"><i>📅</i><span>Calendar</span></a>
+    <a href="#/timer" data-nav="timer"><i>⏱️</i><span>Timer</span><b id="nav-timer"></b></a>
+    <a href="#/flashcards" data-nav="flashcards"><i>🗂️</i><span>Cards</span></a>
+    <a href="#/progress" data-nav="progress"><i>📈</i><span>Progress</span></a>
+    <a href="#/settings" data-nav="settings" class="nav-end"><i>⚙️</i><span>Settings</span></a>
+  </nav>
+  <main id="view" tabindex="-1"></main>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <noscript><p style="padding:2rem">This app needs JavaScript.</p></noscript>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
