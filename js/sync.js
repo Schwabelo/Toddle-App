@@ -4,8 +4,9 @@ import { state, save, tasks, toggleDone } from './store.js';
 import { today } from './util.js';
 
 export async function syncFromFeed() {
-  const url = state.feedUrl.trim();
-  if (!url) throw new Error('Paste your Toddle calendar link in Settings first.');
+  // Calendar apps hand out webcal:// links; browsers can only fetch https://.
+  const url = state.feedUrl.trim().replace(/^webcals?:\/\//i, 'https://');
+  if (!state.feedUrl.trim()) throw new Error('Paste your Toddle calendar link in Settings first.');
   const proxy = state.settings.proxy.trim();
   const target = proxy ? proxy + encodeURIComponent(url) : url;
   let res;
