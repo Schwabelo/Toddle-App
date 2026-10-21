@@ -51,6 +51,10 @@ The proxy sees your link (including its key) when it forwards the request, so on
 
 In Chrome, open the site and use **⋮ → Cast, save and share → Install page as app**. It then opens in its own window and works offline for everything except syncing.
 
+## Single-file version
+
+`study-hub.html` is the whole app in one file. Double-click it to run it locally, no server needed. Regenerate it after editing the source with `node build-single.mjs`.
+
 ## Files
 
 ```

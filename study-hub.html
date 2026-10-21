@@ -1,0 +1,1480 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Toddle Study Hub</title>
+  <meta name="description" content="Assignments from Toddle sorted by class, plus a timer, flashcards, calendar and progress tracking.">
+  <meta name="theme-color" content="#4f46e5">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM2MzY2ZjEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0MzM4Y2EiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0idXJsKCNnKSIvPjxwYXRoIGQ9Ik0yNTYgMTIwIDk2IDE5MmwxNjAgNzIgMTYwLTcyeiIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0xNjAgMjQ0djc4YzAgMjAgNDMgNDYgOTYgNDZzOTYtMjYgOTYtNDZ2LTc4bC05NiA0M3oiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii44NSIvPjxyZWN0IHg9IjQwNCIgeT0iMTk2IiB3aWR0aD0iMTQiIGhlaWdodD0iMTA4IiByeD0iNyIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=" type="image/svg+xml">
+    <style>
+:root {
+  --bg: #f5f6fa; --card: #ffffff; --text: #1b1e2b; --muted: #636a80; --line: #e3e6ef;
+  --accent: #4f46e5; --good: #059669; --bad: #dc2626; --warn: #b45309;
+  --shadow: 0 1px 2px rgba(20,24,40,.06), 0 4px 14px rgba(20,24,40,.05);
+  --radius: 14px;
+}
+:root[data-theme="dark"] { --bg: #0f1117; --card: #181b25; --text: #eceef5; --muted: #98a0b8; --line: #2a2f3d; --good: #34d399; --bad: #f87171; --warn: #fbbf24; --shadow: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #0f1117; --card: #181b25; --text: #eceef5; --muted: #98a0b8; --line: #2a2f3d; --good: #34d399; --bad: #f87171; --warn: #fbbf24; --shadow: none; }
+}
+* { box-sizing: border-box; }
+html { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); display: grid; grid-template-columns: 210px 1fr; min-height: 100vh; }
+a { color: var(--accent); }
+h1 { font-size: 1.7rem; margin: .2rem 0 .8rem; line-height: 1.2; }
+h2 { font-size: 1.1rem; margin: 0 0 .7rem; }
+h3 { font-size: 1rem; margin: 0 0 .3rem; }
+.muted { color: var(--muted); } .small { font-size: .85rem; } .late { color: var(--bad); } .hidden { visibility: hidden; }
+.skip { position: absolute; left: -999px; } .skip:focus { left: 8px; top: 8px; z-index: 99; background: var(--card); padding: .5rem; }
+
+/* nav */
+.nav { position: sticky; top: 0; height: 100vh; padding: 1rem .75rem; display: flex; flex-direction: column; gap: 2px; background: var(--card); border-right: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: .6rem; font-weight: 700; padding: .3rem .6rem 1rem; }
+.nav a { display: flex; align-items: center; gap: .7rem; padding: .6rem .75rem; border-radius: 10px; color: var(--text); text-decoration: none; font-weight: 500; }
+.nav a i { font-style: normal; width: 1.4rem; text-align: center; }
+.nav a:hover { background: var(--bg); }
+.nav a.active { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.nav a b { margin-left: auto; font: 600 .8rem/1 ui-monospace, monospace; color: var(--accent); }
+.nav-end { margin-top: auto; }
+main { padding: 1.5rem clamp(1rem, 3vw, 2.5rem) 3rem; max-width: 1150px; width: 100%; outline: none; }
+
+/* layout bits */
+.grid { display: grid; gap: 1rem; margin-bottom: 1rem; }
+.grid.stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.grid.two { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: start; }
+.grid.classes, .grid.decks { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; box-shadow: var(--shadow); margin-bottom: 1rem; }
+.grid > .card { margin-bottom: 0; }
+.page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; flex-wrap: wrap; margin-bottom: .6rem; }
+.page-head h1 { margin-bottom: .1rem; }
+.sec-head { display: flex; justify-content: space-between; align-items: center; }
+.row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; } .row.nowrap { flex-wrap: nowrap; } .center { justify-content: center; }
+.stat { text-align: left; } .stat-num { font-size: 2rem; font-weight: 700; line-height: 1.1; } .stat-num small { font-size: .9rem; font-weight: 500; color: var(--muted); margin-left: 2px; }
+.stat.warn .stat-num { color: var(--bad); }
+.hero { margin-bottom: .6rem; }
+
+/* buttons & forms */
+.btn { font: inherit; font-weight: 600; padding: .55rem 1rem; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: .4rem; }
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.danger { color: var(--bad); }
+.btn.small { padding: .3rem .7rem; font-size: .85rem; } .btn.big { font-size: 1.15rem; padding: .8rem 2.2rem; }
+:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 60%, transparent); outline-offset: 2px; }
+input, select, textarea { font: inherit; padding: .5rem .65rem; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--text); width: 100%; }
+textarea { resize: vertical; }
+.field { display: flex; flex-direction: column; gap: .25rem; font-weight: 600; font-size: .9rem; margin-bottom: .8rem; } .field .muted { font-weight: 400; }
+.field.grow, .grow { flex: 1 1 200px; } .center-field { max-width: 260px; margin: 1rem auto 0; }
+.form-row { display: flex; gap: .8rem; flex-wrap: wrap; align-items: flex-end; } .form-row .field { flex: 1 1 140px; }
+.form-card { margin-top: 1rem; }
+.check-row { display: flex; gap: .6rem; align-items: center; margin: .4rem 0; } .check-row input { width: auto; }
+.swatch { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--card); box-shadow: 0 0 0 1px var(--line); cursor: pointer; } .swatch.active { box-shadow: 0 0 0 3px var(--text); }
+.note { background: color-mix(in srgb, var(--warn) 12%, transparent); border-left: 4px solid var(--warn); padding: .7rem .9rem; border-radius: 8px; margin: 1rem 0; font-size: .9rem; }
+.chip { font: inherit; font-size: .85rem; padding: .3rem .8rem; border-radius: 99px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; } .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.filters { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin: .5rem 0 1rem; } .filters select, .filters input { width: auto; flex: 1 1 140px; max-width: 220px; }
+.tabs { display: flex; gap: .3rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; } .tab { font: inherit; border: 0; background: transparent; color: var(--muted); padding: .4rem .9rem; border-radius: 99px; cursor: pointer; font-weight: 600; } .tab.active { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); }
+
+/* tasks */
+.day-h { margin: 1rem 0 .4rem; font-size: .9rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; } .day-h:first-child { margin-top: 0; }
+.task { display: flex; gap: .7rem; padding: .6rem .5rem .6rem .7rem; border-left: 4px solid var(--c, var(--line)); border-radius: 4px 10px 10px 4px; background: color-mix(in srgb, var(--c, var(--muted)) 6%, transparent); margin-bottom: .45rem; align-items: flex-start; }
+.task.is-done .task-title { text-decoration: line-through; color: var(--muted); }
+.task.is-overdue { background: color-mix(in srgb, var(--bad) 8%, transparent); }
+.check { flex: none; width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--muted); background: var(--card); color: #fff; font-weight: 800; cursor: pointer; display: grid; place-items: center; margin-top: 1px; padding: 0; } .check[aria-pressed="true"] { background: var(--good); border-color: var(--good); }
+.task-main { flex: 1; min-width: 0; } .task-main summary { cursor: pointer; list-style: none; } .task-main summary::-webkit-details-marker { display: none; }
+.task-title { font-weight: 600; overflow-wrap: anywhere; display: block; }
+.task-meta { display: flex; gap: .4rem .6rem; flex-wrap: wrap; align-items: center; font-size: .82rem; color: var(--muted); margin-top: .15rem; } .due em { font-style: normal; } .due.late { color: var(--bad); font-weight: 600; }
+.task-detail { padding: .6rem 0 .2rem; } .desc { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 .5rem; font-size: .92rem; max-height: 14rem; overflow: auto; }
+.badge { font-size: .72rem; font-weight: 700; padding: .1rem .5rem; border-radius: 99px; background: var(--line); color: var(--text); }
+.b-summ { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); } .b-form { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--warn); }
+.b-quick { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); } .b-learn { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); } .b-home { background: color-mix(in srgb, var(--warn) 15%, transparent); color: var(--warn); }
+.class-chip { font-size: .75rem; padding: .05rem .55rem; border-radius: 99px; text-decoration: none; color: var(--text); border: 1px solid var(--c); }
+.event-row { align-items: center; border-left-color: var(--muted); } .dot-ev { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; margin: 0 7px; }
+.mini-row { display: flex; justify-content: space-between; gap: .6rem; padding: .5rem .7rem; border-left: 4px solid var(--c); background: color-mix(in srgb, var(--c) 7%, transparent); border-radius: 4px 10px 10px 4px; margin-bottom: .4rem; text-decoration: none; color: var(--text); } .mini-title { font-weight: 600; overflow-wrap: anywhere; }
+
+/* classes, decks */
+.class-card, .deck { text-decoration: none; color: var(--text); border-top: 5px solid var(--c); display: block; transition: transform .1s; } .class-card:hover, .deck:hover { transform: translateY(-2px); }
+.cc-top { display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; } .cc-nums { display: flex; gap: .8rem; margin: .4rem 0; font-size: .9rem; }
+.class-head { border-left: 6px solid var(--c); padding-left: .8rem; margin-top: .4rem; }
+.bar { display: flex; height: 9px; border-radius: 99px; background: var(--line); overflow: hidden; margin: .4rem 0; } .bar span { display: block; height: 100%; }
+.deck-foot { display: flex; justify-content: space-between; margin-top: .8rem; font-size: .9rem; } .due-pill { background: var(--accent); color: #fff; border-radius: 99px; padding: 0 .6rem; font-size: .8rem; font-weight: 700; }
+.quick { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; } .quick-btn { display: flex; flex-direction: column; gap: .2rem; align-items: flex-start; font-size: 1.5rem; text-decoration: none; padding: .8rem; border-radius: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--line); } .quick-btn span { font-size: .85rem; font-weight: 600; } .quick-btn:hover { border-color: var(--accent); }
+.empty { text-align: center; padding: 2.5rem 1rem; } .empty-icon { font-size: 2.5rem; }
+
+/* calendar */
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; margin-bottom: 1rem; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.cal-dow { background: var(--card); text-align: center; font-size: .8rem; font-weight: 700; color: var(--muted); padding: .4rem 0; }
+.cal-cell { background: var(--card); border: 0; padding: .3rem; min-height: 96px; text-align: left; font: inherit; color: var(--text); cursor: pointer; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.cal-cell.other { background: color-mix(in srgb, var(--bg) 70%, var(--card)); color: var(--muted); } .cal-cell:hover { background: color-mix(in srgb, var(--accent) 7%, var(--card)); }
+.cal-cell.selected { outline: 2px solid var(--accent); outline-offset: -2px; } .cal-cell.today .cal-num { background: var(--accent); color: #fff; }
+.cal-num { font-size: .8rem; font-weight: 700; width: 1.6rem; height: 1.6rem; display: grid; place-items: center; border-radius: 50%; }
+.cal-chip { font-size: .7rem; line-height: 1.25; padding: 1px 5px; border-radius: 4px; background: color-mix(in srgb, var(--c) 18%, transparent); border-left: 3px solid var(--c); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .cal-chip.is-done { text-decoration: line-through; opacity: .55; }
+
+.cal-chips { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cal-more { font-size: .7rem; color: var(--muted); } .cal-title { min-width: 9.5rem; text-align: center; }
+
+/* timer */
+.timer-wrap { max-width: 460px; margin: 0 auto 1rem; text-align: center; }
+.ring-box { position: relative; width: min(280px, 80vw); margin: .5rem auto 1.2rem; } .ring { width: 100%; display: block; } .ring-bg { fill: none; stroke: var(--line); stroke-width: 12; } .ring-fg { fill: none; stroke: var(--accent); stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset .25s linear; }
+.ring-text { position: absolute; inset: 0; display: grid; place-content: center; } .time-big { font: 700 3.2rem/1 ui-monospace, "SF Mono", Menlo, monospace; }
+
+/* progress */
+.prog-row { margin-bottom: .9rem; } .prog-name { display: flex; justify-content: space-between; gap: .5rem; font-weight: 600; } .prog-name a { color: var(--text); text-decoration: none; }
+.key { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin: 0 4px 0 8px; }
+.chart { display: flex; gap: 4px; align-items: flex-end; height: 140px; margin: .5rem 0; } .col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; } .col-bar { width: 100%; background: var(--accent); border-radius: 4px 4px 0 0; min-height: 2px; } .col-lab { font-size: .65rem; color: var(--muted); margin-top: 2px; }
+
+/* flashcards */
+.flashcard { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: .6rem; width: 100%; min-height: 280px; padding: 2rem; margin: 1rem 0; border-radius: 20px; border: 2px solid var(--line); background: var(--card); color: var(--text); font: inherit; cursor: pointer; box-shadow: var(--shadow); } .flashcard.flipped { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--card)); }
+.fc-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); } .fc-text { font-size: clamp(1.3rem, 3.5vw, 2rem); font-weight: 600; text-align: center; overflow-wrap: anywhere; white-space: pre-wrap; }
+.study-done { text-align: center; max-width: 480px; margin: 2rem auto; }
+.card-list { display: flex; flex-direction: column; gap: .4rem; margin-top: 1rem; } .card-item { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: .6rem .9rem; background: var(--card); border: 1px solid var(--line); border-radius: 10px; } .card-item > div:first-child { min-width: 0; overflow-wrap: anywhere; }
+.box-pill { font-size: .7rem; color: var(--muted); border: 1px solid var(--line); border-radius: 99px; padding: 0 .5rem; } .footer-row { margin-top: 1.5rem; }
+
+#toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); background: var(--text); color: var(--bg); padding: .65rem 1.1rem; border-radius: 10px; opacity: 0; pointer-events: none; transition: .2s; z-index: 50; max-width: 90vw; font-size: .9rem; } #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 900px) { .grid.two { grid-template-columns: 1fr; } }
+@media (max-width: 760px) {
+  body { grid-template-columns: 1fr; padding-bottom: 66px; }
+  .nav { position: fixed; inset: auto 0 0 0; height: auto; flex-direction: row; justify-content: space-around; padding: .3rem; border-right: 0; border-top: 1px solid var(--line); z-index: 20; gap: 0; }
+  .brand { display: none; } .nav a { flex-direction: column; gap: 0; padding: .3rem .2rem; font-size: .65rem; flex: 1; align-items: center; } .nav a b { margin: 0; position: absolute; transform: translateY(-14px); font-size: .6rem; } .nav-end { margin-top: 0; }
+  main { padding-top: 1rem; } h1 { font-size: 1.4rem; }
+  .cal-cell { min-height: 58px; } .cal-chip { font-size: 0; padding: 0; width: 8px; height: 8px; border-radius: 50%; border: 0; background: var(--c); display: inline-block; margin-right: 2px; } .cal-chips { flex-direction: row; flex-wrap: wrap; } .cal-more { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+  <a class="skip" href="#view">Skip to content</a>
+  <nav class="nav" aria-label="Main">
+    <div class="brand"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM2MzY2ZjEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0MzM4Y2EiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0idXJsKCNnKSIvPjxwYXRoIGQ9Ik0yNTYgMTIwIDk2IDE5MmwxNjAgNzIgMTYwLTcyeiIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0xNjAgMjQ0djc4YzAgMjAgNDMgNDYgOTYgNDZzOTYtMjYgOTYtNDZ2LTc4bC05NiA0M3oiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii44NSIvPjxyZWN0IHg9IjQwNCIgeT0iMTk2IiB3aWR0aD0iMTQiIGhlaWdodD0iMTA4IiByeD0iNyIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=" alt="" width="28" height="28"><span>Study Hub</span></div>
+    <a href="#/" data-nav="start"><i>🏠</i><span>Start</span></a>
+    <a href="#/classes" data-nav="classes"><i>📚</i><span>Classes</span></a>
+    <a href="#/calendar" data-nav="calendar"><i>📅</i><span>Calendar</span></a>
+    <a href="#/timer" data-nav="timer"><i>⏱️</i><span>Timer</span><b id="nav-timer"></b></a>
+    <a href="#/flashcards" data-nav="flashcards"><i>🗂️</i><span>Cards</span></a>
+    <a href="#/progress" data-nav="progress"><i>📈</i><span>Progress</span></a>
+    <a href="#/settings" data-nav="settings" class="nav-end"><i>⚙️</i><span>Settings</span></a>
+  </nav>
+  <main id="view" tabindex="-1"></main>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <noscript><p style="padding:2rem">This app needs JavaScript.</p></noscript>
+  <script>
+(() => {
+'use strict';
+// ---- util.js ----
+// Small shared helpers: escaping, local-date math, formatting.
+
+const esc = (s) =>
+  String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+const pad = (n) => String(n).padStart(2, '0');
+const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const today = () => ymd(new Date());
+const parseYmd = (s) => new Date(s + 'T12:00:00');
+
+function addDays(s, n) {
+  const d = parseYmd(s);
+  d.setDate(d.getDate() + n);
+  return ymd(d);
+}
+
+const diffDays = (a, b) => Math.round((parseYmd(a) - parseYmd(b)) / 864e5);
+
+function fmtDate(s, opts) {
+  return parseYmd(s).toLocaleDateString('en-GB', opts || { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+function fmtTime(t, h24) {
+  if (!t) return '';
+  if (h24) return t;
+  const [h, m] = t.split(':').map(Number);
+  return `${h % 12 || 12}:${pad(m)} ${h < 12 ? 'am' : 'pm'}`;
+}
+
+function relDay(s) {
+  const d = diffDays(s, today());
+  if (d === 0) return 'Today';
+  if (d === 1) return 'Tomorrow';
+  if (d === -1) return 'Yesterday';
+  if (d > 1) return `in ${d} days`;
+  return `${-d} days ago`;
+}
+
+function linkify(text) {
+  return esc(text).replace(
+    /https?:\/\/[^\s<]+[^\s<.,;:!?)]/g,
+    (u) => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`
+  );
+}
+
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+function download(filename, text, type = 'application/json') {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = filename;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// ---- ics.js ----
+// Parses a Toddle calendar feed (.ics) into plain assignment objects.
+
+const FIELD_RE = /^(Task Type|Classes|Description|Created By|View Task|Event Type|Location): ?(.*)$/;
+
+function unfold(text) {
+  return text.replace(/\r\n/g, '\n').replace(/\n[ \t]/g, '');
+}
+
+// RFC 5545 text unescape, plus cleanup for Toddle's double-escaped quotes/newlines.
+function unescapeText(s) {
+  let out = '';
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === '\\' && i + 1 < s.length) {
+      const n = s[++i];
+      out += n === 'n' || n === 'N' ? '\n' : n;
+    } else {
+      out += c;
+    }
+  }
+  return out;
+}
+
+function cleanTitle(s) {
+  return unescapeText(s)
+    .replace(/\\"/g, '"')
+    .replace(/\\n/g, ' ')
+    .replace(/\\+$/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function parseDate(value, params) {
+  const m = value.match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?)?/);
+  if (!m) return null;
+  const allDay = /VALUE=DATE(?!-)/.test(params) || m[4] === undefined;
+  return {
+    date: `${m[1]}-${m[2]}-${m[3]}`,
+    time: allDay ? null : `${m[4]}:${m[5]}`,
+    allDay,
+  };
+}
+
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() + n);
+  const p = (x) => String(x).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+function splitClasses(raw) {
+  if (!raw) return [];
+  return raw.split(/(?<=\))\s*,\s*/).map((s) => s.trim()).filter(Boolean);
+}
+
+function parseFields(description) {
+  const fields = {};
+  let key = null;
+  for (const line of unescapeText(description).split('\n')) {
+    const m = line.match(FIELD_RE);
+    if (m) {
+      key = m[1];
+      fields[key] = m[2];
+    } else if (key && line.trim()) {
+      fields[key] += '\n' + line;
+    }
+  }
+  for (const k of Object.keys(fields)) fields[k] = fields[k].trim();
+  return fields;
+}
+
+function parseIcs(text) {
+  const lines = unfold(text).split('\n');
+  const events = [];
+  let cur = null;
+  for (const line of lines) {
+    if (line === 'BEGIN:VEVENT') { cur = {}; continue; }
+    if (line === 'END:VEVENT') { if (cur) events.push(cur); cur = null; continue; }
+    if (!cur) continue;
+    const idx = line.indexOf(':');
+    if (idx < 0) continue;
+    const head = line.slice(0, idx);
+    const [name, ...rest] = head.split(';');
+    cur[name] = { value: line.slice(idx + 1), params: rest.join(';') };
+  }
+
+  const out = [];
+  for (const e of events) {
+    if (!e.UID || !e.DTSTART) continue;
+    const start = parseDate(e.DTSTART.value, e.DTSTART.params);
+    if (!start) continue;
+    const end = e.DTEND ? parseDate(e.DTEND.value, e.DTEND.params) : null;
+    const fields = parseFields(e.DESCRIPTION ? e.DESCRIPTION.value : '');
+    const title = cleanTitle(e.SUMMARY ? e.SUMMARY.value : '(untitled)');
+    const classes = splitClasses(fields.Classes);
+    const isTask = Boolean(fields['Task Type']);
+    // All-day DTEND is exclusive, so the last day is one before it.
+    let endDate = end ? end.date : start.date;
+    if (start.allDay && end && end.date > start.date) endDate = addDays(end.date, -1);
+    out.push({
+      uid: e.UID.value,
+      title,
+      date: start.date,
+      time: start.time,
+      endDate,
+      endTime: end && !end.allDay ? end.time : null,
+      allDay: start.allDay,
+      kind: isTask ? 'task' : 'event',
+      type: fields['Task Type'] || fields['Event Type'] || 'Event',
+      classes,
+      description: fields.Description || '',
+      createdBy: fields['Created By'] || '',
+      link: fields['View Task'] || '',
+      location: e.LOCATION ? unescapeText(e.LOCATION.value) : fields.Location || '',
+    });
+  }
+  out.sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
+  return out;
+}
+
+// ---- store.js ----
+// App state, persisted in localStorage. Nothing leaves the browser.
+
+const KEY = 'toddle-study-hub:v1';
+
+const defaults = () => ({
+  settings: {
+    name: '',
+    theme: 'auto',
+    accent: '#4f46e5',
+    time24: true,
+    weekStart: 1,
+    hideClosures: false,
+    focusMin: 25,
+    shortMin: 5,
+    longMin: 15,
+    longEvery: 4,
+    sound: true,
+    notify: false,
+    proxy: '',
+  },
+  feedUrl: '',
+  events: [],
+  lastSync: null,
+  pastPrompted: false,
+  done: {}, // uid -> date completed
+  decks: [],
+  sessions: [], // { date, minutes, cls }
+  reviews: {}, // date -> flashcards reviewed
+});
+
+function load() {
+  const base = defaults();
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (raw) return { ...base, ...raw, settings: { ...base.settings, ...(raw.settings || {}) } };
+  } catch (e) {
+    console.warn('Could not read saved data', e);
+  }
+  return base;
+}
+
+const state = load();
+
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn('Could not save data', e);
+  }
+}
+
+function resetAll() {
+  Object.keys(state).forEach((k) => delete state[k]);
+  Object.assign(state, defaults());
+  save();
+}
+
+function replaceWith(data) {
+  const base = defaults();
+  Object.keys(state).forEach((k) => delete state[k]);
+  Object.assign(state, base, data, { settings: { ...base.settings, ...(data.settings || {}) } });
+  save();
+}
+
+// ---- Derived data ----
+const classNames = () =>
+  [...new Set(state.events.flatMap((e) => e.classes))].sort((a, b) => a.localeCompare(b));
+
+const tasks = () => state.events.filter((e) => e.kind === 'task');
+const tasksFor = (cls) => tasks().filter((e) => e.classes.includes(cls));
+const isDone = (uid) => Boolean(state.done[uid]);
+
+// `mark` is the completion date; bulk actions pass 'bulk' so they don't count toward the streak.
+function toggleDone(uid, mark = today()) {
+  if (state.done[uid]) delete state.done[uid];
+  else state.done[uid] = mark;
+  save();
+}
+
+const PALETTE = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#a16207', '#8b5cf6', '#84cc16', '#f97316', '#14b8a6', '#0ea5e9', '#d946ef'];
+
+function classColor(name) {
+  const i = classNames().indexOf(name);
+  return i < 0 ? '#94a3b8' : PALETTE[i % PALETTE.length];
+}
+
+function classInfo(full) {
+  const m = full.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+  return { full, name: (m ? m[1] : full).replace(/^MYP\s+/, ''), code: m ? m[2] : '', color: classColor(full) };
+}
+
+function classStats(cls) {
+  const t = today();
+  const list = tasksFor(cls);
+  const done = list.filter((e) => isDone(e.uid));
+  const open = list.filter((e) => !isDone(e.uid));
+  const overdue = open.filter((e) => e.date < t);
+  const upcoming = open.filter((e) => e.date >= t);
+  return { total: list.length, done: done.length, open: open.length, overdue: overdue.length, upcoming: upcoming.length, next: upcoming[0] || null };
+}
+
+function studyMinutesOn(date) {
+  return state.sessions.filter((s) => s.date === date).reduce((a, s) => a + s.minutes, 0);
+}
+
+// ---- ui.js ----
+// Shared UI plumbing: action registry, re-render hook, toasts.
+
+const actions = {}; // data-action="name" (click)
+const changes = {}; // data-change="name" (change)
+const inputs = {}; // data-input="name" (input)
+
+let renderFn = () => {};
+const setRender = (f) => (renderFn = f);
+const rerender = () => renderFn();
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+// ---- sync.js ----
+// Getting Toddle data into the app: from the feed link (via optional proxy) or an uploaded .ics file.
+
+
+
+async function syncFromFeed() {
+  // Calendar apps hand out webcal:// links; browsers can only fetch https://.
+  const url = state.feedUrl.trim().replace(/^webcals?:\/\//i, 'https://');
+  if (!state.feedUrl.trim()) throw new Error('Paste your Toddle calendar link in Settings first.');
+  const proxy = state.settings.proxy.trim();
+  const target = proxy ? proxy + encodeURIComponent(url) : url;
+  let res;
+  try {
+    res = await fetch(target, { cache: 'no-store' });
+  } catch (e) {
+    const err = new Error(
+      proxy
+        ? 'The proxy could not be reached. Check the proxy address in Settings.'
+        : 'Toddle only allows its own website to download this feed, so the browser blocked it. Upload the .ics file instead, or set up a proxy (see the README).'
+    );
+    err.blocked = true;
+    throw err;
+  }
+  if (!res.ok) throw new Error(`Toddle answered with an error (${res.status}). The link may have expired.`);
+  return importText(await res.text());
+}
+
+function importText(text) {
+  if (!text.includes('BEGIN:VCALENDAR')) throw new Error('That does not look like a calendar (.ics) file.');
+  const events = parseIcs(text);
+  if (!events.length) throw new Error('No events found in that calendar.');
+  state.events = events;
+  state.lastSync = Date.now();
+  save();
+  return events.length;
+}
+
+// One-time offer so a fresh import doesn't show weeks of old work as overdue.
+function offerMarkPastDone() {
+  if (state.pastPrompted) return;
+  state.pastPrompted = true;
+  const t = today();
+  const past = tasks().filter((e) => e.date < t && !state.done[e.uid]);
+  save();
+  if (!past.length) return;
+  if (confirm(`Mark the ${past.length} assignments that are already past their due date as done?\n\nYou can still untick any of them later.`)) {
+    past.forEach((e) => toggleDone(e.uid, 'bulk'));
+  }
+}
+
+// ---- components.js ----
+// Reusable HTML fragments.
+
+
+const isHomework = (e) => /^🏠/.test(e.title) || /\b(home ?learning|homework|HML)\b/i.test(e.title);
+
+function typeBadge(e) {
+  if (e.kind !== 'task') return `<span class="badge b-event">${esc(e.type)}</span>`;
+  const map = {
+    'Summative Assessment': ['b-summ', 'Summative'],
+    'Formative Assessment': ['b-form', 'Formative'],
+    'Quick Task': ['b-quick', 'Quick task'],
+    'Learning Experience': ['b-learn', 'Learning'],
+  };
+  const [cls, label] = map[e.type] || ['b-learn', e.type];
+  return `<span class="badge ${cls}">${esc(label)}</span>${isHomework(e) ? '<span class="badge b-home">Homework</span>' : ''}`;
+}
+
+function dueText(e) {
+  const when = e.allDay ? '' : ' · ' + fmtTime(e.time, state.settings.time24);
+  const range = e.endDate !== e.date ? ` – ${fmtDate(e.endDate)}` : '';
+  return `${fmtDate(e.date)}${range}${when}`;
+}
+
+function classChip(full) {
+  const c = classInfo(full);
+  return `<a class="class-chip" href="#/class/${encodeURIComponent(full)}" style="--c:${c.color}">${esc(c.name)}</a>`;
+}
+
+function taskRow(e, { showClass = true } = {}) {
+  const done = isDone(e.uid);
+  const overdue = !done && e.date < today();
+  const color = classColor(e.classes[0]);
+  const rel = done ? 'Done' : relDay(e.date);
+  return `
+  <div class="task ${done ? 'is-done' : ''} ${overdue ? 'is-overdue' : ''}" style="--c:${color}">
+    <button class="check" data-action="toggle" data-uid="${esc(e.uid)}" aria-pressed="${done}" aria-label="${done ? 'Mark as not done' : 'Mark as done'}">${done ? '✓' : ''}</button>
+    <details class="task-main" data-keep="${esc(e.uid)}">
+      <summary>
+        <span class="task-title">${esc(e.title)}</span>
+        <span class="task-meta">
+          ${typeBadge(e)}
+          <span class="due ${overdue ? 'late' : ''}">${esc(dueText(e))} <em>(${esc(rel)})</em></span>
+          ${showClass ? e.classes.map(classChip).join('') : ''}
+        </span>
+      </summary>
+      <div class="task-detail">
+        ${e.description ? `<p class="desc">${linkify(e.description)}</p>` : '<p class="muted">No description.</p>'}
+        <p class="muted small">${e.createdBy ? 'By ' + esc(e.createdBy) : ''}</p>
+        ${e.link ? `<a class="btn small" href="${esc(e.link)}" target="_blank" rel="noopener noreferrer">Open in Toddle ↗</a>` : ''}
+      </div>
+    </details>
+  </div>`;
+}
+
+function eventRow(e) {
+  return `
+  <div class="task event-row">
+    <span class="dot-ev"></span>
+    <div class="task-main"><div class="task-title">${esc(e.title)}</div>
+      <div class="task-meta">${typeBadge(e)} <span class="due">${esc(dueText(e))}</span>${e.location ? ` <span class="muted">📍 ${esc(e.location)}</span>` : ''}</div>
+    </div>
+  </div>`;
+}
+
+const emptyState = (icon, title, text, action = '') =>
+  `<div class="empty"><div class="empty-icon">${icon}</div><h3>${esc(title)}</h3><p>${text}</p>${action}</div>`;
+
+const bar = (parts) =>
+  `<div class="bar">${parts.filter((p) => p.v > 0).map((p) => `<span style="width:${p.v}%;background:${p.c}" title="${esc(p.t || '')}"></span>`).join('')}</div>`;
+
+// ---- timer.js ----
+// Focus timer (Pomodoro). Lives at module level so it keeps running while you browse other pages.
+
+
+
+const MODES = { focus: 'Focus', short: 'Short break', long: 'Long break' };
+const timer = { mode: 'focus', running: false, endsAt: 0, remaining: 0, cls: '', cycles: 0 };
+let tick = null;
+
+const total = (mode = timer.mode) =>
+  60 * (mode === 'focus' ? state.settings.focusMin : mode === 'short' ? state.settings.shortMin : state.settings.longMin);
+
+timer.remaining = total();
+
+function syncDurations() {
+  if (!timer.running) timer.remaining = total();
+}
+
+const fmt = (s) => `${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
+
+function beep() {
+  if (!state.settings.sound) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.25, 0.5].forEach((t) => {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.frequency.value = 880;
+      g.gain.setValueAtTime(0.2, ctx.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.2);
+      o.connect(g).connect(ctx.destination);
+      o.start(ctx.currentTime + t);
+      o.stop(ctx.currentTime + t + 0.22);
+    });
+  } catch (e) { /* audio not available */ }
+}
+
+function updateTimerUI() {
+  const label = fmt(timer.remaining);
+  const disp = document.getElementById('timer-display');
+  if (disp) disp.textContent = label;
+  const ring = document.getElementById('timer-ring');
+  if (ring) {
+    const r = 108;
+    const c = 2 * Math.PI * r;
+    ring.style.strokeDasharray = c;
+    ring.style.strokeDashoffset = c * (1 - timer.remaining / total());
+  }
+  const nav = document.getElementById('nav-timer');
+  if (nav) nav.textContent = timer.running ? label : '';
+  document.title = timer.running ? `${label} · ${MODES[timer.mode]}` : 'Toddle Study Hub';
+}
+
+function stopTicking() {
+  clearInterval(tick);
+  tick = null;
+  timer.running = false;
+}
+
+function onTick() {
+  timer.remaining = Math.max(0, Math.ceil((timer.endsAt - Date.now()) / 1000));
+  updateTimerUI();
+  if (timer.remaining <= 0) complete();
+}
+
+function complete() {
+  stopTicking();
+  beep();
+  const was = timer.mode;
+  if (was === 'focus') {
+    state.sessions.push({ date: today(), minutes: state.settings.focusMin, cls: timer.cls });
+    save();
+    timer.cycles++;
+    toast(`Focus session done — ${state.settings.focusMin} min logged 🎉`);
+  } else {
+    toast('Break over. Ready for another round?');
+  }
+  if (state.settings.notify && 'Notification' in window && Notification.permission === 'granted') {
+    new Notification(was === 'focus' ? 'Focus session complete' : 'Break is over');
+  }
+  setMode(was === 'focus' ? (timer.cycles % state.settings.longEvery === 0 ? 'long' : 'short') : 'focus');
+}
+
+function setMode(mode) {
+  stopTicking();
+  timer.mode = mode;
+  timer.remaining = total();
+  updateTimerUI();
+  rerender();
+}
+
+actions['timer-toggle'] = () => {
+  if (timer.running) {
+    timer.remaining = Math.max(0, Math.ceil((timer.endsAt - Date.now()) / 1000));
+    stopTicking();
+  } else {
+    timer.running = true;
+    timer.endsAt = Date.now() + timer.remaining * 1000;
+    tick = setInterval(onTick, 250);
+    if (state.settings.notify && 'Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+  }
+  updateTimerUI();
+  rerender();
+};
+actions['timer-reset'] = () => setMode(timer.mode);
+actions['timer-mode'] = (el) => setMode(el.dataset.mode);
+actions['timer-skip'] = () => setMode(timer.mode === 'focus' ? 'short' : 'focus');
+changes['timer-class'] = (el) => {
+  timer.cls = el.value;
+};
+
+function timerPage() {
+  const t = today();
+  const todays = state.sessions.filter((s) => s.date === t);
+  const opts = classNames()
+    .map((c) => `<option value="${esc(c)}" ${timer.cls === c ? 'selected' : ''}>${esc(classInfo(c).name)}</option>`)
+    .join('');
+  return `
+  <h1>Focus timer</h1>
+  <div class="timer-wrap card">
+    <div class="tabs" role="tablist">
+      ${Object.entries(MODES).map(([k, v]) => `<button class="tab ${timer.mode === k ? 'active' : ''}" data-action="timer-mode" data-mode="${k}" role="tab">${v}</button>`).join('')}
+    </div>
+    <div class="ring-box">
+      <svg viewBox="0 0 240 240" class="ring" aria-hidden="true">
+        <circle cx="120" cy="120" r="108" class="ring-bg"/>
+        <circle id="timer-ring" cx="120" cy="120" r="108" class="ring-fg" transform="rotate(-90 120 120)"/>
+      </svg>
+      <div class="ring-text"><div id="timer-display" class="time-big">${fmt(timer.remaining)}</div><div class="muted">${MODES[timer.mode]}</div></div>
+    </div>
+    <div class="row center">
+      <button class="btn primary big" data-action="timer-toggle">${timer.running ? 'Pause' : timer.remaining < total() ? 'Resume' : 'Start'}</button>
+      <button class="btn" data-action="timer-reset">Reset</button>
+      <button class="btn" data-action="timer-skip">Skip</button>
+    </div>
+    <label class="field center-field">Studying for
+      <select data-change="timer-class"><option value="">General</option>${opts}</select>
+    </label>
+  </div>
+  <div class="grid stats">
+    <div class="card stat"><div class="stat-num">${todays.length}</div><div class="muted">sessions today</div></div>
+    <div class="card stat"><div class="stat-num">${studyMinutesOn(t)}</div><div class="muted">minutes today</div></div>
+    <div class="card stat"><div class="stat-num">${timer.cycles}</div><div class="muted">in this sitting</div></div>
+  </div>
+  <p class="muted small">Only finished focus sessions are logged. Durations and sound are in <a href="#/settings">Settings</a>. Keep this tab open while the timer runs.</p>`;
+}
+
+function timerMounted() {
+  updateTimerUI();
+}
+
+// ---- cards.js ----
+// Flashcard maker with simple spaced repetition (Leitner boxes).
+
+
+
+
+const INTERVALS = [0, 1, 3, 7, 14, 30, 60];
+let study = null; // { deckId, queue, flipped, total, seen, again, finished }
+
+const deckById = (id) => state.decks.find((d) => d.id === id);
+const dueCards = (d) => d.cards.filter((c) => c.due <= today());
+
+function parseBulk(text) {
+  return text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => {
+      let parts = l.split('\t');
+      if (parts.length < 2) parts = l.split(/\s*(?:;|::)\s*/);
+      if (parts.length < 2) return null;
+      return { front: parts[0].trim(), back: parts.slice(1).join(' ').trim() };
+    })
+    .filter((c) => c && c.front && c.back);
+}
+
+const newCard = (front, back) => ({ id: uid(), front, back, box: 0, due: today() });
+
+// ---- Actions ----
+actions['deck-create'] = () => {
+  const name = document.getElementById('deck-name').value.trim();
+  if (!name) return toast('Give the deck a name first.');
+  const cls = document.getElementById('deck-class').value;
+  const cards = parseBulk(document.getElementById('deck-bulk').value).map((c) => newCard(c.front, c.back));
+  const deck = { id: uid(), name, cls, cards, created: today() };
+  state.decks.unshift(deck);
+  save();
+  location.hash = `#/flashcards/${deck.id}`;
+};
+actions['deck-delete'] = (el) => {
+  const d = deckById(el.dataset.id);
+  if (d && confirm(`Delete "${d.name}" and its ${d.cards.length} cards?`)) {
+    state.decks = state.decks.filter((x) => x.id !== d.id);
+    save();
+    study = null;
+    location.hash = '#/flashcards';
+  }
+};
+actions['card-add'] = (el) => {
+  const d = deckById(el.dataset.id);
+  const f = document.getElementById('card-front');
+  const b = document.getElementById('card-back');
+  if (!f.value.trim() || !b.value.trim()) return toast('Both sides need some text.');
+  d.cards.push(newCard(f.value.trim(), b.value.trim()));
+  save();
+  rerender();
+  document.getElementById('card-front').focus();
+};
+actions['card-bulk'] = (el) => {
+  const d = deckById(el.dataset.id);
+  const cards = parseBulk(document.getElementById('bulk-text').value);
+  if (!cards.length) return toast('No cards found. Use one per line: term ; definition');
+  cards.forEach((c) => d.cards.push(newCard(c.front, c.back)));
+  save();
+  toast(`Added ${cards.length} cards`);
+  rerender();
+};
+actions['card-delete'] = (el) => {
+  const d = deckById(el.dataset.id);
+  d.cards = d.cards.filter((c) => c.id !== el.dataset.card);
+  save();
+  rerender();
+};
+actions['card-edit'] = (el) => {
+  const d = deckById(el.dataset.id);
+  const c = d.cards.find((x) => x.id === el.dataset.card);
+  const front = prompt('Front', c.front);
+  if (front === null) return;
+  const back = prompt('Back', c.back);
+  if (back === null) return;
+  if (front.trim() && back.trim()) {
+    c.front = front.trim();
+    c.back = back.trim();
+    save();
+    rerender();
+  }
+};
+actions['deck-export'] = (el) => {
+  const d = deckById(el.dataset.id);
+  download(`${d.name.replace(/[^\w-]+/g, '_')}.json`, JSON.stringify({ name: d.name, cards: d.cards.map(({ front, back }) => ({ front, back })) }, null, 2));
+};
+changes['deck-import'] = async (el) => {
+  const file = el.files[0];
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    const cards = (data.cards || []).filter((c) => c.front && c.back).map((c) => newCard(String(c.front), String(c.back)));
+    if (!cards.length) throw new Error('empty');
+    state.decks.unshift({ id: uid(), name: data.name || file.name.replace(/\.json$/, ''), cls: '', cards, created: today() });
+    save();
+    toast(`Imported ${cards.length} cards`);
+    rerender();
+  } catch (e) {
+    toast('That file is not a deck exported from this app.');
+  }
+  el.value = '';
+};
+
+actions['study-start'] = (el) => {
+  const d = deckById(el.dataset.id);
+  let cards = el.dataset.mode === 'all' ? [...d.cards] : dueCards(d);
+  if (el.dataset.shuffle !== 'no') cards.sort(() => Math.random() - 0.5);
+  if (!cards.length) return toast('Nothing to study yet.');
+  study = { deckId: d.id, queue: cards.map((c) => c.id), flipped: false, total: cards.length, seen: 0, again: 0, finished: false };
+  rerender();
+};
+actions['study-flip'] = () => {
+  if (study && !study.finished) {
+    study.flipped = !study.flipped;
+    rerender();
+  }
+};
+actions['study-quit'] = () => {
+  study = null;
+  rerender();
+};
+actions['study-rate'] = (el) => rate(el.dataset.rating);
+
+function rate(rating) {
+  if (!study || study.finished || !study.flipped) return;
+  const d = deckById(study.deckId);
+  const id = study.queue.shift();
+  const c = d.cards.find((x) => x.id === id);
+  if (c) {
+    c.box = rating === 'again' ? 0 : Math.min(INTERVALS.length - 1, c.box + (rating === 'easy' ? 2 : 1));
+    c.due = addDays(today(), INTERVALS[c.box]);
+    if (rating === 'again') {
+      study.queue.push(id);
+      study.again++;
+    }
+  }
+  study.seen++;
+  state.reviews[today()] = (state.reviews[today()] || 0) + 1;
+  save();
+  study.flipped = false;
+  if (!study.queue.length) study.finished = true;
+  rerender();
+}
+
+// Keyboard shortcuts while studying
+document.addEventListener('keydown', (e) => {
+  if (!study || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    actions['study-flip']();
+  } else if (study.flipped && ['1', '2', '3'].includes(e.key)) rate(['again', 'good', 'easy'][e.key - 1]);
+});
+
+// ---- Views ----
+function cardsPage(deckId) {
+  if (deckId) return deckPage(deckById(deckId));
+  const opts = classNames().map((c) => `<option value="${esc(c)}">${esc(classInfo(c).name)}</option>`).join('');
+  const list = state.decks.length
+    ? `<div class="grid decks">${state.decks.map((d) => {
+        const due = dueCards(d).length;
+        return `<a class="card deck" href="#/flashcards/${d.id}" style="--c:${d.cls ? classInfo(d.cls).color : 'var(--accent)'}">
+          <h3>${esc(d.name)}</h3>
+          <div class="muted">${d.cls ? esc(classInfo(d.cls).name) : 'No class'}</div>
+          <div class="deck-foot"><span>${d.cards.length} cards</span><span class="${due ? 'due-pill' : 'muted'}">${due ? due + ' due' : 'all caught up'}</span></div>
+        </a>`;
+      }).join('')}</div>`
+    : emptyState('🗂️', 'No decks yet', 'Make your first deck below. Paste a list of terms and definitions to fill it in one go.');
+  return `
+  <div class="page-head"><h1>Flashcards</h1>
+    <label class="btn small">Import deck<input type="file" accept=".json,application/json" data-change="deck-import" hidden></label></div>
+  ${list}
+  <div class="card form-card">
+    <h2>New deck</h2>
+    <div class="form-row">
+      <label class="field grow">Name<input id="deck-name" type="text" maxlength="60" placeholder="e.g. Cell organelles"></label>
+      <label class="field">Class<select id="deck-class"><option value="">None</option>${opts}</select></label>
+    </div>
+    <label class="field">Cards <span class="muted">(optional, one per line: term ; definition)</span>
+      <textarea id="deck-bulk" rows="5" placeholder="mitochondria ; makes ATP&#10;nucleus ; contains DNA"></textarea></label>
+    <button class="btn primary" data-action="deck-create">Create deck</button>
+  </div>`;
+}
+
+function deckPage(d) {
+  if (!d) return emptyState('🤔', 'Deck not found', '<a href="#/flashcards">Back to flashcards</a>');
+  if (study && study.deckId === d.id) return studyView(d);
+  const due = dueCards(d).length;
+  const head = `
+  <div class="page-head"><div><a class="muted small" href="#/flashcards">← All decks</a><h1>${esc(d.name)}</h1>
+    <div class="muted">${d.cls ? esc(classInfo(d.cls).name) + ' · ' : ''}${d.cards.length} cards · ${due} due</div></div>
+    <div class="row">
+      <button class="btn primary" data-action="study-start" data-id="${d.id}" data-mode="due" ${due ? '' : 'disabled'}>Study due (${due})</button>
+      <button class="btn" data-action="study-start" data-id="${d.id}" data-mode="all" ${d.cards.length ? '' : 'disabled'}>Study all</button>
+    </div></div>`;
+  const cardsList = d.cards.length
+    ? `<div class="card-list">${d.cards.map((c) => `
+        <div class="card-item"><div><strong>${esc(c.front)}</strong><div class="muted">${esc(c.back)}</div></div>
+        <div class="row"><span class="box-pill" title="Box ${c.box}">Lv ${c.box}</span>
+        <button class="btn small" data-action="card-edit" data-id="${d.id}" data-card="${c.id}">Edit</button>
+        <button class="btn small danger" data-action="card-delete" data-id="${d.id}" data-card="${c.id}" aria-label="Delete card">✕</button></div></div>`).join('')}</div>`
+    : emptyState('✏️', 'No cards yet', 'Add one below, or paste a whole list.');
+  return `${head}
+  <div class="card form-card">
+    <h2>Add cards</h2>
+    <div class="form-row">
+      <label class="field grow">Front<input id="card-front" type="text" maxlength="200"></label>
+      <label class="field grow">Back<input id="card-back" type="text" maxlength="400"></label>
+      <button class="btn primary" data-action="card-add" data-id="${d.id}">Add</button>
+    </div>
+    <details><summary class="muted">Paste many at once</summary>
+      <textarea id="bulk-text" rows="5" placeholder="term ; definition (one per line)"></textarea>
+      <button class="btn" data-action="card-bulk" data-id="${d.id}">Add pasted cards</button></details>
+  </div>
+  ${cardsList}
+  <div class="row footer-row">
+    <button class="btn small" data-action="deck-export" data-id="${d.id}">Export deck</button>
+    <button class="btn small danger" data-action="deck-delete" data-id="${d.id}">Delete deck</button>
+  </div>`;
+}
+
+function studyView(d) {
+  if (study.finished) {
+    return `<div class="card study-done">
+      <div class="empty-icon">🎉</div><h2>Session complete</h2>
+      <p>${study.total} cards reviewed${study.again ? `, ${study.again} needed another go` : ' — no misses'}.</p>
+      <div class="row center"><button class="btn primary" data-action="study-quit">Back to deck</button></div></div>`;
+  }
+  const c = d.cards.find((x) => x.id === study.queue[0]);
+  const done = study.total - new Set(study.queue).size;
+  return `
+  <div class="page-head"><h1>${esc(d.name)}</h1><button class="btn small" data-action="study-quit">Exit</button></div>
+  <div class="bar"><span style="width:${(100 * done) / study.total}%;background:var(--accent)"></span></div>
+  <p class="muted small">${study.queue.length} left · Space flips · 1 Again · 2 Good · 3 Easy</p>
+  <button class="flashcard ${study.flipped ? 'flipped' : ''}" data-action="study-flip" aria-label="Flip card">
+    <span class="fc-label">${study.flipped ? 'Back' : 'Front'}</span>
+    <span class="fc-text">${esc(study.flipped ? c.back : c.front)}</span>
+  </button>
+  <div class="row center rate-row ${study.flipped ? '' : 'hidden'}">
+    <button class="btn danger" data-action="study-rate" data-rating="again">Again</button>
+    <button class="btn" data-action="study-rate" data-rating="good">Good</button>
+    <button class="btn primary" data-action="study-rate" data-rating="easy">Easy</button>
+  </div>`;
+}
+
+const dueCardCount = () => state.decks.reduce((a, d) => a + dueCards(d).length, 0);
+
+// ---- pages.js ----
+// Page views: Start, Classes, Class, Calendar, Progress, Settings.
+
+
+
+
+
+
+
+const greeting = () => {
+  const h = new Date().getHours();
+  return h < 5 ? 'Still up' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+};
+
+const importCta = () =>
+  emptyState('📥', 'Import your Toddle calendar', 'Add your Toddle calendar link or file and every assignment gets sorted into its class.', '<a class="btn primary" href="#/settings">Go to import</a>');
+
+// ================= START =================
+function startPage() {
+  const name = state.settings.name ? `, ${esc(state.settings.name)}` : '';
+  const head = `<div class="hero"><div><h1>${greeting()}${name} 👋</h1><p class="muted">${fmtDate(today(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p></div></div>`;
+  if (!state.events.length) return head + importCta();
+
+  const t = today();
+  const all = tasks();
+  const open = all.filter((e) => !isDone(e.uid));
+  const overdue = open.filter((e) => e.date < t);
+  const week = open.filter((e) => e.date >= t && e.date <= addDays(t, 7));
+  const assess = open.filter((e) => /Assessment/.test(e.type) && e.date >= t).slice(0, 4);
+  const dueToday = open.filter((e) => e.date === t).length;
+  const nextOff = state.events.find((e) => e.kind === 'event' && e.type === 'Holidays and vacations' && e.endDate >= t);
+
+  const days = {};
+  week.forEach((e) => (days[e.date] ||= []).push(e));
+  const dayBlocks = Object.keys(days).sort().map((d) => `<h3 class="day-h">${fmtDate(d)} <span class="muted">${d === t ? 'Today' : diffDays(d, t) === 1 ? 'Tomorrow' : ''}</span></h3>${days[d].map((e) => taskRow(e)).join('')}`).join('');
+
+  return `${head}
+  <div class="grid stats">
+    <div class="card stat"><div class="stat-num">${dueToday}</div><div class="muted">due today</div></div>
+    <div class="card stat ${overdue.length ? 'warn' : ''}"><div class="stat-num">${overdue.length}</div><div class="muted">overdue</div></div>
+    <div class="card stat"><div class="stat-num">${week.length}</div><div class="muted">next 7 days</div></div>
+    <div class="card stat"><div class="stat-num">${studyMinutesOn(t)}<small>min</small></div><div class="muted">studied today</div></div>
+  </div>
+  <div class="grid two">
+    <div>
+      ${overdue.length ? `<section class="card"><div class="sec-head"><h2>Overdue</h2><button class="btn small" data-action="mark-overdue-done">Mark all done</button></div>${overdue.slice(0, 5).map((e) => taskRow(e)).join('')}${overdue.length > 5 ? `<p class="muted small">+ ${overdue.length - 5} more — open a class to see them.</p>` : ''}</section>` : ''}
+      <section class="card"><h2>Coming up</h2>${dayBlocks || '<p class="muted">Nothing due in the next 7 days. Nice.</p>'}</section>
+    </div>
+    <div>
+      <section class="card"><h2>Study tools</h2>
+        <div class="quick">
+          <a class="quick-btn" href="#/timer">⏱️<span>Start focus timer</span></a>
+          <a class="quick-btn" href="#/flashcards">🗂️<span>Flashcards${dueCardCount() ? ` · ${dueCardCount()} due` : ''}</span></a>
+          <a class="quick-btn" href="#/calendar">📅<span>Calendar</span></a>
+          <a class="quick-btn" href="#/progress">📈<span>Progress</span></a>
+        </div></section>
+      <section class="card"><h2>Upcoming assessments</h2>
+        ${assess.length ? assess.map((e) => `<a class="mini-row" href="#/class/${encodeURIComponent(e.classes[0])}" style="--c:${classColor(e.classes[0])}"><span class="mini-title">${esc(e.title)}</span><span class="muted small">${typeBadge(e)} ${fmtDate(e.date)}</span></a>`).join('') : '<p class="muted">No assessments coming up.</p>'}
+      </section>
+      ${nextOff ? `<section class="card"><h2>Next time off</h2><p><strong>${esc(nextOff.title)}</strong><br><span class="muted">${fmtDate(nextOff.date)}${nextOff.endDate !== nextOff.date ? ' – ' + fmtDate(nextOff.endDate) : ''}</span></p></section>` : ''}
+    </div>
+  </div>`;
+}
+
+actions['toggle'] = (el) => {
+  toggleDone(el.dataset.uid);
+  rerender();
+};
+actions['mark-overdue-done'] = () => {
+  const t = today();
+  tasks().filter((e) => e.date < t && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
+  rerender();
+};
+
+// ================= CLASSES =================
+function classesPage() {
+  const names = classNames();
+  if (!names.length) return '<h1>Classes</h1>' + importCta();
+  const cards = names.map((c) => {
+    const i = classInfo(c);
+    const s = classStats(c);
+    const pct = s.total ? Math.round((100 * s.done) / s.total) : 0;
+    return `<a class="card class-card" href="#/class/${encodeURIComponent(c)}" style="--c:${i.color}">
+      <div class="cc-top"><h3>${esc(i.name)}</h3><span class="muted small">${esc(i.code)}</span></div>
+      <div class="cc-nums"><span><strong>${s.open}</strong> open</span>${s.overdue ? `<span class="late"><strong>${s.overdue}</strong> overdue</span>` : ''}<span class="muted">${s.total} total</span></div>
+      ${bar([{ v: pct, c: i.color, t: 'done' }])}
+      <div class="muted small">${s.next ? `Next: ${esc(s.next.title)} · ${fmtDate(s.next.date)}` : 'Nothing upcoming'}</div>
+    </a>`;
+  }).join('');
+  return `<div class="page-head"><h1>Classes</h1><span class="muted">${tasks().length} assignments in ${names.length} classes</span></div><div class="grid classes">${cards}</div>`;
+}
+
+let classFilter = 'open';
+let typeFilter = '';
+let search = '';
+actions['class-filter'] = (el) => {
+  classFilter = el.dataset.f;
+  rerender();
+};
+changes['type-filter'] = (el) => {
+  typeFilter = el.value;
+  rerender();
+};
+inputs['search'] = (el) => {
+  search = el.value;
+  const pos = el.selectionStart;
+  rerender();
+  const again = document.querySelector('[data-input="search"]');
+  if (again) {
+    again.focus();
+    again.setSelectionRange(pos, pos);
+  }
+};
+actions['class-mark-past'] = (el) => {
+  const t = today();
+  tasksFor(el.dataset.cls).filter((e) => e.date < t && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
+  rerender();
+};
+
+function classPage(name) {
+  if (!classNames().includes(name)) return emptyState('🤔', 'Class not found', '<a href="#/classes">Back to classes</a>');
+  const i = classInfo(name);
+  const t = today();
+  const all = tasksFor(name);
+  const types = [...new Set(all.map((e) => e.type))];
+  let list = all.filter((e) => (classFilter === 'open' ? !isDone(e.uid) : classFilter === 'done' ? isDone(e.uid) : true));
+  if (typeFilter) list = list.filter((e) => e.type === typeFilter);
+  if (search.trim()) {
+    const q = search.trim().toLowerCase();
+    list = list.filter((e) => (e.title + ' ' + e.description).toLowerCase().includes(q));
+  }
+  const overdue = list.filter((e) => e.date < t && !isDone(e.uid));
+  const upcoming = list.filter((e) => e.date >= t);
+  const past = list.filter((e) => e.date < t && isDone(e.uid)).reverse();
+  const section = (title, arr) => (arr.length ? `<h3 class="day-h">${title} <span class="muted">${arr.length}</span></h3>${arr.map((e) => taskRow(e, { showClass: false })).join('')}` : '');
+  const s = classStats(name);
+  const chips = [['open', 'Open'], ['all', 'All'], ['done', 'Done']].map(([k, l]) => `<button class="chip ${classFilter === k ? 'active' : ''}" data-action="class-filter" data-f="${k}">${l}</button>`).join('');
+  return `
+  <a class="muted small" href="#/classes">← All classes</a>
+  <div class="page-head class-head" style="--c:${i.color}"><div><h1>${esc(i.name)}</h1><div class="muted">${esc(i.code)} · ${s.done}/${s.total} done${s.overdue ? ` · <span class="late">${s.overdue} overdue</span>` : ''}</div></div>
+    ${s.overdue ? `<button class="btn small" data-action="class-mark-past" data-cls="${esc(name)}">Mark past as done</button>` : ''}</div>
+  <div class="filters">
+    <div class="row">${chips}</div>
+    <select data-change="type-filter" aria-label="Filter by type"><option value="">All types</option>${types.map((x) => `<option ${typeFilter === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>
+    <input type="search" data-input="search" placeholder="Search…" value="${esc(search)}" aria-label="Search assignments">
+  </div>
+  ${section('Overdue', overdue)}${section('Upcoming', upcoming)}${section('Earlier', past)}
+  ${list.length ? '' : '<p class="muted">Nothing matches these filters.</p>'}`;
+}
+
+// ================= CALENDAR =================
+const now = new Date();
+const cal = { y: now.getFullYear(), m: now.getMonth(), sel: today() };
+
+actions['cal-prev'] = () => { cal.m--; if (cal.m < 0) { cal.m = 11; cal.y--; } rerender(); };
+actions['cal-next'] = () => { cal.m++; if (cal.m > 11) { cal.m = 0; cal.y++; } rerender(); };
+actions['cal-today'] = () => { const d = new Date(); cal.y = d.getFullYear(); cal.m = d.getMonth(); cal.sel = today(); rerender(); };
+actions['cal-select'] = (el) => { cal.sel = el.dataset.date; rerender(); };
+
+function eventsByDay() {
+  const map = {};
+  for (const e of state.events) {
+    if (state.settings.hideClosures && e.type === 'Holidays and vacations') continue;
+    let d = e.date;
+    for (let n = 0; n < 60 && d <= e.endDate; n++, d = addDays(d, 1)) (map[d] ||= []).push(e);
+  }
+  return map;
+}
+
+function calendarPage() {
+  const ws = Number(state.settings.weekStart);
+  const first = new Date(cal.y, cal.m, 1);
+  const offset = (first.getDay() - ws + 7) % 7;
+  const start = new Date(cal.y, cal.m, 1 - offset);
+  const map = eventsByDay();
+  const t = today();
+  const names = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const heads = Array.from({ length: 7 }, (_, i) => `<div class="cal-dow">${names[(ws + i) % 7]}</div>`).join('');
+  let cells = '';
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+    const key = ymd(d);
+    const evs = map[key] || [];
+    const chips = evs.slice(0, 3).map((e) => {
+      const c = e.kind === 'task' ? classColor(e.classes[0]) : e.type === 'Holidays and vacations' ? 'var(--muted)' : 'var(--accent)';
+      return `<span class="cal-chip ${e.kind === 'task' && isDone(e.uid) ? 'is-done' : ''}" style="--c:${c}">${esc(e.title)}</span>`;
+    }).join('');
+    cells += `<button class="cal-cell ${d.getMonth() !== cal.m ? 'other' : ''} ${key === t ? 'today' : ''} ${key === cal.sel ? 'selected' : ''}" data-action="cal-select" data-date="${key}" aria-label="${fmtDate(key)}, ${evs.length} events">
+      <span class="cal-num">${d.getDate()}</span><span class="cal-chips">${chips}</span>${evs.length > 3 ? `<span class="cal-more">+${evs.length - 3}</span>` : ''}</button>`;
+  }
+  const sel = (map[cal.sel] || []).slice().sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  const title = new Date(cal.y, cal.m, 1).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  return `
+  <div class="page-head"><h1>Calendar</h1>
+    <div class="row"><button class="btn small" data-action="cal-prev" aria-label="Previous month">‹</button><strong class="cal-title">${title}</strong><button class="btn small" data-action="cal-next" aria-label="Next month">›</button><button class="btn small" data-action="cal-today">Today</button></div></div>
+  ${state.events.length ? '' : '<p class="muted">Import your Toddle calendar in Settings to see assignments here.</p>'}
+  <div class="cal">${heads}${cells}</div>
+  <section class="card"><h2>${fmtDate(cal.sel, { weekday: 'long', day: 'numeric', month: 'long' })}</h2>
+    ${sel.length ? sel.map((e) => (e.kind === 'task' ? taskRow(e) : eventRow(e))).join('') : '<p class="muted">Nothing on this day.</p>'}</section>`;
+}
+
+// ================= PROGRESS =================
+function progressPage() {
+  if (!state.events.length) return '<h1>Progress</h1>' + importCta();
+  const t = today();
+  const all = tasks();
+  const dueNow = all.filter((e) => e.date <= t);
+  const doneAll = all.filter((e) => isDone(e.uid));
+  const doneDue = dueNow.filter((e) => isDone(e.uid));
+  const pct = dueNow.length ? Math.round((100 * doneDue.length) / dueNow.length) : 100;
+
+  const rows = classNames().map((c) => {
+    const i = classInfo(c);
+    const list = tasksFor(c);
+    const n = list.length || 1;
+    const d = list.filter((e) => isDone(e.uid)).length;
+    const od = list.filter((e) => !isDone(e.uid) && e.date < t).length;
+    return `<div class="prog-row" style="--c:${i.color}"><div class="prog-name"><a href="#/class/${encodeURIComponent(c)}">${esc(i.name)}</a><span class="muted small">${d}/${list.length} done${od ? ` · <span class="late">${od} overdue</span>` : ''}</span></div>
+      ${bar([{ v: (100 * d) / n, c: i.color, t: 'done' }, { v: (100 * od) / n, c: 'var(--bad)', t: 'overdue' }])}</div>`;
+  }).join('');
+
+  // study minutes, last 14 days
+  const days = Array.from({ length: 14 }, (_, k) => addDays(t, k - 13));
+  const mins = days.map(studyMinutesOn);
+  const max = Math.max(30, ...mins);
+  const chart = days.map((d, k) => `<div class="col" title="${fmtDate(d)}: ${mins[k]} min"><div class="col-bar" style="height:${(100 * mins[k]) / max}%"></div><span class="col-lab">${parseYmd(d).getDate()}</span></div>`).join('');
+
+  const active = (d) => studyMinutesOn(d) > 0 || (state.reviews[d] || 0) > 0 || Object.values(state.done).includes(d);
+  let streak = 0;
+  for (let d = active(t) ? t : addDays(t, -1); active(d); d = addDays(d, -1)) streak++;
+  const week = days.slice(7);
+  const weekMin = week.reduce((a, d) => a + studyMinutesOn(d), 0);
+  const weekCards = week.reduce((a, d) => a + (state.reviews[d] || 0), 0);
+  const totalMin = state.sessions.reduce((a, s) => a + s.minutes, 0);
+
+  const byClass = {};
+  state.sessions.forEach((s) => (byClass[s.cls || ''] = (byClass[s.cls || ''] || 0) + s.minutes));
+  const studyRows = Object.entries(byClass).sort((a, b) => b[1] - a[1]).map(([c, m]) => `<div class="mini-row" style="--c:${c ? classColor(c) : 'var(--accent)'}"><span class="mini-title">${c ? esc(classInfo(c).name) : 'General'}</span><span class="muted">${m} min</span></div>`).join('');
+
+  return `
+  <h1>Progress</h1>
+  <div class="grid stats">
+    <div class="card stat"><div class="stat-num">${pct}<small>%</small></div><div class="muted">of due work done</div></div>
+    <div class="card stat"><div class="stat-num">${doneAll.length}<small>/${all.length}</small></div><div class="muted">assignments done</div></div>
+    <div class="card stat"><div class="stat-num">${streak}<small>d</small></div><div class="muted">day streak</div></div>
+    <div class="card stat"><div class="stat-num">${Math.round(totalMin / 6) / 10}<small>h</small></div><div class="muted">total focus time</div></div>
+  </div>
+  <div class="grid two">
+    <section class="card"><h2>By class</h2>${rows}<p class="muted small"><span class="key" style="background:var(--accent)"></span>done <span class="key" style="background:var(--bad)"></span>overdue</p></section>
+    <div>
+      <section class="card"><h2>Focus minutes, last 14 days</h2><div class="chart">${chart}</div>
+        <p class="muted small">This week: ${weekMin} min focus · ${weekCards} flashcards reviewed</p></section>
+      <section class="card"><h2>Focus time by class</h2>${studyRows || '<p class="muted">Finish a focus session to see it here.</p>'}</section>
+    </div>
+  </div>
+  <p class="muted small">A streak counts any day you finished a focus session, reviewed flashcards or ticked off an assignment.</p>`;
+}
+
+// ================= SETTINGS =================
+const ACCENTS = ['#4f46e5', '#db2777', '#059669', '#c2410c', '#0369a1', '#7c3aed'];
+
+actions['sync-now'] = async (el) => {
+  const url = document.getElementById('feed-url').value.trim();
+  state.feedUrl = url;
+  save();
+  el.disabled = true;
+  el.textContent = 'Syncing…';
+  try {
+    const n = await syncFromFeed();
+    toast(`Imported ${n} events`);
+    offerMarkPastDone();
+  } catch (e) {
+    toast(e.message);
+  }
+  rerender();
+};
+actions['clear-feed'] = () => {
+  if (confirm('Remove the saved link and all imported assignments? Your flashcards and study history stay.')) {
+    state.feedUrl = '';
+    state.events = [];
+    state.lastSync = null;
+    state.pastPrompted = false;
+    save();
+    rerender();
+  }
+};
+changes['upload-ics'] = async (el) => {
+  const file = el.files[0];
+  if (!file) return;
+  try {
+    const n = importText(await file.text());
+    toast(`Imported ${n} events`);
+    offerMarkPastDone();
+  } catch (e) {
+    toast(e.message);
+  }
+  el.value = '';
+  rerender();
+};
+changes['setting'] = (el) => {
+  const k = el.dataset.setting;
+  let v = el.type === 'checkbox' ? el.checked : el.type === 'number' ? Math.max(1, Number(el.value) || 1) : el.value;
+  if (k === 'weekStart') v = Number(v);
+  state.settings[k] = v;
+  save();
+  applyTheme();
+  syncDurations();
+  rerender();
+};
+actions['accent'] = (el) => {
+  state.settings.accent = el.dataset.color;
+  save();
+  applyTheme();
+  rerender();
+};
+actions['export-data'] = () => {
+  const { feedUrl, ...rest } = state;
+  download(`study-hub-backup-${today()}.json`, JSON.stringify(rest, null, 2));
+};
+changes['import-data'] = async (el) => {
+  const file = el.files[0];
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (typeof data !== 'object' || !Array.isArray(data.events)) throw new Error('bad');
+    if (confirm('Replace everything in this browser with the backup?')) {
+      replaceWith({ ...data, feedUrl: state.feedUrl });
+      applyTheme();
+      toast('Backup restored');
+    }
+  } catch (e) {
+    toast('That is not a valid backup file.');
+  }
+  el.value = '';
+  rerender();
+};
+actions['reset-all'] = () => {
+  if (confirm('Delete ALL data in this browser (assignments, decks, history, settings)? This cannot be undone.')) {
+    resetAll();
+    applyTheme();
+    rerender();
+  }
+};
+actions['toggle-url'] = () => {
+  const i = document.getElementById('feed-url');
+  i.type = i.type === 'password' ? 'text' : 'password';
+};
+
+function applyTheme() {
+  const r = document.documentElement;
+  if (state.settings.theme === 'auto') r.removeAttribute('data-theme');
+  else r.dataset.theme = state.settings.theme;
+  r.style.setProperty('--accent', state.settings.accent);
+}
+
+function settingsPage() {
+  const s = state.settings;
+  const sel = (k, v) => (s[k] === v ? 'selected' : '');
+  const chk = (k) => (s[k] ? 'checked' : '');
+  const synced = state.lastSync ? new Date(state.lastSync).toLocaleString('en-GB') : 'never';
+  return `
+  <h1>Settings</h1>
+
+  <section class="card"><h2>Toddle import</h2>
+    <p class="muted">${state.events.length ? `<strong>${state.events.length}</strong> events loaded (${tasks().length} assignments in ${classNames().length} classes). Last import: ${synced}.` : 'Nothing imported yet.'}</p>
+    <label class="field">Toddle calendar link
+      <div class="row nowrap"><input id="feed-url" type="password" class="grow" autocomplete="off" spellcheck="false" placeholder="https://…toddleapp.com/calendar/v1/feed/basic.ics?…" value="${esc(state.feedUrl)}">
+      <button class="btn small" data-action="toggle-url" type="button">Show</button></div></label>
+    <div class="row">
+      <button class="btn primary" data-action="sync-now">Sync from link</button>
+      <label class="btn">Upload .ics file<input type="file" accept=".ics,text/calendar" data-change="upload-ics" hidden></label>
+      ${state.events.length || state.feedUrl ? '<button class="btn danger" data-action="clear-feed">Remove imported data</button>' : ''}
+    </div>
+    <div class="note"><strong>Heads up:</strong> your link contains a private access key, so it is saved only in this browser and never in the site's code. Toddle only lets its own website download the feed, so syncing from the link needs a small proxy (see the README). Without one, download the file from the link and use <em>Upload .ics file</em> instead.</div>
+    <label class="field">Proxy address <span class="muted">(optional)</span>
+      <input type="url" data-change="setting" data-setting="proxy" placeholder="https://your-worker.workers.dev/?url=" value="${esc(s.proxy)}"></label>
+  </section>
+
+  <section class="card"><h2>Appearance & calendar</h2>
+    <div class="form-row">
+      <label class="field">Your name<input type="text" maxlength="30" data-change="setting" data-setting="name" value="${esc(s.name)}" placeholder="Shown on the start page"></label>
+      <label class="field">Theme<select data-change="setting" data-setting="theme"><option value="auto" ${sel('theme', 'auto')}>Match device</option><option value="light" ${sel('theme', 'light')}>Light</option><option value="dark" ${sel('theme', 'dark')}>Dark</option></select></label>
+      <label class="field">Week starts on<select data-change="setting" data-setting="weekStart"><option value="1" ${sel('weekStart', 1)}>Monday</option><option value="0" ${sel('weekStart', 0)}>Sunday</option></select></label>
+    </div>
+    <div class="field">Accent colour<div class="row">${ACCENTS.map((c) => `<button class="swatch ${s.accent === c ? 'active' : ''}" style="background:${c}" data-action="accent" data-color="${c}" aria-label="Accent ${c}"></button>`).join('')}</div></div>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="time24" ${chk('time24')}> Use 24-hour time</label>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="hideClosures" ${chk('hideClosures')}> Hide holidays and school closures in the calendar</label>
+  </section>
+
+  <section class="card"><h2>Timer</h2>
+    <div class="form-row">
+      <label class="field">Focus (min)<input type="number" min="1" max="180" data-change="setting" data-setting="focusMin" value="${s.focusMin}"></label>
+      <label class="field">Short break<input type="number" min="1" max="60" data-change="setting" data-setting="shortMin" value="${s.shortMin}"></label>
+      <label class="field">Long break<input type="number" min="1" max="60" data-change="setting" data-setting="longMin" value="${s.longMin}"></label>
+      <label class="field">Long break every<input type="number" min="2" max="10" data-change="setting" data-setting="longEvery" value="${s.longEvery}"></label>
+    </div>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="sound" ${chk('sound')}> Play a sound when a session ends</label>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="notify" ${chk('notify')}> Show a notification when a session ends</label>
+  </section>
+
+  <section class="card"><h2>Your data</h2>
+    <p class="muted">Everything lives in this browser. Export a backup to move to another device (your Toddle link is left out of backups).</p>
+    <div class="row">
+      <button class="btn" data-action="export-data">Export backup</button>
+      <label class="btn">Restore backup<input type="file" accept=".json,application/json" data-change="import-data" hidden></label>
+      <button class="btn danger" data-action="reset-all">Delete everything</button>
+    </div>
+  </section>`;
+}
+
+// ---- app.js ----
+// Router, shell and event delegation.
+
+
+
+
+
+
+const view = document.getElementById('view');
+
+const ROUTES = {
+  '': { nav: 'start', page: startPage },
+  classes: { nav: 'classes', page: classesPage },
+  class: { nav: 'classes', page: (a) => classPage(decodeURIComponent(a)) },
+  calendar: { nav: 'calendar', page: calendarPage },
+  timer: { nav: 'timer', page: timerPage },
+  flashcards: { nav: 'flashcards', page: cardsPage },
+  progress: { nav: 'progress', page: progressPage },
+  settings: { nav: 'settings', page: settingsPage },
+};
+
+function route() {
+  const [name = '', arg] = location.hash.replace(/^#\/?/, '').split('/');
+  return { r: ROUTES[name] || ROUTES[''], arg };
+}
+
+function render() {
+  const { r, arg } = route();
+  // Keep expanded assignment details and scroll position across re-renders.
+  const open = new Set([...view.querySelectorAll('details[open][data-keep]')].map((d) => d.dataset.keep));
+  const y = window.scrollY;
+  view.innerHTML = r.page(arg);
+  view.querySelectorAll('details[data-keep]').forEach((d) => open.has(d.dataset.keep) && (d.open = true));
+  window.scrollTo(0, y);
+  document.querySelectorAll('[data-nav]').forEach((a) => a.classList.toggle('active', a.dataset.nav === r.nav));
+  updateTimerUI();
+}
+
+setRender(render);
+
+window.addEventListener('hashchange', () => {
+  window.scrollTo(0, 0);
+  render();
+});
+
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-action]');
+  if (!el || el.disabled) return;
+  const fn = actions[el.dataset.action];
+  if (fn) fn(el, e);
+});
+document.addEventListener('change', (e) => {
+  const el = e.target.closest('[data-change]');
+  if (el && changes[el.dataset.change]) changes[el.dataset.change](el, e);
+});
+document.addEventListener('input', (e) => {
+  const el = e.target.closest('[data-input]');
+  if (el && inputs[el.dataset.input]) inputs[el.dataset.input](el, e);
+});
+
+applyTheme();
+render();
+
+// Quietly refresh from Toddle when a proxy is configured (direct downloads are blocked by Toddle's CORS rules).
+if (state.feedUrl && state.settings.proxy && (!state.lastSync || Date.now() - state.lastSync > 3600e3)) {
+  syncFromFeed().then(render).catch(() => {});
+}
+
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+})();
+</script>
+</body>
+</html>
