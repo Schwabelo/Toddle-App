@@ -4,7 +4,7 @@ import { esc, today, addDays, diffDays, fmtDate, fmtTime, ymd, parseYmd, downloa
 import { taskRow, eventRow, emptyState, bar, typeBadge } from './components.js';
 import { dueCardCount } from './cards.js';
 import { actions, changes, inputs, rerender, toast } from './ui.js';
-import { syncFromFeed, importText, offerMarkPastDone, getProxy } from './sync.js';
+import { syncFromFeed, importText, offerMarkPastDone, getProxy, syncStatus } from './sync.js';
 import { syncDurations } from './timer.js';
 
 const greeting = () => {
@@ -267,12 +267,22 @@ actions['sync-now'] = async (el) => {
   el.textContent = 'Syncing…';
   try {
     const n = await syncFromFeed();
+    syncStatus.error = null;
     toast(`Imported ${n} events`);
     offerMarkPastDone();
   } catch (e) {
+    syncStatus.error = e.details ? `${e.message}\n\n${e.details}` : e.message;
     toast(e.message);
   }
   rerender();
+};
+actions['copy-error'] = async () => {
+  try {
+    await navigator.clipboard.writeText(syncStatus.error);
+    toast('Copied');
+  } catch (e) {
+    toast('Could not copy automatically. Select the text and press Ctrl+C.');
+  }
 };
 actions['clear-feed'] = () => {
   if (confirm('Remove the saved link and all imported assignments? Your flashcards and study history stay.')) {
@@ -374,6 +384,7 @@ export function settingsPage() {
     ${getProxy()
       ? `<div class="note"><strong>Your link is private.</strong> It is saved only in this browser. When you sync, it is sent through the app's sync service, which only forwards it to Toddle. Toddle refreshes its calendar about once a day, so new work can take up to 24 hours to show.</div>`
       : `<div class="note"><strong>Heads up:</strong> your link contains a private access key, so it is saved only in this browser. Toddle only lets its own website download the feed, so syncing from the link needs a proxy (see the README). Without one, download the file from the link and use <em>Upload .ics file</em> instead.</div>`}
+    ${syncStatus.error ? `<div class="note err"><strong>Last sync problem</strong><pre>${esc(syncStatus.error)}</pre><button class="btn small" data-action="copy-error">Copy details</button></div>` : ''}
     <details><summary class="muted">Advanced: sync service address</summary>
       <label class="field">Proxy address <span class="muted">(leave empty to use the default)</span>
         <input type="url" data-change="setting" data-setting="proxy" placeholder="https://…/exec?url=" value="${esc(s.proxy)}"></label>

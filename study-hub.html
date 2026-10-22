@@ -143,6 +143,9 @@ textarea { resize: vertical; }
   .cal-cell { min-height: 58px; } .cal-chip { font-size: 0; padding: 0; width: 8px; height: 8px; border-radius: 50%; border: 0; background: var(--c); display: inline-block; margin-right: 2px; } .cal-chips { flex-direction: row; flex-wrap: wrap; } .cal-more { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+.note.err { background: color-mix(in srgb, var(--bad) 10%, transparent); border-left-color: var(--bad); }
+.note pre { white-space: pre-wrap; word-break: break-all; user-select: text; font: .8rem/1.5 ui-monospace, Menlo, monospace; margin: .5rem 0; }
 </style>
 </head>
 <body>
@@ -483,6 +486,40 @@ function toast(msg) {
 
 const getProxy = () => state.settings.proxy.trim() || DEFAULT_PROXY;
 
+// Latest sync problem, shown in Settings so it can be read and copied.
+const syncStatus = { error: null };
+
+const safeUrl = (u) => {
+  try {
+    const x = new URL(u);
+    return x.origin + x.pathname; // never show the query string: it holds the private key
+  } catch (e) {
+    return '(invalid address)';
+  }
+};
+
+// Browsers hide why a request failed. A no-cors request tells "server answered but was refused" from "never got there".
+async function diagnose(target) {
+  const lines = [
+    `Page: ${location.protocol === 'file:' ? 'local file (file://)' : location.origin}`,
+    `Online: ${navigator.onLine}`,
+    `Requested: ${safeUrl(target)} (query hidden)`,
+  ];
+  try {
+    await fetch(target, { mode: 'no-cors', cache: 'no-store' });
+    lines.push('Reachability test: OK. The server answered, but the browser refused to give the answer to this page (a CORS or redirect problem).');
+  } catch (e) {
+    lines.push(`Reachability test: FAILED (${e.name}: ${e.message}). The request never got an answer: blocked by an extension, a network filter or firewall, or no internet.`);
+  }
+  return lines.join('\n');
+}
+
+function fail(message, details) {
+  const err = new Error(message);
+  err.details = details;
+  return err;
+}
+
 async function syncFromFeed() {
   // Calendar apps hand out webcal:// links; browsers can only fetch https://.
   const url = state.feedUrl.trim().replace(/^webcals?:\/\//i, 'https://');
@@ -493,17 +530,19 @@ async function syncFromFeed() {
   try {
     res = await fetch(target, { cache: 'no-store' });
   } catch (e) {
-    const err = new Error(
+    throw fail(
       proxy
-        ? 'The proxy could not be reached. Check the proxy address in Settings.'
-        : 'Toddle only allows its own website to download this feed, so the browser blocked it. Upload the .ics file instead, or set up a proxy (see the README).'
+        ? 'The sync service could not be reached.'
+        : 'Toddle only allows its own website to download this feed, so the browser blocked it. Upload the .ics file instead, or set up a proxy (see the README).',
+      `Browser error: ${e.name}: ${e.message}\n${await diagnose(target)}\nFor the exact reason press F12, open Console and look for the red line after pressing Sync.`
     );
-    err.blocked = true;
-    throw err;
   }
-  if (!res.ok) throw new Error(`Toddle answered with an error (${res.status}). The link may have expired.`);
   const text = await res.text();
-  if (!text.includes('BEGIN:VCALENDAR')) throw new Error('Toddle did not send a calendar back. Check that the link is complete and has not expired.');
+  const snippet = text.slice(0, 200).replace(/\s+/g, ' ');
+  if (!res.ok) throw fail(`The server answered with an error (${res.status}).`, `Status: ${res.status} ${res.statusText}\nRequested: ${safeUrl(target)} (query hidden)\nStart of reply: ${snippet}`);
+  if (!text.includes('BEGIN:VCALENDAR')) {
+    throw fail('Toddle did not send a calendar back. Check that the link is complete and has not expired.', `Requested: ${safeUrl(target)} (query hidden)\nStart of reply: ${snippet}`);
+  }
   return importText(text);
 }
 
@@ -1272,12 +1311,22 @@ actions['sync-now'] = async (el) => {
   el.textContent = 'Syncing…';
   try {
     const n = await syncFromFeed();
+    syncStatus.error = null;
     toast(`Imported ${n} events`);
     offerMarkPastDone();
   } catch (e) {
+    syncStatus.error = e.details ? `${e.message}\n\n${e.details}` : e.message;
     toast(e.message);
   }
   rerender();
+};
+actions['copy-error'] = async () => {
+  try {
+    await navigator.clipboard.writeText(syncStatus.error);
+    toast('Copied');
+  } catch (e) {
+    toast('Could not copy automatically. Select the text and press Ctrl+C.');
+  }
 };
 actions['clear-feed'] = () => {
   if (confirm('Remove the saved link and all imported assignments? Your flashcards and study history stay.')) {
@@ -1379,6 +1428,7 @@ function settingsPage() {
     ${getProxy()
       ? `<div class="note"><strong>Your link is private.</strong> It is saved only in this browser. When you sync, it is sent through the app's sync service, which only forwards it to Toddle. Toddle refreshes its calendar about once a day, so new work can take up to 24 hours to show.</div>`
       : `<div class="note"><strong>Heads up:</strong> your link contains a private access key, so it is saved only in this browser. Toddle only lets its own website download the feed, so syncing from the link needs a proxy (see the README). Without one, download the file from the link and use <em>Upload .ics file</em> instead.</div>`}
+    ${syncStatus.error ? `<div class="note err"><strong>Last sync problem</strong><pre>${esc(syncStatus.error)}</pre><button class="btn small" data-action="copy-error">Copy details</button></div>` : ''}
     <details><summary class="muted">Advanced: sync service address</summary>
       <label class="field">Proxy address <span class="muted">(leave empty to use the default)</span>
         <input type="url" data-change="setting" data-setting="proxy" placeholder="https://…/exec?url=" value="${esc(s.proxy)}"></label>
