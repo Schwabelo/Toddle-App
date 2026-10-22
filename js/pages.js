@@ -1,5 +1,5 @@
 // Page views: Start, Classes, Class, Calendar, Progress, Settings.
-import { state, save, classNames, classInfo, classStats, classColor, tasks, tasksFor, isDone, toggleDone, studyMinutesOn, resetAll, replaceWith } from './store.js';
+import { state, save, classNames, classInfo, classStats, classColor, tasks, tasksFor, isDone, toggleDone, studyMinutesOn, resetAll, replaceWith, SCHEDULER_KEY } from './store.js';
 import { esc, today, addDays, diffDays, fmtDate, fmtTime, ymd, parseYmd, download } from './util.js';
 import { taskRow, eventRow, emptyState, bar, typeBadge } from './components.js';
 import { dueCardCount } from './cards.js';
@@ -256,6 +256,15 @@ export function progressPage() {
   <p class="muted small">A streak counts any day you finished a focus session, reviewed flashcards or ticked off an assignment.</p>`;
 }
 
+// ================= SCHEDULE =================
+// Your Class Scheduler runs in its own frame so its code and styles stay separate from the rest of the app.
+export function schedulePage() {
+  const theme = state.settings.theme === 'auto' ? '' : state.settings.theme;
+  const source = window.SCHEDULER_SRCDOC ? 'data-srcdoc="1"' : 'src="scheduler.html"';
+  return `<h1>Schedule</h1>
+  <iframe class="sched-frame" title="Class scheduler" data-hub="1" data-theme="${theme}" data-accent="${esc(state.settings.accent)}" ${source}></iframe>`;
+}
+
 // ================= SETTINGS =================
 const ACCENTS = ['#4f46e5', '#db2777', '#059669', '#c2410c', '#0369a1', '#7c3aed'];
 
@@ -325,6 +334,7 @@ actions['accent'] = (el) => {
 };
 actions['export-data'] = () => {
   const { feedUrl, ...rest } = state;
+  try { rest.scheduler = localStorage.getItem(SCHEDULER_KEY); } catch (e) { /* storage unavailable */ }
   download(`study-hub-backup-${today()}.json`, JSON.stringify(rest, null, 2));
 };
 changes['import-data'] = async (el) => {
@@ -334,7 +344,11 @@ changes['import-data'] = async (el) => {
     const data = JSON.parse(await file.text());
     if (typeof data !== 'object' || !Array.isArray(data.events)) throw new Error('bad');
     if (confirm('Replace everything in this browser with the backup?')) {
-      replaceWith({ ...data, feedUrl: state.feedUrl });
+      const { scheduler, ...hubData } = data;
+      replaceWith({ ...hubData, feedUrl: state.feedUrl });
+      if (typeof scheduler === 'string') {
+        try { localStorage.setItem(SCHEDULER_KEY, scheduler); } catch (e) { /* storage unavailable */ }
+      }
       applyTheme();
       toast('Backup restored');
     }
@@ -345,7 +359,7 @@ changes['import-data'] = async (el) => {
   rerender();
 };
 actions['reset-all'] = () => {
-  if (confirm('Delete ALL data in this browser (assignments, decks, history, settings)? This cannot be undone.')) {
+  if (confirm('Delete ALL data in this browser (assignments, decks, schedule, history, settings)? This cannot be undone.')) {
     resetAll();
     applyTheme();
     rerender();

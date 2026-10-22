@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class Scheduler</title>
+<style>
+:root{
+  --bg:#f6f7f9;--surface:#fff;--surface2:#eef0f4;--text:#14181f;--muted:#5b6574;--border:#d8dde5;
+  --accent:#2563eb;--accent-ink:#fff;--danger:#b91c1c;--warn:#b45309;--ok:#15803d;
+  --t-lunch:#fdf0c9;--t-break:#d9f2e0;--t-homeroom:#dbe8fd;--t-assembly:#ecdcfa;--t-passing:#e8ebef;--t-custom:#d6f0ee;
+  --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1318;--surface:#181d25;--surface2:#222934;--text:#e8ecf2;--muted:#9aa5b5;--border:#2e3745;
+    --accent:#5b8def;--accent-ink:#0b1020;--danger:#f87171;--warn:#fbbf24;--ok:#4ade80;
+    --t-lunch:#3d3418;--t-break:#1d3a28;--t-homeroom:#1d2f52;--t-assembly:#36244f;--t-passing:#262d38;--t-custom:#153b38;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1318;--surface:#181d25;--surface2:#222934;--text:#e8ecf2;--muted:#9aa5b5;--border:#2e3745;
+  --accent:#5b8def;--accent-ink:#0b1020;--danger:#f87171;--warn:#fbbf24;--ok:#4ade80;
+  --t-lunch:#3d3418;--t-break:#1d3a28;--t-homeroom:#1d2f52;--t-assembly:#36244f;--t-passing:#262d38;--t-custom:#153b38;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="dark"]{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3,h4{margin:0}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+header.top{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+header.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-top:10px;padding-bottom:10px}
+header.top h1{font-size:18px;font-weight:700;letter-spacing:-.01em}
+nav.tabs{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+.tab{border:0;background:none;padding:8px 14px;border-radius:8px;color:var(--muted);font-weight:600}
+.tab:hover{background:var(--surface2)}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+main{padding:20px 0 80px}
+.btn{border:1px solid var(--border);background:var(--surface);padding:7px 12px;border-radius:8px;font-weight:600}
+.btn:hover{background:var(--surface2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--danger)}
+.btn.sm{padding:4px 9px;font-size:13px}
+.btn.icon{padding:5px 9px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.page-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.page-head h2{font-size:20px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}
+input[type=text],input[type=time],input[type=number],input[type=search],select,textarea{
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);min-width:0}
+textarea{resize:vertical;width:100%}
+input[type=color]{width:42px;height:34px;padding:2px;border:1px solid var(--border);border-radius:8px;background:var(--surface)}
+input[type=checkbox],input[type=radio]{width:17px;height:17px;accent-color:var(--accent)}
+.field-err{color:var(--danger);font-size:13px}
+.field-warn{color:var(--warn);font-size:13px}
+
+/* class list */
+.cls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.cls-card{position:relative;overflow:hidden;padding-left:22px}
+.cls-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:var(--c)}
+.cls-card h3{font-size:16px;margin-bottom:2px;overflow-wrap:anywhere}
+.badge{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:700;background:var(--surface2);border:1px solid var(--border)}
+.cls-card .acts{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.empty{text-align:center;padding:48px 16px;color:var(--muted)}
+.empty h3{color:var(--text);margin-bottom:6px}
+
+/* calendar */
+.calwrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.cal{display:grid;grid-template-columns:56px repeat(var(--n),minmax(var(--cw,120px),1fr));min-width:calc(56px + var(--n) * var(--cw,120px))}
+.calh{padding:8px 6px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);text-align:center;border-bottom:1px solid var(--border);background:var(--surface2)}
+.gut{position:relative;height:var(--H);margin-top:10px;margin-bottom:10px}
+.gut span{position:absolute;right:6px;transform:translateY(-50%);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.dcol{position:relative;height:var(--H);margin:10px 0;border-left:1px solid var(--border);
+  background-image:repeating-linear-gradient(to bottom,var(--border) 0,var(--border) 1px,transparent 1px,transparent var(--hr))}
+.ev{position:absolute;border-radius:6px;padding:2px 5px;overflow:hidden;font-size:12.5px;line-height:1.25;border:1px solid rgba(0,0,0,.18)}
+.ev b{display:block;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev small{display:block;font-size:11.5px;opacity:.9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev.bad{outline:3px solid #facc15;outline-offset:-2px;box-shadow:0 0 0 2px #111;z-index:2}
+.ev.free{background:var(--surface);border:1px dashed var(--muted);color:var(--muted)}
+.ev.t-lunch,.ev.t-break,.ev.t-homeroom,.ev.t-assembly,.ev.t-passing,.ev.t-custom{color:var(--text);border-color:var(--border)}
+.t-lunch{background:var(--t-lunch)}.t-break{background:var(--t-break)}.t-homeroom{background:var(--t-homeroom)}
+.t-assembly{background:var(--t-assembly)}.t-passing{background:var(--t-passing)}.t-custom{background:var(--t-custom)}
+.controls{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end;margin-bottom:14px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:6px 13px;font-weight:600;color:var(--muted);border-right:1px solid var(--border)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.conf{margin-bottom:14px;border:1px solid var(--danger);border-radius:10px;padding:8px 12px;background:var(--surface)}
+.conf summary{cursor:pointer;font-weight:600;color:var(--danger)}
+.conf ul{margin:8px 0 2px;padding-left:20px;max-height:200px;overflow:auto}
+.okbar{margin-bottom:14px;border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--ok);font-weight:600;background:var(--surface)}
+.weekhead{font-size:16px;margin:18px 0 8px}
+.dlist{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.dlist li{display:flex;gap:10px;align-items:center;font-size:14px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+
+/* editor */
+.tbl-wrap{overflow-x:auto}
+table.blocks{width:100%;border-collapse:collapse;min-width:700px}
+table.blocks th{font-size:12px;text-align:left;color:var(--muted);padding:4px 6px;font-weight:600}
+table.blocks td{padding:3px 6px;vertical-align:middle;white-space:nowrap}
+table.blocks tr.bad td{background:color-mix(in srgb,var(--danger) 12%,transparent)}
+table.blocks tr.gap td{font-size:12px;color:var(--muted);padding:0 6px 0 12px}
+table.blocks input[type=number]{width:72px}
+table.blocks input[type=text]{width:100%;min-width:110px}
+.plabel{font-weight:700;width:46px}
+.errs{margin:10px 0 0;padding-left:20px;color:var(--danger)}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{border:1px solid var(--border);background:var(--surface);padding:6px 12px;border-radius:99px;font-weight:600}
+.pill[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.daychk{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:9px;padding:6px 10px;background:var(--surface)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50;display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;padding:24px 12px}
+.overlay[hidden]{display:none}
+.modal{background:var(--bg);border:1px solid var(--border);border-radius:14px;width:100%;max-width:1000px;box-shadow:var(--shadow)}
+.modal-head,.modal-foot{padding:14px 18px;display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--surface);flex-wrap:wrap}
+.modal-head{border-bottom:1px solid var(--border);border-radius:14px 14px 0 0}
+.modal-foot{border-top:1px solid var(--border);border-radius:0 0 14px 14px;position:sticky;bottom:0}
+.modal-body{padding:18px;display:flex;flex-direction:column;gap:16px}
+.steps{display:flex;gap:6px;flex-wrap:wrap}
+.step{border:1px solid var(--border);background:var(--surface);padding:7px 14px;border-radius:9px;font-weight:600;color:var(--muted)}
+.step[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.swatches{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid transparent;padding:0}
+.sw[aria-pressed="true"]{border-color:var(--text)}
+.tplbar{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.tplbar.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.tplpanel{margin-top:10px;display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--border);padding-top:10px}
+.tplrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:9px;padding:6px 10px}
+input.code{width:100%;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;background:var(--text);color:var(--bg);padding:10px 14px;border-radius:10px;z-index:80;display:flex;gap:12px;align-items:center;box-shadow:var(--shadow);max-width:92vw}
+#toast[hidden]{display:none}
+#toast button{background:none;border:0;color:inherit;font-weight:700;text-decoration:underline}
+
+@media (max-width:560px){
+  .wrap{padding:0 12px}
+  .cal{--cw:110px}
+}
+@media print{
+  header.top,.no-print,#toast,.overlay{display:none!important}
+  body{background:#fff;color:#000}
+  main{padding:0}
+  .calwrap{overflow:visible}
+  .cal{min-width:0}
+  .weekhead{break-after:avoid}
+  .calwrap{break-inside:avoid}
+}
+html.embed header.top h1,html.embed #themeBtn{display:none}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>Class Scheduler</h1>
+    <nav class="tabs" role="tablist" aria-label="Sections" id="nav"></nav>
+    <div class="tools">
+      <button class="btn sm" data-a="fmt" id="fmtBtn" title="Switch between 12-hour and 24-hour time"></button>
+      <button class="btn sm" data-a="export" title="Download a JSON backup">Export</button>
+      <button class="btn sm" data-a="import" title="Load a JSON backup">Import</button>
+      <button class="btn sm" data-a="print">Print</button>
+      <button class="btn sm" data-a="theme" id="themeBtn">Theme</button>
+    </div>
+    <input type="file" id="file" accept="application/json,.json" hidden>
+  </div>
+</header>
+<main class="wrap" id="main"></main>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edTitle" id="modal"></div>
+</div>
+<div id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- embedded in Study Hub (frame carries data-hub / data-theme / data-accent) ---------- */
+const FRAME = (() => { try { return window.frameElement; } catch (e) { return null; } })();
+const EMBED = !!(FRAME && FRAME.dataset.hub === '1');
+if (EMBED) {
+  const root = document.documentElement;
+  root.classList.add('embed');
+  if (FRAME.dataset.accent) { root.style.setProperty('--accent', FRAME.dataset.accent); root.style.setProperty('--accent-ink', '#fff'); }
+}
+
+/* ---------- constants & helpers ---------- */
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DAYNAME = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'};
+const TYPES = {
+  period:   {label:'Class period', len:50},
+  lunch:    {label:'Lunch', len:30},
+  break:    {label:'Break', len:10},
+  homeroom: {label:'Homeroom / Advisory', len:20},
+  assembly: {label:'Assembly', len:40},
+  passing:  {label:'Passing time', len:5},
+  custom:   {label:'Custom', len:15}
+};
+const PALETTE = ['#2563eb','#dc2626','#15803d','#9333ea','#c2410c','#0e7490','#be185d','#4d7c0f','#4338ca','#b45309','#0f766e','#475569'];
+const KEY = 'classScheduler.v2', KEY_V1 = 'classScheduler.v1';
+const SCALE = 1.15; // px per minute on the calendar
+
+const uid = () => Math.random().toString(36).slice(2, 10);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const fromMin = n => { n = clamp(Math.round(n), 0, 1439); return String(Math.floor(n / 60)).padStart(2, '0') + ':' + String(n % 60).padStart(2, '0'); };
+function ink(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex); if (!m) return '#fff';
+  const n = parseInt(m[1], 16), f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
+  const L = .2126 * f(n >> 16) + .7152 * f((n >> 8) & 255) + .0722 * f(n & 255);
+  return L > 0.179 ? '#111' : '#fff';
+}
+
+/* ---------- schedule data model ----------
+   class.sched = { hoursMode:'all'|'perDay', all:{start,end}, days:{Mon:{on,start,end}...}, tl:[week 0..4][day] -> blocks }
+   block = { id, type, name, start, end, meets }                                                   */
+function blankSched() {
+  const days = {};
+  DAYS.forEach((d, i) => { days[d] = {on: i < 5, start: '08:00', end: '15:00'}; });
+  return {hoursMode: 'all', all: {start: '08:00', end: '15:00'}, days, tl: Array.from({length: 5}, () => Object.fromEntries(DAYS.map(d => [d, []])))};
+}
+function sanitizeBlock(b) {
+  if (!b || !TYPES[b.type] || !TIME_RE.test(b.start) || !TIME_RE.test(b.end)) return null;
+  return {id: uid(), type: b.type, name: String(b.name || '').slice(0, 60), start: b.start, end: b.end, meets: b.type === 'period' && !!b.meets};
+}
+function sanitizeSched(x) {
+  const out = blankSched();
+  if (!x || typeof x !== 'object') return out;
+  out.hoursMode = x.hoursMode === 'perDay' ? 'perDay' : 'all';
+  if (x.all && TIME_RE.test(x.all.start) && TIME_RE.test(x.all.end)) out.all = {start: x.all.start, end: x.all.end};
+  DAYS.forEach(d => {
+    const s = x.days && x.days[d];
+    out.days[d] = {on: s ? !!s.on : out.days[d].on, start: s && TIME_RE.test(s.start) ? s.start : out.all.start, end: s && TIME_RE.test(s.end) ? s.end : out.all.end};
+    for (let w = 0; w < 5; w++) {
+      const arr = x.tl && x.tl[w] && x.tl[w][d];
+      out.tl[w][d] = Array.isArray(arr) ? arr.map(sanitizeBlock).filter(Boolean) : [];
+    }
+  });
+  return out;
+}
+const cmpBlock = (a, b) => toMin(a.start) - toMin(b.start) || toMin(a.end) - toMin(b.end);
+function numbered(blocks) { let n = 0; return [...blocks].sort(cmpBlock).map(b => ({...b, num: b.type === 'period' ? ++n : 0})); }
+const blockLabel = b => b.type === 'period' ? 'P' + b.num + (b.name ? ' · ' + b.name : '') : (b.name || TYPES[b.type].label);
+const cloneBlocks = arr => arr.map(b => ({...b, id: uid()}));
+const activeDays = c => DAYS.filter(d => c.sched.days[d].on);
+
+/* ---------- state, storage, migration ---------- */
+function newState() { return {v: 2, h24: false, theme: null, templates: [], classes: []}; }
+function migrateSched(school, c) {
+  const sc = blankSched(), def = school.default;
+  DAYS.forEach(d => {
+    const dd = (school.days && school.days[d]) || {on: false};
+    const tpl = dd.custom && dd.tpl && Array.isArray(dd.tpl.blocks) ? dd.tpl : def;
+    sc.days[d] = {on: !!dd.on, start: TIME_RE.test(tpl.start) ? tpl.start : '08:00', end: TIME_RE.test(tpl.end) ? tpl.end : '15:00'};
+    const nb = numbered((tpl.blocks || []).map(sanitizeBlock).filter(Boolean));
+    for (let w = 0; w < 5; w++) {
+      const g = c.grid && c.grid[w] && c.grid[w][d];
+      sc.tl[w][d] = nb.map(b => ({id: uid(), type: b.type, name: b.name, start: b.start, end: b.end, meets: b.type === 'period' && Array.isArray(g) && g.includes(b.num)}));
+    }
+  });
+  sc.all = {start: TIME_RE.test(def.start) ? def.start : '08:00', end: TIME_RE.test(def.end) ? def.end : '15:00'};
+  sc.hoursMode = DAYS.some(d => sc.days[d].start !== sc.all.start || sc.days[d].end !== sc.all.end) ? 'perDay' : 'all';
+  return sc;
+}
+function normalize(s) {
+  if (!s || typeof s !== 'object' || !Array.isArray(s.classes)) throw new Error('This does not look like a Class Scheduler backup.');
+  const legacy = !!(s.school && s.school.default && Array.isArray(s.school.default.blocks));
+  const out = newState();
+  out.h24 = !!s.h24; out.theme = s.theme === 'dark' || s.theme === 'light' ? s.theme : null;
+  (Array.isArray(s.templates) ? s.templates : []).forEach(t => {
+    if (t && typeof t === 'object' && t.data) out.templates.push({id: String(t.id || uid()), name: String(t.name || 'Template').slice(0, 60), data: sanitizeSched(t.data)});
+  });
+  s.classes.forEach(c => {
+    if (!c || typeof c !== 'object') return;
+    out.classes.push({
+      id: String(c.id || uid()), name: String(c.name || '').slice(0, 80), teacher: String(c.teacher || '').slice(0, 80),
+      room: String(c.room || '').slice(0, 40), notes: String(c.notes || '').slice(0, 1000),
+      color: /^#[0-9a-f]{6}$/i.test(c.color) ? c.color : PALETTE[0],
+      weeks: clamp(parseInt(c.weeks, 10) || 1, 1, 5),
+      sched: legacy ? migrateSched(s.school, c) : sanitizeSched(c.sched)
+    });
+  });
+  return out;
+}
+function load() {
+  for (const k of [KEY, KEY_V1]) {
+    try { const raw = localStorage.getItem(k); if (raw) return normalize(JSON.parse(raw)); } catch (e) {}
+  }
+  return newState();
+}
+let S = load();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+const ui = {tab:'classes', sched:'master', week:1, day:'Mon', fClass:'', fTeacher:'', fRoom:'', q:'', cls:'', ed:null};
+
+/* ---------- time formatting ---------- */
+function fmt(t) {
+  if (S.h24) return t;
+  const [h, m] = t.split(':').map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
+}
+function fmtHour(m) {
+  const h = Math.floor(m / 60) % 24;
+  return S.h24 ? String(h).padStart(2, '0') + ':00' : `${h % 12 || 12} ${h < 12 ? 'AM' : 'PM'}`;
+}
+const range = b => `${fmt(b.start)}–${fmt(b.end)}`;
+
+/* ---------- events, conflicts ---------- */
+const cycleLen = (cls = S.classes) => cls.reduce((l, c) => l * c.weeks / gcd(l, c.weeks), 1);
+function classEvents(c, wi, day) {
+  if (!c.sched.days[day].on) return [];
+  return numbered(c.sched.tl[wi][day]).map(b => ({c, b, s: toMin(b.start), e: toMin(b.end), meet: b.type === 'period' && b.meets}));
+}
+const meetEvents = (classes, mw, day) => classes.flatMap(c => classEvents(c, (mw - 1) % c.weeks, day).filter(x => x.meet && x.e > x.s));
+function overlapPairs(evs) {
+  const out = [];
+  for (let i = 0; i < evs.length; i++) for (let j = i + 1; j < evs.length; j++) {
+    const a = evs[i], b = evs[j];
+    if (a.c !== b.c && a.s < b.e && b.s < a.e) out.push([a, b]);
+  }
+  return out;
+}
+function findConflicts(classes) {
+  const L = cycleLen(classes), out = [];
+  for (let w = 1; w <= L; w++) for (const day of DAYS) {
+    for (const [a, b] of overlapPairs(meetEvents(classes, w, day)))
+      out.push({w, day, a: a.c, b: b.c, from: Math.max(a.s, b.s), to: Math.min(a.e, b.e)});
+  }
+  return out;
+}
+const conflictText = c => `Week ${c.w} · ${DAYNAME[c.day]} · ${fmt(fromMin(c.from))}–${fmt(fromMin(c.to))}: ${esc(c.a.name || '(unnamed)')} &amp; ${esc(c.b.name || '(unnamed)')}`;
+function layoutEvents(evs) {
+  evs.sort((a, b) => a.s - b.s || b.e - a.e);
+  let cluster = [], end = -1;
+  const flush = () => {
+    const lanes = [];
+    cluster.forEach(ev => { let i = lanes.findIndex(le => le <= ev.s); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = ev.e; ev.lane = i; });
+    cluster.forEach(ev => { ev.lanes = lanes.length; });
+    cluster = [];
+  };
+  for (const ev of evs) {
+    if (cluster.length && ev.s >= end) flush();
+    cluster.push(ev); end = cluster.length === 1 ? ev.e : Math.max(end, ev.e);
+  }
+  if (cluster.length) flush();
+  return evs;
+}
+/* cols: [{label, events:[{s,e,kind,style,title,inner,bad}]}] */
+function calendar(cols, wide) {
+  const all = cols.flatMap(c => c.events);
+  if (!all.length) return '<p class="muted">Nothing scheduled to show.</p>';
+  const lo = Math.floor(Math.min(...all.map(e => e.s)) / 60) * 60;
+  const hi = Math.min(1440, Math.ceil(Math.max(...all.map(e => e.e)) / 60) * 60);
+  const H = Math.max(60, (hi - lo) * SCALE);
+  let gut = '';
+  for (let m = lo; m <= hi; m += 60) gut += `<span style="top:${(m - lo) * SCALE}px">${fmtHour(m)}</span>`;
+  let head = '<div class="calh"></div>' + cols.map(c => `<div class="calh">${esc(c.label)}</div>`).join('');
+  let body = `<div class="gut">${gut}</div>` + cols.map(col => {
+    const evs = layoutEvents(col.events.map(e => ({...e})));
+    return `<div class="dcol">${evs.map(e => {
+      const h = Math.max(16, (e.e - e.s) * SCALE);
+      return `<div class="ev ${e.kind || ''}${e.bad ? ' bad' : ''}" style="top:${(e.s - lo) * SCALE}px;height:${h}px;left:calc(${e.lane / e.lanes * 100}% + 1px);width:calc(${100 / e.lanes}% - 2px);${e.style || ''}" title="${esc(e.title)}">${e.inner}</div>`;
+    }).join('')}</div>`;
+  }).join('');
+  return `<div class="calwrap"><div class="cal" style="--n:${cols.length};--H:${H}px;--hr:${60 * SCALE}px;${wide ? '--cw:260px' : ''}">${head}${body}</div></div>`;
+}
+const evKey = x => x.c.id + '|' + x.b.id;
+function masterCols(days, mw, vis) {
+  return days.map(day => {
+    const all = meetEvents(S.classes, mw, day), bad = new Set();
+    overlapPairs(all).forEach(([a, b]) => { bad.add(evKey(a)); bad.add(evKey(b)); });
+    return {label: day, events: all.filter(x => vis.has(x.c.id)).map(x => {
+      const c = x.c, wk = c.weeks > 1 ? ` · Wk ${(mw - 1) % c.weeks + 1}` : '';
+      return {s: x.s, e: x.e, kind: 'meet', bad: bad.has(evKey(x)), color: c.color, name: c.name || '(unnamed)', sub: [c.room, range(x.b)].filter(Boolean).join(' · ') + wk, style: `background:${c.color};color:${ink(c.color)}`,
+        title: `${c.name} · ${blockLabel(x.b)} · ${range(x.b)}${c.room ? ' · Room ' + c.room : ''}${bad.has(evKey(x)) ? ' · CONFLICT' : ''}`,
+        inner: `<b>${bad.has(evKey(x)) ? '⚠ ' : ''}${esc(c.name || '(unnamed)')}</b><small>${esc([c.room, range(x.b)].filter(Boolean).join(' · '))}${esc(wk)}</small>`};
+    })};
+  });
+}
+function classCols(c, wi) {
+  return activeDays(c).map(day => ({label: day, events: classEvents(c, wi, day).filter(x => x.e > x.s).map(x => {
+    const kind = x.meet ? 'meet' : x.b.type === 'period' ? 'free' : 't-' + x.b.type;
+    return {s: x.s, e: x.e, kind, style: x.meet ? `background:${c.color};color:${ink(c.color)}` : '',
+      title: `${blockLabel(x.b)} · ${range(x.b)}${x.meet ? ' · meets' : ''}`,
+      inner: `<b>${esc(blockLabel(x.b))}</b><small>${range(x.b)}${x.meet ? ' · meets' : ''}</small>`};
+  })}));
+}
+
+/* ---------- views: classes ---------- */
+const meetCount = (c, wi) => DAYS.reduce((n, d) => n + (c.sched.days[d].on ? c.sched.tl[wi][d].filter(b => b.type === 'period' && b.meets).length : 0), 0);
+function hoursText(c) {
+  if (c.sched.hoursMode === 'all') return `${fmt(c.sched.all.start)}–${fmt(c.sched.all.end)}`;
+  return 'Hours vary by day';
+}
+function clsListHtml() {
+  const q = ui.q.trim().toLowerCase();
+  const list = S.classes.filter(c => !q || [c.name, c.teacher, c.room].some(x => x.toLowerCase().includes(q)));
+  if (!S.classes.length) return `<div class="card empty"><h3>No classes yet</h3><p>Create a class, set its school hours and period times, and mark when it meets.</p><button class="btn primary" data-a="newClass">+ New class</button></div>`;
+  if (!list.length) return `<div class="card empty"><h3>No matches</h3><p>Nothing matches “${esc(ui.q)}”.</p></div>`;
+  return '<div class="cls-grid">' + list.map(c => {
+    const counts = Array.from({length: c.weeks}, (_, w) => meetCount(c, w));
+    return `<article class="card cls-card" style="--c:${c.color}">
+      <h3>${esc(c.name || '(unnamed)')}</h3>
+      <div class="muted small">${[c.teacher, c.room && 'Room ' + c.room].filter(Boolean).map(esc).join(' · ') || 'No teacher / room'}</div>
+      <div class="muted small" style="margin-top:2px">${activeDays(c).join(' ')} · ${hoursText(c)}</div>
+      <div class="row" style="margin-top:8px;gap:6px"><span class="badge">${c.weeks}-week schedule</span>
+        <span class="muted small">${counts.map((n, i) => (c.weeks > 1 ? `W${i + 1}: ` : '') + n + ' meetings').join(' · ')}</span></div>
+      ${c.notes ? `<p class="small muted" style="margin:8px 0 0;overflow-wrap:anywhere">${esc(c.notes)}</p>` : ''}
+      <div class="acts">
+        <button class="btn sm" data-a="editClass" data-id="${c.id}">Edit</button>
+        <button class="btn sm" data-a="viewClass" data-id="${c.id}">View schedule</button>
+        <button class="btn sm" data-a="dupClass" data-id="${c.id}">Duplicate</button>
+        <button class="btn sm danger" data-a="delClass" data-id="${c.id}">Delete</button>
+      </div></article>`;
+  }).join('') + '</div>';
+}
+function viewClasses() {
+  return `<div class="page-head"><h2>Classes <span class="muted small">(${S.classes.length})</span></h2>
+    <div class="row"><input type="search" placeholder="Search name, teacher, room" value="${esc(ui.q)}" data-u="q" aria-label="Search classes">
+    <button class="btn primary" data-a="newClass">+ New class</button></div></div><div id="clsList">${clsListHtml()}</div>`;
+}
+
+/* ---------- views: schedule ---------- */
+const opts = (items, sel) => items.map(([v, l]) => `<option value="${esc(v)}"${v === sel ? ' selected' : ''}>${esc(l)}</option>`).join('');
+function conflictBar(conf) {
+  if (!S.classes.length) return '';
+  if (!conf.length) return '<div class="okbar">✓ No conflicts: no two classes meet at overlapping times.</div>';
+  const items = conf.slice(0, 60).map(c => `<li>${conflictText(c)}</li>`).join('');
+  return `<details class="conf"><summary>⚠ ${conf.length} conflict${conf.length > 1 ? 's' : ''}: classes meeting at overlapping times</summary><ul>${items}${conf.length > 60 ? `<li>…and ${conf.length - 60} more</li>` : ''}</ul></details>`;
+}
+function viewSchedule() {
+  const seg = `<div class="seg" role="group" aria-label="View">${[['master','All classes'],['day','Single day'],['class','One class']].map(([k, l]) => `<button data-a="sched" data-k="${k}" aria-pressed="${ui.sched === k}">${l}</button>`).join('')}</div>`;
+  const head = `<div class="page-head"><h2>Schedule</h2><div class="row no-print">${seg}</div></div>`;
+  if (!S.classes.length) return head + `<div class="card empty"><h3>Nothing to show yet</h3><p>Add a class first.</p><button class="btn primary" data-a="newClass">+ New class</button></div>`;
+  const days = DAYS.filter(d => S.classes.some(c => c.sched.days[d].on));
+  if (!days.length) return head + `<div class="card empty"><h3>No school days enabled</h3><p>Turn on at least one day in a class.</p></div>`;
+  const L = cycleLen(); if (ui.week > L || ui.week < 1) ui.week = 1;
+  const weekCtl = `<label class="f">Week<span class="row" style="gap:4px"><button class="btn icon" data-a="wk" data-d="-1" aria-label="Previous week">‹</button>
+    <select data-u="week" data-num aria-label="Week">${Array.from({length: L}, (_, i) => `<option value="${i + 1}"${ui.week === i + 1 ? ' selected' : ''}>Week ${i + 1}</option>`).join('')}</select>
+    <button class="btn icon" data-a="wk" data-d="1" aria-label="Next week">›</button></span></label>`;
+  const conf = findConflicts(S.classes);
+  const note = L > 1 ? `<p class="muted small">Weeks aren’t tied to calendar dates. All classes start their cycle together, so a ${L}-week combined cycle is needed to show every combination. A shorter-cycle class repeats (a 2-week class shows its Week 1 in combined weeks 1, 3, 5…).</p>` : '';
+  let body = '';
+  if (ui.sched === 'master') {
+    const teachers = [...new Set(S.classes.map(c => c.teacher).filter(Boolean))].sort();
+    const rooms = [...new Set(S.classes.map(c => c.room).filter(Boolean))].sort();
+    const vis = new Set(S.classes.filter(c => (!ui.fClass || c.id === ui.fClass) && (!ui.fTeacher || c.teacher === ui.fTeacher) && (!ui.fRoom || c.room === ui.fRoom)).map(c => c.id));
+    body = conflictBar(conf) + `<div class="controls no-print">${weekCtl}
+      <label class="f">Class<select data-u="fClass"><option value="">All classes</option>${opts(S.classes.map(c => [c.id, c.name || '(unnamed)']), ui.fClass)}</select></label>
+      <label class="f">Teacher<select data-u="fTeacher"><option value="">All teachers</option>${opts(teachers.map(t => [t, t]), ui.fTeacher)}</select></label>
+      <label class="f">Room<select data-u="fRoom"><option value="">All rooms</option>${opts(rooms.map(t => [t, t]), ui.fRoom)}</select></label>
+      ${ui.fClass || ui.fTeacher || ui.fRoom ? '<button class="btn sm" data-a="clearFilters">Clear filters</button>' : ''}</div>
+      <h3 class="weekhead">Week ${ui.week}${L > 1 ? ` of ${L}` : ''}</h3>${calendar(masterCols(days, ui.week, vis))}${note}`;
+  } else if (ui.sched === 'day') {
+    if (!days.includes(ui.day)) ui.day = days[0];
+    const vis = new Set(S.classes.map(c => c.id));
+    const col = masterCols([ui.day], ui.week, vis)[0];
+    const list = [...col.events].sort((a, b) => a.s - b.s).map(e => `<li><span class="dot" style="background:${e.color}"></span><b>${esc(e.name)}</b><span class="muted">${esc(e.sub)}</span>${e.bad ? ' <span class="field-err">⚠ conflict</span>' : ''}</li>`).join('');
+    body = conflictBar(conf) + `<div class="controls no-print">${weekCtl}
+      <label class="f">Day<select data-u="day">${opts(days.map(d => [d, DAYNAME[d]]), ui.day)}</select></label></div>
+      <h3 class="weekhead">${DAYNAME[ui.day]} · Week ${ui.week}${L > 1 ? ` of ${L}` : ''}</h3>${calendar([col], true)}${list ? `<ul class="dlist">${list}</ul>` : ''}${note}`;
+  } else {
+    if (!S.classes.some(c => c.id === ui.cls)) ui.cls = S.classes[0].id;
+    const c = S.classes.find(x => x.id === ui.cls);
+    let weeks = '';
+    for (let w = 0; w < c.weeks; w++)
+      weeks += `<h3 class="weekhead">${c.weeks > 1 ? `Week ${w + 1} of ${c.weeks}` : 'Weekly schedule'}</h3>${calendar(classCols(c, w))}`;
+    body = `<div class="controls no-print"><label class="f">Class<select data-u="cls">${opts(S.classes.map(x => [x.id, x.name || '(unnamed)']), ui.cls)}</select></label>
+      <button class="btn sm" data-a="editClass" data-id="${c.id}">Edit this class</button></div>
+      <div class="row"><span class="badge" style="background:${c.color};color:${ink(c.color)};border-color:${c.color}">${esc(c.name || '(unnamed)')}</span>
+      <span class="muted small">${[c.teacher, c.room && 'Room ' + c.room].filter(Boolean).map(esc).join(' · ')} · ${c.weeks}-week schedule · ${hoursText(c)}</span></div>${weeks}`;
+  }
+  return head + body;
+}
+
+/* ---------- class editor ---------- */
+function newClass() {
+  const used = new Set(S.classes.map(c => c.color));
+  return {id: uid(), name: '', teacher: '', room: '', notes: '', weeks: 1, sched: blankSched(),
+    color: PALETTE.find(c => !used.has(c)) || PALETTE[S.classes.length % PALETTE.length]};
+}
+const firstOn = d => DAYS.find(x => d.sched.days[x].on) || 'Mon';
+function openEditor(c, isNew) {
+  const draft = clone(c);
+  ui.ed = {draft, orig: JSON.stringify(c), isNew, step: 1, week: 1, day: firstOn(draft), tplId: null, panel: false, code: '', tplMsg: ''};
+  renderEditor();
+  const n = document.getElementById('edName'); if (n) n.focus();
+}
+function closeEditor(force) {
+  if (!ui.ed) return;
+  if (!force && JSON.stringify(ui.ed.draft) !== ui.ed.orig && !confirm('Discard your changes to this class?')) return;
+  ui.ed = null; renderEditor();
+}
+function validateBlocks(blocks, hrs) {
+  const errs = [], bad = new Set(), bl = [...blocks].sort(cmpBlock);
+  const s = toMin(hrs.start), e = toMin(hrs.end);
+  if (e <= s) errs.push('School hours end must be after they start.');
+  bl.forEach((b, i) => {
+    const bs = toMin(b.start), be = toMin(b.end), nm = b.type === 'period' ? 'A class period' : (b.name || TYPES[b.type].label);
+    if (be <= bs) { errs.push(`${nm} (${fmt(b.start)}): end must be after start.`); bad.add(b.id); }
+    if (bs < s || be > e) { errs.push(`${nm} (${range(b)}) is outside school hours (${fmt(hrs.start)}–${fmt(hrs.end)}).`); bad.add(b.id); }
+    if (i + 1 < bl.length && toMin(bl[i + 1].start) < be) { errs.push(`${nm} (${range(b)}) overlaps the next block.`); bad.add(b.id); bad.add(bl[i + 1].id); }
+  });
+  return {errs, bad};
+}
+function classProblems(c) {
+  const out = [];
+  for (let w = 0; w < c.weeks; w++) for (const d of activeDays(c)) {
+    const {errs} = validateBlocks(c.sched.tl[w][d], c.sched.days[d]);
+    if (errs.length) out.push({w, d, text: `${c.weeks > 1 ? `Week ${w + 1} · ` : ''}${DAYNAME[d]}: ${errs[0]}`});
+  }
+  return out;
+}
+
+/* template mode: every edit is copied to all days/weeks and recorded into the active template */
+function touch(kind, day) {
+  const e = ui.ed; if (!e || !e.tplId) return;
+  const s = e.draft.sched;
+  if (kind === 'blocks') {
+    const src = s.tl[e.week - 1][e.day];
+    for (let w = 0; w < 5; w++) for (const d of DAYS) if (!(w === e.week - 1 && d === e.day)) s.tl[w][d] = cloneBlocks(src);
+  } else if (kind === 'hours' && s.hoursMode === 'perDay' && day) {
+    DAYS.forEach(d => { s.days[d].start = s.days[day].start; s.days[d].end = s.days[day].end; });
+  }
+  const t = S.templates.find(x => x.id === e.tplId);
+  if (t) { t.data = clone(s); save(); }
+}
+function encodeTpl(t) {
+  const uniq = [], idx = new Map(), g = [];
+  for (let w = 0; w < 5; w++) { g.push([]); for (const d of DAYS) {
+    const compact = t.data.tl[w][d].map(b => [b.type, b.name, b.start, b.end, b.meets ? 1 : 0]), k = JSON.stringify(compact);
+    if (!idx.has(k)) { idx.set(k, uniq.length); uniq.push(compact); }
+    g[w].push(idx.get(k));
+  } }
+  const o = {n: t.name, m: t.data.hoursMode, a: t.data.all, d: DAYS.map(d => [t.data.days[d].on ? 1 : 0, t.data.days[d].start, t.data.days[d].end]), u: uniq, g};
+  return 'CS1:' + btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+}
+function decodeTpl(str) {
+  const m = /^CS1:([A-Za-z0-9+/=]+)$/.exec(String(str).trim());
+  if (!m) throw new Error('That is not a valid template code.');
+  let o; try { o = JSON.parse(decodeURIComponent(escape(atob(m[1])))); } catch (e) { throw new Error('That template code is damaged.'); }
+  const raw = {hoursMode: o.m, all: o.a, days: {}, tl: []};
+  DAYS.forEach((d, i) => { const x = o.d && o.d[i]; if (x) raw.days[d] = {on: !!x[0], start: x[1], end: x[2]}; });
+  for (let w = 0; w < 5; w++) { raw.tl.push({}); DAYS.forEach((d, i) => {
+    const list = (o.u && o.u[o.g && o.g[w] && o.g[w][i]]) || [];
+    raw.tl[w][d] = list.map(a => ({type: a[0], name: a[1], start: a[2], end: a[3], meets: !!a[4]}));
+  }); }
+  return {name: String(o.n || 'Imported template').slice(0, 60), data: sanitizeSched(raw)};
+}
+
+/* ---- editor step renderers ---- */
+function stepBasics() {
+  const d = ui.ed.draft;
+  return `<div class="form-grid">
+      <label class="f">Class name *<input type="text" id="edName" data-d="name" value="${esc(d.name)}" maxlength="80" placeholder="e.g. Algebra II" autocomplete="off"><span id="nameMsg" class="field-err" aria-live="polite"></span></label>
+      <label class="f">Teacher<input type="text" data-d="teacher" value="${esc(d.teacher)}" maxlength="80" autocomplete="off"></label>
+      <label class="f">Room<input type="text" data-d="room" value="${esc(d.room)}" maxlength="40" autocomplete="off"></label></div>
+    <div class="row"><b>Color</b><div class="swatches" id="swatches">${PALETTE.map(c => `<button type="button" class="sw" style="background:${c}" data-a="color" data-c="${c}" aria-pressed="${d.color.toLowerCase() === c}" aria-label="Color ${c}"></button>`).join('')}
+        <input type="color" id="edColor" value="${d.color}" aria-label="Custom color"></div></div>
+    <label class="f">Notes<textarea data-d="notes" rows="2" maxlength="1000">${esc(d.notes)}</textarea></label>
+    <div class="row"><b>Schedule length</b><div class="seg" role="group" aria-label="Schedule length">${[1,2,3,4,5].map(n => `<button type="button" data-a="cycle" data-n="${n}" aria-pressed="${d.weeks === n}">${n}</button>`).join('')}</div>
+      <span class="muted small">${d.weeks === 1 ? 'Same every week' : `Rotates over ${d.weeks} weeks`}</span></div>
+    <div><b>School days</b><div class="row" style="margin-top:6px">${DAYS.map(x => `<label class="daychk"><input type="checkbox" data-e="dayOn" data-day="${x}" ${d.sched.days[x].on ? 'checked' : ''}> ${DAYNAME[x]}</label>`).join('')}</div></div>`;
+}
+function tplBar() {
+  const e = ui.ed, t = S.templates.find(x => x.id === e.tplId);
+  let h = `<div class="tplbar${t ? ' on' : ''}">`;
+  if (t) {
+    h += `<div class="row" style="justify-content:space-between"><div><b>Template mode: ON</b> · recording to “${esc(t.name)}”<div class="muted small">Every edit is copied to all days and all weeks of this class, and saved into the template.</div></div>
+      <div class="row"><button type="button" class="btn sm" data-a="tplCopy" data-id="${t.id}">Copy code</button><button type="button" class="btn sm primary" data-a="tplOff">Turn off</button></div></div>`;
+  } else {
+    h += `<div class="row" style="justify-content:space-between"><div><b>Template mode: off</b><div class="muted small">Edit each day and week on its own, or use a template to fill everything at once.</div></div>
+      <button type="button" class="btn sm" data-a="tplOpen" aria-expanded="${e.panel}">${e.panel ? 'Close' : 'Template…'}</button></div>`;
+  }
+  if (e.tplMsg) h += `<div class="${e.tplMsg.startsWith('!') ? 'field-err' : 'muted small'}" style="margin-top:6px" role="status">${esc(e.tplMsg.replace(/^!/, ''))}</div>`;
+  if (e.code) h += `<label class="f" style="margin-top:8px">Template code (copy it to use in another browser)<input class="code" id="codeOut" readonly value="${esc(e.code)}"></label>`;
+  if (!t && e.panel) {
+    h += `<div class="tplpanel"><div><b>New template</b><div class="row" style="margin-top:6px"><input type="text" id="tplName" placeholder="Template name" maxlength="60" style="flex:1;min-width:160px" autocomplete="off"><button type="button" class="btn sm primary" data-a="tplNew">Start recording</button></div>
+      <div class="muted small" style="margin-top:4px">Saves the school hours, every block (times, names, types) and your “Meets” marks. It doesn’t save the class name, teacher, room or color.</div></div>`;
+    if (S.templates.length) h += `<div><b>Saved templates</b><div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">${S.templates.map(x => `<div class="tplrow"><span>${esc(x.name)}</span><span class="row" style="gap:6px">
+        <button type="button" class="btn sm primary" data-a="tplUse" data-id="${x.id}" data-m="record">Apply &amp; record</button>
+        <button type="button" class="btn sm" data-a="tplUse" data-id="${x.id}" data-m="once">Apply once</button>
+        <button type="button" class="btn sm" data-a="tplCopy" data-id="${x.id}">Code</button>
+        <button type="button" class="btn sm" data-a="tplRename" data-id="${x.id}">Rename</button>
+        <button type="button" class="btn sm danger" data-a="tplDelete" data-id="${x.id}">Delete</button></span></div>`).join('')}</div></div>`;
+    h += `<div><b>Paste a template code</b><div class="row" style="margin-top:6px"><input type="text" id="tplCode" class="code" placeholder="CS1:…" style="flex:1;min-width:160px" autocomplete="off"><button type="button" class="btn sm" data-a="tplLoad">Load</button></div></div></div>`;
+  }
+  return h + '</div>';
+}
+function stepHours() {
+  const e = ui.ed, s = e.draft.sched, days = DAYS.filter(d => s.days[d].on);
+  if (!days.length) return '<p class="field-warn">No school days are on. Turn some on in step 1.</p>';
+  let h = tplBar() + `<div class="row"><label class="daychk"><input type="radio" name="hmode" data-e="hMode" value="all" ${s.hoursMode === 'all' ? 'checked' : ''}> Same hours every day</label>
+    <label class="daychk"><input type="radio" name="hmode" data-e="hMode" value="perDay" ${s.hoursMode === 'perDay' ? 'checked' : ''}> Different hours per day</label></div>`;
+  if (s.hoursMode === 'all') h += `<div class="row"><label class="f">School starts<input type="time" data-e="hAllStart" value="${s.all.start}"></label><label class="f">School ends<input type="time" data-e="hAllEnd" value="${s.all.end}"></label></div>`;
+  else h += `<div class="tbl-wrap"><table class="blocks" style="min-width:420px"><thead><tr><th>Day</th><th>Starts</th><th>Ends</th></tr></thead><tbody>${days.map(d => `<tr><td class="plabel" style="width:120px">${DAYNAME[d]}</td>
+      <td><input type="time" data-e="hStart" data-day="${d}" value="${s.days[d].start}" aria-label="${DAYNAME[d]} start"></td><td><input type="time" data-e="hEnd" data-day="${d}" value="${s.days[d].end}" aria-label="${DAYNAME[d]} end"></td></tr>`).join('')}</tbody></table></div>`;
+  return h + `<p class="muted small" style="margin:0">Next step: add the periods, lunch and breaks inside these hours.</p>`;
+}
+function stepPeriods() {
+  const e = ui.ed, d = e.draft, s = d.sched, days = DAYS.filter(x => s.days[x].on);
+  if (!days.length) return tplBar() + '<p class="field-warn">No school days are on. Turn some on in step 1.</p>';
+  if (!days.includes(e.day)) e.day = days[0];
+  const wi = e.week - 1, blocks = s.tl[wi][e.day], nb = numbered(blocks), hrs = s.days[e.day];
+  const {errs, bad} = validateBlocks(blocks, hrs);
+  const wtabs = d.weeks > 1 ? `<div class="pills" role="tablist" aria-label="Week">${Array.from({length: d.weeks}, (_, i) => `<button type="button" class="pill" role="tab" data-a="edweek" data-n="${i + 1}" aria-selected="${e.week === i + 1}">Week ${i + 1}</button>`).join('')}</div>` : '';
+  const dtabs = `<div class="pills" role="tablist" aria-label="Day">${days.map(x => `<button type="button" class="pill" role="tab" data-a="edday" data-day="${x}" aria-selected="${e.day === x}">${DAYNAME[x]}${s.tl[wi][x].length ? '' : ' ○'}</button>`).join('')}</div>`;
+  let rows = '';
+  nb.forEach((b, i) => {
+    const len = toMin(b.end) - toMin(b.start);
+    rows += `<tr class="${bad.has(b.id) ? 'bad' : ''}"><td class="plabel">${b.type === 'period' ? 'P' + b.num : ''}</td>
+      <td><select data-e="type" data-id="${b.id}" aria-label="Block type">${opts(Object.entries(TYPES).map(([k, v]) => [k, v.label]), b.type)}</select></td>
+      <td><input type="text" data-e="name" data-id="${b.id}" value="${esc(b.name)}" placeholder="${b.type === 'period' ? 'Optional name' : esc(TYPES[b.type].label)}" aria-label="Block name" maxlength="60"></td>
+      <td><input type="time" data-e="start" data-id="${b.id}" value="${b.start}" aria-label="Start time"></td>
+      <td><input type="time" data-e="end" data-id="${b.id}" value="${b.end}" aria-label="End time"></td>
+      <td><input type="number" data-e="len" data-id="${b.id}" value="${len}" min="1" max="720" aria-label="Length in minutes"> min</td>
+      <td style="text-align:center">${b.type === 'period' ? `<input type="checkbox" data-e="meets" data-id="${b.id}" ${b.meets ? 'checked' : ''} aria-label="Class meets in P${b.num}">` : ''}</td>
+      <td><button type="button" class="btn sm danger" data-a="delBlock" data-id="${b.id}" aria-label="Remove block">✕</button></td></tr>`;
+    const nx = nb[i + 1];
+    if (nx) { const g = toMin(nx.start) - toMin(b.end); if (g > 0) rows += `<tr class="gap"><td></td><td colspan="7">↕ ${g} min unscheduled</td></tr>`; }
+  });
+  const add = Object.entries(TYPES).map(([k, v]) => `<button type="button" class="btn sm" data-a="addBlock" data-t="${k}">+ ${v.label}</button>`).join('');
+  const otherProbs = classProblems(d).filter(p => !(p.w === wi && p.d === e.day));
+  const others = S.classes.filter(c => c.id !== d.id);
+  const conf = findConflicts([...others, d]).filter(c => c.a.id === d.id || c.b.id === d.id);
+  return tplBar() + `<div class="row">${wtabs}</div><div class="row">${dtabs}</div>
+    <div class="row"><span class="muted small">${DAYNAME[e.day]} hours: ${fmt(hrs.start)}–${fmt(hrs.end)}</span>
+      <button type="button" class="btn sm" data-a="copyDayAll">Copy this day to all days${d.weeks > 1 ? ' (this week)' : ''}</button>
+      ${d.weeks > 1 ? '<button type="button" class="btn sm" data-a="copyWeekAll">Copy this week to all weeks</button>' : ''}
+      <button type="button" class="btn sm" data-a="clearDay">Clear this day</button></div>
+    <details class="card" style="padding:10px 14px;box-shadow:none" ${nb.length ? '' : 'open'}><summary style="cursor:pointer;font-weight:600">Quick build: generate periods for this day</summary>
+      <div class="row" style="margin-top:10px">
+        <label class="f">Periods<input type="number" id="qbN" value="6" min="1" max="20" style="width:80px"></label>
+        <label class="f">Length (min)<input type="number" id="qbLen" value="50" min="5" max="240" style="width:100px"></label>
+        <label class="f">Gap between (min)<input type="number" id="qbGap" value="5" min="0" max="60" style="width:110px"></label>
+        <label class="f">Lunch after period<input type="number" id="qbLunchAfter" value="0" min="0" max="20" style="width:110px" title="0 = no lunch"></label>
+        <label class="f">Lunch length (min)<input type="number" id="qbLunchLen" value="30" min="5" max="120" style="width:110px"></label>
+        <button type="button" class="btn primary" data-a="quickBuild" style="align-self:end">Build</button></div>
+      <p class="muted small" style="margin:8px 0 0">Starts at this day’s school start time and replaces the blocks for this day.</p></details>
+    <div class="tbl-wrap"><table class="blocks"><thead><tr><th></th><th>Type</th><th>Name</th><th>Start</th><th>End</th><th>Length</th><th>Meets</th><th></th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="8" class="muted">No blocks yet. Use Quick build, add blocks below, or apply a template.</td></tr>'}</tbody></table></div>
+    <div class="row">${add}</div>
+    ${errs.length ? `<ul class="errs">${errs.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : nb.length ? '<p class="small" style="color:var(--ok);margin:0">✓ This day’s timeline is valid.</p>' : ''}
+    ${otherProbs.length ? `<p class="field-warn">⚠ Other days with timing problems: ${otherProbs.slice(0, 4).map(p => esc(p.text)).join(' | ')}${otherProbs.length > 4 ? ` | and ${otherProbs.length - 4} more` : ''}</p>` : ''}
+    ${conf.length ? `<p class="field-warn">⚠ Conflicts with other classes: ${conf.slice(0, 6).map(conflictText).join('; ')}${conf.length > 6 ? `; and ${conf.length - 6} more` : ''}</p>` : ''}`;
+}
+function stepBody() { const st = ui.ed.step; return st === 1 ? stepBasics() : st === 2 ? stepHours() : stepPeriods(); }
+const refreshStep = () => { const g = document.getElementById('edStep'); if (g) g.innerHTML = stepBody(); };
+function renderEditor() {
+  const ov = document.getElementById('overlay'), m = document.getElementById('modal');
+  if (!ui.ed) { ov.hidden = true; m.innerHTML = ''; return; }
+  const e = ui.ed;
+  ov.hidden = false;
+  m.innerHTML = `<div class="modal-head"><h2 id="edTitle" style="font-size:18px">${e.isNew ? 'New class' : 'Edit class'}</h2><button class="btn sm" data-a="edCancel">✕ Close</button></div>
+    <form class="modal-body" id="edForm" novalidate>
+      <div class="steps" role="tablist" aria-label="Steps">${['Basics', 'School hours', 'Periods'].map((l, i) => `<button type="button" class="step" role="tab" data-a="step" data-n="${i + 1}" aria-selected="${e.step === i + 1}">${i + 1}. ${l}</button>`).join('')}</div>
+      <div id="edStep" style="display:flex;flex-direction:column;gap:14px">${stepBody()}</div>
+    </form>
+    <div class="modal-foot"><span class="field-err" id="saveMsg" aria-live="polite"></span><div class="row">
+      <button class="btn" data-a="stepBack" ${e.step === 1 ? 'disabled' : ''}>Back</button><button class="btn" data-a="stepNext" ${e.step === 3 ? 'disabled' : ''}>Next</button>
+      <button class="btn" data-a="edCancel">Cancel</button><button class="btn primary" data-a="edSave">Save class</button></div></div>`;
+  updateNameMsg();
+}
+function setStep(n) { ui.ed.step = clamp(n, 1, 3); renderEditor(); const el = document.getElementById('edName'); if (el && ui.ed.step === 1) el.focus(); }
+function updateNameMsg() {
+  const el = document.getElementById('nameMsg'); if (!el || !ui.ed) return;
+  const d = ui.ed.draft, n = d.name.trim().toLowerCase();
+  const dup = n && S.classes.some(c => c.id !== d.id && c.name.trim().toLowerCase() === n);
+  el.className = dup ? 'field-warn' : 'field-err';
+  el.textContent = dup ? 'Another class already has this name.' : '';
+}
+function saveEditor() {
+  const e = ui.ed, d = e.draft, msg = document.getElementById('saveMsg');
+  d.name = d.name.trim();
+  if (!d.name) { setStep(1); const el = document.getElementById('nameMsg'); el.className = 'field-err'; el.textContent = 'Give the class a name.'; document.getElementById('edName').focus(); return; }
+  if (!activeDays(d).length) { setStep(1); document.getElementById('saveMsg').textContent = 'Turn on at least one school day.'; return; }
+  const probs = classProblems(d);
+  if (probs.length && !confirm(`${probs.length} day${probs.length > 1 ? 's have' : ' has'} timing problems (e.g. ${probs[0].text}). Save anyway?`)) { setStep(3); return; }
+  if (msg) msg.textContent = '';
+  const i = S.classes.findIndex(c => c.id === d.id);
+  if (i >= 0) S.classes[i] = d; else S.classes.push(d);
+  save(); ui.ed = null; render();
+}
+
+/* ---------- render ---------- */
+function render() {
+  const r = document.documentElement;
+  const th = EMBED ? FRAME.dataset.theme : S.theme;
+  if (th === 'dark' || th === 'light') r.dataset.theme = th; else delete r.dataset.theme;
+  document.getElementById('fmtBtn').textContent = S.h24 ? '24-hour' : '12-hour';
+  document.getElementById('nav').innerHTML = [['classes', 'Classes'], ['schedule', 'Schedule']]
+    .map(([k, l]) => `<button class="tab" role="tab" data-a="tab" data-k="${k}" aria-selected="${ui.tab === k}">${l}</button>`).join('');
+  document.getElementById('main').innerHTML = ui.tab === 'classes' ? viewClasses() : viewSchedule();
+  renderEditor();
+}
+let toastTimer;
+function toast(msg, undo) {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<span>${esc(msg)}</span>${undo ? '<button id="undoBtn">Undo</button>' : ''}`;
+  t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 8000);
+  if (undo) document.getElementById('undoBtn').onclick = () => { undo(); t.hidden = true; };
+}
+
+/* ---------- events ---------- */
+const blockLen = b => toMin(b.end) - toMin(b.start);
+function applyTemplate(data) { ui.ed.draft.sched = sanitizeSched(clone(data)); }
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('[data-a]'); if (!t) return;
+  const a = t.dataset.a, ed = ui.ed;
+  switch (a) {
+    case 'tab': ui.tab = t.dataset.k; render(); break;
+    case 'sched': ui.sched = t.dataset.k; render(); break;
+    case 'wk': { const L = cycleLen(); ui.week = ((ui.week - 1 + Number(t.dataset.d) + L) % L) + 1; render(); break; }
+    case 'clearFilters': ui.fClass = ui.fTeacher = ui.fRoom = ''; render(); break;
+    case 'newClass': openEditor(newClass(), true); break;
+    case 'editClass': { const c = S.classes.find(x => x.id === t.dataset.id); if (c) openEditor(c, false); break; }
+    case 'viewClass': ui.cls = t.dataset.id; ui.sched = 'class'; ui.tab = 'schedule'; render(); break;
+    case 'dupClass': {
+      const c = S.classes.find(x => x.id === t.dataset.id); if (!c) break;
+      const n = clone(c); n.id = uid(); n.name = (c.name || 'Class') + ' (copy)';
+      DAYS.forEach(d => { for (let w = 0; w < 5; w++) n.sched.tl[w][d] = cloneBlocks(n.sched.tl[w][d]); });
+      S.classes.splice(S.classes.indexOf(c) + 1, 0, n); save(); render(); break;
+    }
+    case 'delClass': {
+      const i = S.classes.findIndex(x => x.id === t.dataset.id); if (i < 0) break;
+      const c = S.classes[i];
+      if (!confirm(`Delete “${c.name || 'unnamed class'}”?`)) break;
+      S.classes.splice(i, 1); save(); render();
+      toast(`Deleted “${c.name || 'unnamed class'}”.`, () => { S.classes.splice(Math.min(i, S.classes.length), 0, c); save(); render(); });
+      break;
+    }
+    /* editor navigation */
+    case 'edCancel': closeEditor(); break;
+    case 'edSave': saveEditor(); break;
+    case 'step': setStep(Number(t.dataset.n)); break;
+    case 'stepBack': setStep(ed.step - 1); break;
+    case 'stepNext': setStep(ed.step + 1); break;
+    case 'color': ed.draft.color = t.dataset.c; document.getElementById('edColor').value = t.dataset.c;
+      document.querySelectorAll('#swatches .sw').forEach(s => s.setAttribute('aria-pressed', String(s === t))); break;
+    case 'cycle': ed.draft.weeks = Number(t.dataset.n); ed.week = Math.min(ed.week, ed.draft.weeks); refreshStep(); break;
+    case 'edweek': ed.week = Number(t.dataset.n); refreshStep(); break;
+    case 'edday': ed.day = t.dataset.day; refreshStep(); break;
+    /* periods */
+    case 'delBlock': { const s = ed.draft.sched; s.tl[ed.week - 1][ed.day] = s.tl[ed.week - 1][ed.day].filter(b => b.id !== t.dataset.id); touch('blocks'); refreshStep(); break; }
+    case 'addBlock': {
+      const s = ed.draft.sched, list = s.tl[ed.week - 1][ed.day], type = t.dataset.t, bl = [...list].sort(cmpBlock);
+      const startMin = bl.length ? toMin(bl[bl.length - 1].end) : toMin(s.days[ed.day].start);
+      const prevP = [...bl].reverse().find(b => b.type === 'period');
+      const len = type === 'period' && prevP && blockLen(prevP) > 0 ? blockLen(prevP) : TYPES[type].len;
+      list.push({id: uid(), type, name: type === 'period' ? '' : TYPES[type].label, start: fromMin(startMin), end: fromMin(Math.min(startMin + len, 1439)), meets: false});
+      touch('blocks'); refreshStep(); break;
+    }
+    case 'quickBuild': {
+      const v = id => Math.max(0, parseInt(document.getElementById(id).value, 10) || 0);
+      const n = clamp(v('qbN'), 1, 20), len = clamp(v('qbLen'), 5, 240), gap = clamp(v('qbGap'), 0, 60), la = v('qbLunchAfter'), ll = clamp(v('qbLunchLen'), 5, 120);
+      const s = ed.draft.sched, list = s.tl[ed.week - 1][ed.day];
+      if (list.length && !confirm('Replace every block on this day with the generated periods?')) break;
+      let cur = toMin(s.days[ed.day].start); const out = [];
+      for (let i = 1; i <= n; i++) {
+        out.push({id: uid(), type: 'period', name: '', start: fromMin(cur), end: fromMin(cur + len), meets: false}); cur += len;
+        if (la === i && i < n) { out.push({id: uid(), type: 'lunch', name: 'Lunch', start: fromMin(cur), end: fromMin(cur + ll), meets: false}); cur += ll; }
+        else if (i < n) cur += gap;
+        if (cur > 1439) break;
+      }
+      if (cur > 1439) { toast('That runs past midnight. Reduce periods or length.'); break; }
+      s.tl[ed.week - 1][ed.day] = out; touch('blocks'); refreshStep(); break;
+    }
+    case 'copyDayAll': { const s = ed.draft.sched, src = s.tl[ed.week - 1][ed.day]; DAYS.forEach(d => { if (d !== ed.day) s.tl[ed.week - 1][d] = cloneBlocks(src); }); touch('blocks'); refreshStep(); toast('Copied this day to every day this week.'); break; }
+    case 'copyWeekAll': { const s = ed.draft.sched; for (let w = 0; w < 5; w++) if (w !== ed.week - 1) DAYS.forEach(d => { s.tl[w][d] = cloneBlocks(s.tl[ed.week - 1][d]); }); touch('blocks'); refreshStep(); toast('Copied this week to every week.'); break; }
+    case 'clearDay': ed.draft.sched.tl[ed.week - 1][ed.day] = []; touch('blocks'); refreshStep(); break;
+    /* templates */
+    case 'tplOpen': ed.panel = !ed.panel; ed.tplMsg = ''; ed.code = ''; refreshStep(); { const n = document.getElementById('tplName'); if (n) n.focus(); } break;
+    case 'tplNew': {
+      const name = document.getElementById('tplName').value.trim();
+      if (!name) { ed.tplMsg = '!Give the template a name.'; refreshStep(); document.getElementById('tplName').focus(); break; }
+      const tp = {id: uid(), name, data: clone(ed.draft.sched)};
+      S.templates.push(tp); save(); ed.tplId = tp.id; ed.panel = false; ed.tplMsg = ''; ed.code = ''; refreshStep(); break;
+    }
+    case 'tplUse': {
+      const tp = S.templates.find(x => x.id === t.dataset.id); if (!tp) break;
+      if (!confirm(`Apply “${tp.name}”? This overwrites this class’s school hours and all period times.`)) break;
+      applyTemplate(tp.data); ed.panel = false; ed.code = ''; ed.tplMsg = '';
+      if (t.dataset.m === 'record') ed.tplId = tp.id; else ed.tplId = null;
+      refreshStep(); break;
+    }
+    case 'tplOff': ed.tplId = null; ed.code = ''; ed.tplMsg = ''; refreshStep(); break;
+    case 'tplCopy': {
+      const tp = S.templates.find(x => x.id === t.dataset.id); if (!tp) break;
+      ed.code = encodeTpl(tp); ed.tplMsg = 'Code ready below (also copied if your browser allows it).';
+      try { navigator.clipboard.writeText(ed.code).catch(() => {}); } catch (e) {}
+      refreshStep(); break;
+    }
+    case 'tplRename': {
+      const tp = S.templates.find(x => x.id === t.dataset.id); if (!tp) break;
+      const n = prompt('Template name', tp.name); if (n && n.trim()) { tp.name = n.trim().slice(0, 60); save(); refreshStep(); }
+      break;
+    }
+    case 'tplDelete': {
+      const tp = S.templates.find(x => x.id === t.dataset.id); if (!tp) break;
+      if (!confirm(`Delete template “${tp.name}”? Classes already using its times keep them.`)) break;
+      S.templates = S.templates.filter(x => x.id !== tp.id); if (ed.tplId === tp.id) ed.tplId = null; save(); refreshStep(); break;
+    }
+    case 'tplLoad': {
+      try {
+        const o = decodeTpl(document.getElementById('tplCode').value);
+        let name = o.name; if (S.templates.some(x => x.name === name)) name += ' (imported)';
+        S.templates.push({id: uid(), name, data: o.data}); save(); ed.tplMsg = `Added “${name}”. Choose Apply & record or Apply once.`;
+      } catch (err) { ed.tplMsg = '!' + err.message; }
+      refreshStep(); break;
+    }
+    /* toolbar */
+    case 'fmt': S.h24 = !S.h24; save(); render(); break;
+    case 'export': {
+      const blob = new Blob([JSON.stringify(S, null, 2)], {type: 'application/json'});
+      const url = URL.createObjectURL(blob), el = document.createElement('a');
+      el.href = url; el.download = 'class-schedule-' + new Date().toISOString().slice(0, 10) + '.json';
+      document.body.appendChild(el); el.click(); el.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); break;
+    }
+    case 'import': document.getElementById('file').click(); break;
+    case 'print': window.print(); break;
+    case 'theme': {
+      const dark = S.theme ? S.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      S.theme = dark ? 'light' : 'dark'; save(); render(); break;
+    }
+  }
+});
+document.addEventListener('change', ev => {
+  const t = ev.target, e = ui.ed;
+  if (t.id === 'edColor' && e) {
+    e.draft.color = t.value;
+    document.querySelectorAll('#swatches .sw').forEach(s => s.setAttribute('aria-pressed', String(s.dataset.c === t.value))); return;
+  }
+  if (t.dataset.u) { ui[t.dataset.u] = t.dataset.num !== undefined ? Number(t.value) : t.value; render(); return; }
+  const em = t.dataset.e; if (!em || !e) return;
+  const s = e.draft.sched;
+  switch (em) {
+    case 'dayOn': s.days[t.dataset.day].on = t.checked; if (!t.checked && e.day === t.dataset.day) e.day = firstOn(e.draft); refreshStep(); return;
+    case 'hMode':
+      if (t.value === 'all') {
+        const d0 = s.days[firstOn(e.draft)]; s.all = {start: d0.start, end: d0.end}; DAYS.forEach(d => { s.days[d].start = s.all.start; s.days[d].end = s.all.end; });
+      }
+      s.hoursMode = t.value; touch('hours'); refreshStep(); return;
+    case 'hAllStart': case 'hAllEnd': {
+      const k = em === 'hAllStart' ? 'start' : 'end';
+      if (TIME_RE.test(t.value)) { s.all[k] = t.value; DAYS.forEach(d => { s.days[d][k] = t.value; }); touch('hours'); }
+      refreshStep(); return;
+    }
+    case 'hStart': case 'hEnd': {
+      const k = em === 'hStart' ? 'start' : 'end', day = t.dataset.day;
+      if (TIME_RE.test(t.value)) { s.days[day][k] = t.value; touch('hours', day); }
+      refreshStep(); return;
+    }
+  }
+  const list = s.tl[e.week - 1][e.day], b = list.find(x => x.id === t.dataset.id); if (!b) return;
+  if (em === 'type') { b.type = t.value; if (b.type === 'period') { b.name = ''; } else { b.meets = false; if (!b.name) b.name = TYPES[b.type].label; } }
+  else if (em === 'start' && TIME_RE.test(t.value)) { const len = blockLen(b); b.start = t.value; if (len > 0) b.end = fromMin(Math.min(1439, toMin(b.start) + len)); }
+  else if (em === 'end' && TIME_RE.test(t.value)) b.end = t.value;
+  else if (em === 'len') { const n = parseInt(t.value, 10); if (n > 0) b.end = fromMin(Math.min(1439, toMin(b.start) + n)); }
+  else if (em === 'meets') b.meets = t.checked;
+  list.sort(cmpBlock); touch('blocks'); refreshStep();
+});
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if (t.dataset.u === 'q') { ui.q = t.value; document.getElementById('clsList').innerHTML = clsListHtml(); return; }
+  if (t.dataset.d && ui.ed) { ui.ed.draft[t.dataset.d] = t.value; if (t.dataset.d === 'name') updateNameMsg(); return; }
+  if (t.dataset.e === 'name' && ui.ed) {
+    const b = ui.ed.draft.sched.tl[ui.ed.week - 1][ui.ed.day].find(x => x.id === t.dataset.id);
+    if (b) { b.name = t.value; touch('blocks'); }
+  }
+});
+document.getElementById('file').addEventListener('change', ev => {
+  const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const next = normalize(JSON.parse(rd.result));
+      if (!confirm(`Replace everything with this file (${next.classes.length} classes, ${next.templates.length} templates)? Your current data will be overwritten.`)) return;
+      S = next; ui.ed = null; save(); render(); toast('Imported.');
+    } catch (err) { alert('Import failed: ' + err.message); }
+  };
+  rd.readAsText(f);
+});
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && ui.ed) closeEditor(); });
+document.getElementById('overlay').addEventListener('mousedown', ev => { if (ev.target.id === 'overlay') closeEditor(); });
+document.addEventListener('submit', ev => { ev.preventDefault(); });
+
+render();
+})();
+</script>
+</body>
+</html>

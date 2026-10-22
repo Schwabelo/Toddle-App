@@ -14,6 +14,8 @@ const code = ORDER.map((n) => {
 const css = fs.readFileSync('styles.css', 'utf8');
 const icon = 'data:image/svg+xml;base64,' + fs.readFileSync('icon.svg').toString('base64');
 let html = fs.readFileSync('index.html', 'utf8');
+// The scheduler is embedded as text and loaded into its frame with srcdoc, so no second file is needed.
+const scheduler = JSON.stringify(fs.readFileSync('scheduler.html', 'utf8')).replace(/<\//g, '<\\/');
 
 html = html
   .replace(/<link rel="manifest"[^>]*>\n?/, '')
@@ -21,7 +23,7 @@ html = html
   .replace(/<link rel="icon" href="icon.svg"/, `<link rel="icon" href="${icon}"`)
   .replace(/<link rel="stylesheet" href="styles.css">/, () => `<style>\n${css}</style>`)
   .replace(/<img src="icon.svg"/, `<img src="${icon}"`)
-  .replace(/<script type="module" src="js\/app.js"><\/script>/, () => `<script>\n(() => {\n'use strict';\n${code}\n})();\n</script>`);
+  .replace(/<script type="module" src="js\/app.js"><\/script>/, () => `<script>\nwindow.SCHEDULER_SRCDOC = ${scheduler};\n</script>\n<script>\n(() => {\n'use strict';\n${code}\n})();\n</script>`);
 
 fs.writeFileSync('study-hub.html', html);
 console.log(`study-hub.html written (${Math.round(html.length / 1024)} KB)`);

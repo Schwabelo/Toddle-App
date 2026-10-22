@@ -2,6 +2,7 @@
 import { today } from './util.js';
 
 const KEY = 'toddle-study-hub:v1';
+export const SCHEDULER_KEY = 'classScheduler.v2'; // owned by the embedded scheduler (scheduler.html)
 
 const defaults = () => ({
   settings: {
@@ -51,6 +52,10 @@ export function save() {
 }
 
 export function resetAll() {
+  try {
+    localStorage.removeItem(SCHEDULER_KEY);
+    localStorage.removeItem('classScheduler.v1');
+  } catch (e) { /* storage unavailable */ }
   Object.keys(state).forEach((k) => delete state[k]);
   Object.assign(state, defaults());
   save();

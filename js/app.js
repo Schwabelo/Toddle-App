@@ -1,7 +1,7 @@
 // Router, shell and event delegation.
 import { state, save } from './store.js';
 import { actions, changes, inputs, setRender } from './ui.js';
-import { startPage, classesPage, classPage, calendarPage, progressPage, settingsPage, applyTheme } from './pages.js';
+import { startPage, classesPage, classPage, calendarPage, progressPage, settingsPage, schedulePage, applyTheme } from './pages.js';
 import { timerPage, updateTimerUI } from './timer.js';
 import { cardsPage } from './cards.js';
 import { syncFromFeed, getProxy } from './sync.js';
@@ -13,6 +13,7 @@ const ROUTES = {
   classes: { nav: 'classes', page: classesPage },
   class: { nav: 'classes', page: (a) => classPage(decodeURIComponent(a)) },
   calendar: { nav: 'calendar', page: calendarPage },
+  schedule: { nav: 'schedule', page: schedulePage },
   timer: { nav: 'timer', page: timerPage },
   flashcards: { nav: 'flashcards', page: cardsPage },
   progress: { nav: 'progress', page: progressPage },
@@ -26,10 +27,14 @@ function route() {
 
 function render() {
   const { r, arg } = route();
+  // Re-rendering would reload the scheduler frame and lose unsaved edits (e.g. when the timer ends).
+  if (r.nav === 'schedule' && view.querySelector('.sched-frame')) return;
   // Keep expanded assignment details and scroll position across re-renders.
   const open = new Set([...view.querySelectorAll('details[open][data-keep]')].map((d) => d.dataset.keep));
   const y = window.scrollY;
   view.innerHTML = r.page(arg);
+  const frame = view.querySelector('iframe[data-srcdoc]');
+  if (frame) frame.srcdoc = window.SCHEDULER_SRCDOC;
   view.querySelectorAll('details[data-keep]').forEach((d) => open.has(d.dataset.keep) && (d.open = true));
   window.scrollTo(0, y);
   document.querySelectorAll('[data-nav]').forEach((a) => a.classList.toggle('active', a.dataset.nav === r.nav));

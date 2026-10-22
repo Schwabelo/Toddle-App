@@ -136,3 +136,6 @@ textarea { resize: vertical; }
 
 .note.err { background: color-mix(in srgb, var(--bad) 10%, transparent); border-left-color: var(--bad); }
 .note pre { white-space: pre-wrap; word-break: break-all; user-select: text; font: .8rem/1.5 ui-monospace, Menlo, monospace; margin: .5rem 0; }
+
+.sched-frame { width: 100%; height: calc(100vh - 8rem); min-height: 560px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); display: block; }
+@media (max-width: 760px) { .sched-frame { height: calc(100vh - 10rem); } }

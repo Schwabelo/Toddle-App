@@ -5,6 +5,7 @@ A static web app that turns your Toddle calendar feed into a study dashboard. No
 - **Start** – what's due today, overdue work, the next 7 days, upcoming assessments
 - **Classes** – every assignment sorted into its class, with filters, search, descriptions and links back to Toddle
 - **Calendar** – month view with assignments, holidays and school events
+- **Schedule** – build your class timetable: periods, week cycles, clash detection, print (`scheduler.html`)
 - **Timer** – Pomodoro focus timer that logs your study time
 - **Flashcards** – make decks (paste a list to bulk-add), study with spaced repetition
 - **Progress** – completion per class, focus-time chart, day streak
@@ -98,6 +99,7 @@ js/store.js         saved state
 js/config.js        shared proxy address (edit this)
 js/sync.js          import from link / file
 js/pages.js         Start, Classes, Calendar, Progress, Settings
+scheduler.html      the Class Scheduler (self-contained, shown in the Schedule section)
 js/timer.js         focus timer
 js/cards.js         flashcards
 js/app.js           router and events
