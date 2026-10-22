@@ -2,12 +2,15 @@
 import { parseIcs } from './ics.js';
 import { state, save, tasks, toggleDone } from './store.js';
 import { today } from './util.js';
+import { DEFAULT_PROXY } from './config.js';
+
+export const getProxy = () => state.settings.proxy.trim() || DEFAULT_PROXY;
 
 export async function syncFromFeed() {
   // Calendar apps hand out webcal:// links; browsers can only fetch https://.
   const url = state.feedUrl.trim().replace(/^webcals?:\/\//i, 'https://');
   if (!state.feedUrl.trim()) throw new Error('Paste your Toddle calendar link in Settings first.');
-  const proxy = state.settings.proxy.trim();
+  const proxy = getProxy();
   const target = proxy ? proxy + encodeURIComponent(url) : url;
   let res;
   try {
@@ -22,7 +25,9 @@ export async function syncFromFeed() {
     throw err;
   }
   if (!res.ok) throw new Error(`Toddle answered with an error (${res.status}). The link may have expired.`);
-  return importText(await res.text());
+  const text = await res.text();
+  if (!text.includes('BEGIN:VCALENDAR')) throw new Error('Toddle did not send a calendar back. Check that the link is complete and has not expired.');
+  return importText(text);
 }
 
 export function importText(text) {

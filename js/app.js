@@ -4,7 +4,7 @@ import { actions, changes, inputs, setRender } from './ui.js';
 import { startPage, classesPage, classPage, calendarPage, progressPage, settingsPage, applyTheme } from './pages.js';
 import { timerPage, updateTimerUI } from './timer.js';
 import { cardsPage } from './cards.js';
-import { syncFromFeed } from './sync.js';
+import { syncFromFeed, getProxy } from './sync.js';
 
 const view = document.getElementById('view');
 
@@ -62,7 +62,7 @@ applyTheme();
 render();
 
 // Quietly refresh from Toddle when a proxy is configured (direct downloads are blocked by Toddle's CORS rules).
-if (state.feedUrl && state.settings.proxy && (!state.lastSync || Date.now() - state.lastSync > 3600e3)) {
+if (state.feedUrl && getProxy() && (!state.lastSync || Date.now() - state.lastSync > 3600e3)) {
   syncFromFeed().then(render).catch(() => {});
 }
 

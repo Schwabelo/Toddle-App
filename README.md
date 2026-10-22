@@ -24,11 +24,36 @@ Your Toddle calendar link contains a private access key, so **it is never stored
 
 Toddle's server only allows its own website (`web.toddleapp.com`) to download the feed from a browser, so a page on `github.io` can't fetch it directly. Two ways around that:
 
-1. **Upload the file (works everywhere, no setup).** Open your Toddle link in a browser tab, save the `.ics` file, then use *Settings → Upload .ics file*. Repeat when you want fresh data.
-2. **Run a tiny proxy (automatic sync).** A free Cloudflare Worker can fetch the feed for you. Create a Worker with the code below, set `ALLOWED_ORIGIN` to `https://<your-username>.github.io`, then put `https://<your-worker>.workers.dev/?url=` in *Settings → Proxy address*. The app then syncs from your link when you open it (at most once an hour).
+1. **Upload the file (no setup).** Open your Toddle link in a browser tab, save the `.ics` file, then use *Settings → Upload .ics file*. Repeat for fresh data.
+2. **Shared sync proxy (everyone just pastes their link).** One small script, run by one person, downloads feeds on behalf of the app. Set it up once (below); users then paste their own link in *Settings* and press *Sync*.
+
+### Shared sync proxy
+
+The proxy only forwards `https://*.toddleapp.com/calendar/...` links, stores nothing, and must not log URLs (your link is a private key). Whoever runs it can technically see the links that pass through, so only run it with the school's agreement.
+
+**Option A: Google Apps Script** (no new account)
+
+1. Go to <https://script.google.com> → **New project**. Paste:
+
+   ```js
+   function doGet(e) {
+     var u = (e.parameter && e.parameter.url) || '';
+     if (!/^https:\/\/[\w.-]+\.toddleapp\.com\/calendar\//.test(u)) {
+       return ContentService.createTextOutput('Not allowed');
+     }
+     var r = UrlFetchApp.fetch(u, { muteHttpExceptions: true });
+     return ContentService.createTextOutput(r.getContentText());
+   }
+   ```
+2. **Deploy → New deployment → Web app**. *Execute as:* Me. *Who has access:* Anyone. Authorize when asked. (If "Anyone" is missing, your Google Workspace admin has restricted it. Use a personal Google account instead.)
+3. Copy the **Web app URL** (ends in `/exec`).
+
+**Option B: Cloudflare Worker** (free account, nothing to do with Google)
+
+Create a Worker, paste the code below, and add a variable `ALLOWED_ORIGIN` = `https://<your-username>.github.io` (no path, no trailing slash).
 
 ```js
-// Cloudflare Worker: only forwards Toddle calendar feeds, only for your site.
+// Only forwards Toddle calendar feeds, only for your site.
 export default {
   async fetch(req, env) {
     const cors = { 'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN, Vary: 'Origin' };
@@ -45,7 +70,15 @@ export default {
 };
 ```
 
-The proxy sees your link (including its key) when it forwards the request, so only deploy it on your own Cloudflare account.
+**Then tell the app about it (once, for everybody):** open `js/config.js` and set
+
+```js
+export const DEFAULT_PROXY = 'https://script.google.com/macros/s/XXXXXXXX/exec?url=';
+```
+
+(or your Worker address followed by `/?url=`). Commit and push. Users no longer see or need a proxy setting; they paste their link and press *Sync*. The app also re-syncs automatically when opened (at most once an hour). Toddle itself refreshes the feed about every 24 hours.
+
+If you use `study-hub.html` instead of the website, run `node build-single.mjs` after editing `config.js`. Note: the Cloudflare option only works from the website, not from a downloaded file.
 
 ## Install as an app (Chromebook, Android, desktop)
 
@@ -62,6 +95,7 @@ index.html          page shell and navigation
 styles.css          all styling (light/dark, responsive)
 js/ics.js           Toddle .ics parser
 js/store.js         saved state
+js/config.js        shared proxy address (edit this)
 js/sync.js          import from link / file
 js/pages.js         Start, Classes, Calendar, Progress, Settings
 js/timer.js         focus timer

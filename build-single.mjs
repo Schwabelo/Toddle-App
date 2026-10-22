@@ -2,7 +2,7 @@
 // Usage: node build-single.mjs
 import fs from 'fs';
 
-const ORDER = ['util', 'ics', 'store', 'ui', 'sync', 'components', 'timer', 'cards', 'pages', 'app'];
+const ORDER = ['config', 'util', 'ics', 'store', 'ui', 'sync', 'components', 'timer', 'cards', 'pages', 'app'];
 
 const code = ORDER.map((n) => {
   let src = fs.readFileSync(`js/${n}.js`, 'utf8');

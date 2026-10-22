@@ -163,6 +163,12 @@ textarea { resize: vertical; }
   <script>
 (() => {
 'use strict';
+// ---- config.js ----
+// Address of the shared sync proxy (see README, "Shared sync proxy").
+// Leave empty to use file upload only. Must end where the Toddle link gets appended, e.g.
+//   'https://script.google.com/macros/s/XXXXXXXX/exec?url='
+const DEFAULT_PROXY = '';
+
 // ---- util.js ----
 // Small shared helpers: escaping, local-date math, formatting.
 
@@ -474,11 +480,14 @@ function toast(msg) {
 
 
 
+
+const getProxy = () => state.settings.proxy.trim() || DEFAULT_PROXY;
+
 async function syncFromFeed() {
   // Calendar apps hand out webcal:// links; browsers can only fetch https://.
   const url = state.feedUrl.trim().replace(/^webcals?:\/\//i, 'https://');
   if (!state.feedUrl.trim()) throw new Error('Paste your Toddle calendar link in Settings first.');
-  const proxy = state.settings.proxy.trim();
+  const proxy = getProxy();
   const target = proxy ? proxy + encodeURIComponent(url) : url;
   let res;
   try {
@@ -493,7 +502,9 @@ async function syncFromFeed() {
     throw err;
   }
   if (!res.ok) throw new Error(`Toddle answered with an error (${res.status}). The link may have expired.`);
-  return importText(await res.text());
+  const text = await res.text();
+  if (!text.includes('BEGIN:VCALENDAR')) throw new Error('Toddle did not send a calendar back. Check that the link is complete and has not expired.');
+  return importText(text);
 }
 
 function importText(text) {
@@ -1365,9 +1376,13 @@ function settingsPage() {
       <label class="btn">Upload .ics file<input type="file" accept=".ics,text/calendar" data-change="upload-ics" hidden></label>
       ${state.events.length || state.feedUrl ? '<button class="btn danger" data-action="clear-feed">Remove imported data</button>' : ''}
     </div>
-    <div class="note"><strong>Heads up:</strong> your link contains a private access key, so it is saved only in this browser and never in the site's code. Toddle only lets its own website download the feed, so syncing from the link needs a small proxy (see the README). Without one, download the file from the link and use <em>Upload .ics file</em> instead.</div>
-    <label class="field">Proxy address <span class="muted">(optional)</span>
-      <input type="url" data-change="setting" data-setting="proxy" placeholder="https://your-worker.workers.dev/?url=" value="${esc(s.proxy)}"></label>
+    ${getProxy()
+      ? `<div class="note"><strong>Your link is private.</strong> It is saved only in this browser. When you sync, it is sent through the app's sync service, which only forwards it to Toddle. Toddle refreshes its calendar about once a day, so new work can take up to 24 hours to show.</div>`
+      : `<div class="note"><strong>Heads up:</strong> your link contains a private access key, so it is saved only in this browser. Toddle only lets its own website download the feed, so syncing from the link needs a proxy (see the README). Without one, download the file from the link and use <em>Upload .ics file</em> instead.</div>`}
+    <details><summary class="muted">Advanced: sync service address</summary>
+      <label class="field">Proxy address <span class="muted">(leave empty to use the default)</span>
+        <input type="url" data-change="setting" data-setting="proxy" placeholder="https://…/exec?url=" value="${esc(s.proxy)}"></label>
+    </details>
   </section>
 
   <section class="card"><h2>Appearance & calendar</h2>
@@ -1466,7 +1481,7 @@ applyTheme();
 render();
 
 // Quietly refresh from Toddle when a proxy is configured (direct downloads are blocked by Toddle's CORS rules).
-if (state.feedUrl && state.settings.proxy && (!state.lastSync || Date.now() - state.lastSync > 3600e3)) {
+if (state.feedUrl && getProxy() && (!state.lastSync || Date.now() - state.lastSync > 3600e3)) {
   syncFromFeed().then(render).catch(() => {});
 }
 

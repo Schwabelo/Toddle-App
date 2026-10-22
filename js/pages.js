@@ -4,7 +4,7 @@ import { esc, today, addDays, diffDays, fmtDate, fmtTime, ymd, parseYmd, downloa
 import { taskRow, eventRow, emptyState, bar, typeBadge } from './components.js';
 import { dueCardCount } from './cards.js';
 import { actions, changes, inputs, rerender, toast } from './ui.js';
-import { syncFromFeed, importText, offerMarkPastDone } from './sync.js';
+import { syncFromFeed, importText, offerMarkPastDone, getProxy } from './sync.js';
 import { syncDurations } from './timer.js';
 
 const greeting = () => {
@@ -371,9 +371,13 @@ export function settingsPage() {
       <label class="btn">Upload .ics file<input type="file" accept=".ics,text/calendar" data-change="upload-ics" hidden></label>
       ${state.events.length || state.feedUrl ? '<button class="btn danger" data-action="clear-feed">Remove imported data</button>' : ''}
     </div>
-    <div class="note"><strong>Heads up:</strong> your link contains a private access key, so it is saved only in this browser and never in the site's code. Toddle only lets its own website download the feed, so syncing from the link needs a small proxy (see the README). Without one, download the file from the link and use <em>Upload .ics file</em> instead.</div>
-    <label class="field">Proxy address <span class="muted">(optional)</span>
-      <input type="url" data-change="setting" data-setting="proxy" placeholder="https://your-worker.workers.dev/?url=" value="${esc(s.proxy)}"></label>
+    ${getProxy()
+      ? `<div class="note"><strong>Your link is private.</strong> It is saved only in this browser. When you sync, it is sent through the app's sync service, which only forwards it to Toddle. Toddle refreshes its calendar about once a day, so new work can take up to 24 hours to show.</div>`
+      : `<div class="note"><strong>Heads up:</strong> your link contains a private access key, so it is saved only in this browser. Toddle only lets its own website download the feed, so syncing from the link needs a proxy (see the README). Without one, download the file from the link and use <em>Upload .ics file</em> instead.</div>`}
+    <details><summary class="muted">Advanced: sync service address</summary>
+      <label class="field">Proxy address <span class="muted">(leave empty to use the default)</span>
+        <input type="url" data-change="setting" data-setting="proxy" placeholder="https://…/exec?url=" value="${esc(s.proxy)}"></label>
+    </details>
   </section>
 
   <section class="card"><h2>Appearance & calendar</h2>
