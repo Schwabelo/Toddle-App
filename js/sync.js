@@ -4,7 +4,14 @@ import { state, save, tasks, toggleDone } from './store.js';
 import { today } from './util.js';
 import { DEFAULT_PROXY } from './config.js';
 
-export const getProxy = () => state.settings.proxy.trim() || DEFAULT_PROXY;
+// Accepts a bare proxy address and adds the "?url=" ending if it is missing.
+function normalizeProxy(p) {
+  p = p.trim();
+  if (!p || /[?&]url=$/.test(p)) return p;
+  return p + (p.includes('?') ? '&' : '?') + 'url=';
+}
+
+export const getProxy = () => normalizeProxy(state.settings.proxy) || DEFAULT_PROXY;
 
 // Latest sync problem, shown in Settings so it can be read and copied.
 export const syncStatus = { error: null };
@@ -12,7 +19,8 @@ export const syncStatus = { error: null };
 const safeUrl = (u) => {
   try {
     const x = new URL(u);
-    return x.origin + x.pathname; // never show the query string: it holds the private key
+    // Never show the query string (it holds the private key), nor a link that was glued onto the path.
+    return x.origin + x.pathname.replace(/https?%3A.*$/i, '…');
   } catch (e) {
     return '(invalid address)';
   }
