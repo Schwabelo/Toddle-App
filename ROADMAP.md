@@ -1,51 +1,72 @@
 # Roadmap
 
-Effort guide: **S** = under an hour of work, **M** = a few hours, **L** = a day or more. These are rough guesses, not measurements.
+Two features are planned: a **weekly planner** and **better flashcards**. Effort guide: **S** = under an hour, **M** = a few hours, **L** = a day or more. These are rough guesses, not measurements.
 
-Guiding rules: keep it a static site with everything stored in the browser unless a feature truly needs a server; keep setup for students at "paste your link"; never put private links or keys in the repo.
+Rules for both: stay a static site with everything in the browser, work with mouse, touch and keyboard (school Chromebooks vary), and include the new data in **Export backup** and **Delete everything**.
 
-## Now: small changes that make daily use better
+## 1. Weekly planner
 
-| # | Feature | Why | Effort |
-|---|---|---|---|
-| 1 | **Today's lessons on Start.** Let each Schedule class point at a Toddle class, then show "Today: P1 Maths, P2 Sciences…" next to what's due. | Joins the two halves of the app that currently don't talk to each other. | M |
-| 2 | **Notes, priority and time estimate per assignment.** Stored locally, shown in the row. | Toddle has none of these; they're the first thing you'd want when planning. | S–M |
-| 3 | **Timer tied to an assignment.** Pick the task you're working on; study time then shows per assignment and per class. | Makes Progress more meaningful than class totals only. | S |
-| 4 | **Search everywhere (Ctrl+K).** Assignments, flashcards, classes. | Fast navigation once you have 100+ items. | S |
-| 5 | **Automated tests + a GitHub check.** Unit tests for the `.ics` parser using sample feeds; one browser smoke test. | If Toddle changes its feed format, we find out from a failing test, not from users. | S–M |
-| 6 | **Accessibility and keyboard pass.** Focus order, labels, contrast in both themes, shortcuts. | Right now it's only been checked by eye. | S |
+**Goal:** turn "what's due" into "what I'll do on which day."
 
-## Next: bigger features
+**What exists today:** the Start page lists what's due this week, and the Calendar shows due dates. Nothing lets you decide *when* to do the work.
 
-| # | Feature | Notes | Effort |
-|---|---|---|---|
-| 7 | **Weekly planner.** Drag open assignments onto days, with a "do tonight" list. Auto-suggest a spread based on due dates and time estimates. | Depends on #2. | M–L |
-| 8 | **Flashcard study modes.** Multiple choice, type-the-answer, cloze, and import from a pasted Quizlet-style list. Link a deck to an assignment. | The spaced-repetition core already exists. | M |
-| 9 | **Assessment prep.** For each summative: countdown, plus a suggested set of study sessions leading up to it. | Depends on #7. | M |
-| 10 | **Reminders.** "Due tomorrow" banner and optional browser notifications while the app is open. | True push notifications when the app is closed need a server (see below). | S–M |
-| 11 | **Goals and streaks.** Weekly study-minutes goal, simple milestones. | Streak logic exists already. | S |
-| 12 | **MYP criteria tracker.** Titles mention "Criterion A/B/C/D"; let people log their own grades per criterion and chart them per class. | Toddle's feed has no grades, so this would be manual entry. I've only seen one feed, so the title pattern needs checking against more data first. | M |
-| 13 | **Calendar views.** Week and agenda view, export to a calendar file. | | M |
-| 14 | **Display options.** Compact mode, larger text, interface language. | Ask which languages are actually wanted. | S–M |
+**What gets built**
 
-## Later: needs a decision first
+| Piece | Details | Effort |
+|---|---|---|
+| Data | Per assignment: a planned day, plus an optional time estimate in minutes. Stored locally, keyed by the assignment's ID so it survives re-syncs. | S |
+| Week view | Seven day columns plus an **Unplanned** tray holding open assignments due this week and anything overdue. Previous / next week and a Today button. | M |
+| Planning by hand | Drag an assignment onto a day. Also a "Plan for…" menu on every row, because drag and drop is unreliable on touch screens and some Chromebooks. | M |
+| Day load | Each day shows the total of its estimates against a daily limit you set in Settings (for example 90 minutes). Turns amber when over. | S |
+| Warnings | Flag a task planned *after* its due date. | S |
+| Auto-plan | One button that spreads unplanned work across the days before each due date, earliest deadlines first, without going over the daily limit. Always editable afterwards. | M |
+| Row actions | Tick off done, open details, and start the focus timer from the planner. | S |
+| Backup | Plans and estimates included in backup and reset. | S |
 
-| Feature | The decision |
-|---|---|
-| **AI assistant** (flashcards from notes, quiz me, "what should I do first?", explain this). | Whose key pays, how much per person per day, and whether the school is happy for students' questions to go to an outside AI provider. A key can't live in the site's code, so it needs the same kind of small proxy as the Toddle sync, with per-person limits. |
-| **Sync between devices** (phone, laptop, school Chromebook). | Needs a server-side store and some form of sign-in. Options are a Google Sheet behind Apps Script or a small Cloudflare database. Until then, Export/Restore backup is the way to move data. |
-| **Class-wide features** (shared decks, a teacher view). | Needs accounts and a backend, so it's a different kind of project. Only worth it if teachers actually want it. |
+**Decisions needed from you**
+1. **Estimates:** should every assignment start empty (you type minutes), or get a default by type (for example homework 30, summative prep 60)? Defaults are guesses, but empty means auto-plan has little to work with.
+2. **Daily limit:** one number for all days, or different for weekdays and weekends?
+3. **Weekends:** should auto-plan use Saturday and Sunday, or leave them free unless you drag something there?
 
-## Risks to keep an eye on
+**Risks:** the Toddle feed gives due times but no estimates, so auto-plan is only as good as the numbers entered. Dragging needs a tap-based alternative (included above).
 
-- **Toddle changes its feed or blocks proxies.** Mitigation: tests (#5), and file upload always works as a fallback.
-- **The shared sync proxy.** It handles everyone's private links. Keep it forwarding-only with no logging, and revisit if the user count grows. Apps Script has daily usage quotas that I haven't looked up, so check them before rolling out widely.
-- **Browser storage can be cleared.** Data lives in each browser, so a cleared cache wipes it. A backup reminder (or sync) would help.
-- **Public repository.** Nothing private is in it today. Keep it that way: no links, keys or student data in commits.
+## 2. Flashcards
+
+**What exists today:** decks (optionally tied to a class), adding cards one by one or by pasting `term ; definition` lines, spaced-repetition studying (Again / Good / Easy with keyboard keys), deck export and import, and a count of cards due.
+
+**What gets built**
+
+| Piece | Details | Effort |
+|---|---|---|
+| Study direction | Option to study back → front, or both. | S |
+| Type the answer | You type it, and it's checked ignoring capitals, accents, extra spaces and punctuation. A "mark as correct" override for near misses. | M |
+| Multiple choice | Wrong options come from other cards in the same deck. Needs at least 4 cards. | M |
+| Weak cards | "Study my hardest cards" based on how often each card was missed (needs a miss counter per card). | S |
+| Better import | Accept pasted lists from other apps with tab, semicolon, comma or dash separators, and show a preview before adding. | S–M |
+| Deck stats | Per deck: cards mastered, due today, and accuracy over the last sessions. | S |
+| Link to assignment | Optionally attach a deck to an assignment, so it shows up as "Study these cards" on that assignment and in the planner. Depends on the planner. | S |
+
+**Decisions needed from you**
+1. Which modes first? My suggestion is **type the answer**, then **multiple choice**.
+2. **Images on cards:** the browser stores only about 5 MB, so images would fill it quickly. I'd leave images out unless you really want them.
+
+**Risks:** typed answers are checked by exact-ish text match, so long or free-form answers won't grade well. It suits terms and short definitions.
 
 ## Suggested order
 
-1. #5 (tests), then #1 and #2, since they unlock most of the rest.
-2. #3, #4, #6 as quick wins in between.
-3. #7 → #9 (planning), then #8 (flashcards).
-4. Decide on the AI assistant and device sync once people have used the app for a few weeks.
+1. Planner data and the week view with drag and "Plan for…" (the core).
+2. Day load and warnings, then auto-plan.
+3. Flashcards: type-the-answer and weak cards.
+4. Multiple choice, import preview, deck stats.
+5. Link decks to assignments (once both features exist).
+
+## Not planned right now
+
+Parked, not deleted: AI assistant, syncing between devices, class-wide / teacher features, automated tests, linking the Schedule section to Toddle classes, search, reminders, and an MYP criteria tracker. Say the word and any of these can come back.
+
+## Risks to keep in mind
+
+- **Toddle changes its feed or blocks the proxy.** Uploading the `.ics` file always works as a fallback.
+- **The shared sync proxy** handles everyone's private links. Keep it forwarding-only with no logging. Apps Script has daily usage quotas that I haven't looked up, so check them before a wide rollout.
+- **Browser storage can be cleared**, which wipes the data. Backups are the safeguard.
+- **Public repository:** keep links, keys and student data out of commits.
