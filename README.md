@@ -11,7 +11,7 @@ A static web app that turns your Toddle calendar feed into a study dashboard. No
 - **Progress** – completion per class, focus-time chart, day streak
 - **Settings** – theme, accent colour, timer lengths, week start, 24h time, backup/restore
 
-Everything is stored in your browser (`localStorage`). Nothing is sent anywhere.
+Everything is stored in your browser (`localStorage`). Nothing is sent anywhere except the sync request to Toddle (see below). Planned work is in [ROADMAP.md](ROADMAP.md).
 
 ## Put it on GitHub Pages
 

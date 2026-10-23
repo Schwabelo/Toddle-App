@@ -11,8 +11,8 @@
 :root {
   --bg: #f5f6fa; --card: #ffffff; --text: #1b1e2b; --muted: #636a80; --line: #e3e6ef;
   --accent: #4f46e5; --good: #059669; --bad: #dc2626; --warn: #b45309;
-  --shadow: 0 1px 2px rgba(20,24,40,.06), 0 4px 14px rgba(20,24,40,.05);
-  --radius: 14px;
+  --shadow: none;
+  --radius: 12px;
 }
 :root[data-theme="dark"] { --bg: #0f1117; --card: #181b25; --text: #eceef5; --muted: #98a0b8; --line: #2a2f3d; --good: #34d399; --bad: #f87171; --warn: #fbbf24; --shadow: none; }
 @media (prefers-color-scheme: dark) {
@@ -25,7 +25,7 @@ html { color-scheme: light dark; }
 body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); display: grid; grid-template-columns: 210px 1fr; min-height: 100vh; }
 a { color: var(--accent); }
 h1 { font-size: 1.7rem; margin: .2rem 0 .8rem; line-height: 1.2; }
-h2 { font-size: 1.1rem; margin: 0 0 .7rem; }
+h2 { font-size: 1rem; font-weight: 650; margin: 0 0 .6rem; }
 h3 { font-size: 1rem; margin: 0 0 .3rem; }
 .muted { color: var(--muted); } .small { font-size: .85rem; } .late { color: var(--bad); } .hidden { visibility: hidden; }
 .skip { position: absolute; left: -999px; } .skip:focus { left: 8px; top: 8px; z-index: 99; background: var(--card); padding: .5rem; }
@@ -34,7 +34,7 @@ h3 { font-size: 1rem; margin: 0 0 .3rem; }
 .nav { position: sticky; top: 0; height: 100vh; padding: 1rem .75rem; display: flex; flex-direction: column; gap: 2px; background: var(--card); border-right: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: .6rem; font-weight: 700; padding: .3rem .6rem 1rem; }
 .nav a { display: flex; align-items: center; gap: .7rem; padding: .6rem .75rem; border-radius: 10px; color: var(--text); text-decoration: none; font-weight: 500; }
-.nav a i { font-style: normal; width: 1.4rem; text-align: center; }
+.nav a svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .nav a:hover { background: var(--bg); }
 .nav a.active { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
 .nav a b { margin-left: auto; font: 600 .8rem/1 ui-monospace, monospace; color: var(--accent); }
@@ -52,9 +52,8 @@ main { padding: 1.5rem clamp(1rem, 3vw, 2.5rem) 3rem; max-width: 1150px; width: 
 .page-head h1 { margin-bottom: .1rem; }
 .sec-head { display: flex; justify-content: space-between; align-items: center; }
 .row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; } .row.nowrap { flex-wrap: nowrap; } .center { justify-content: center; }
-.stat { text-align: left; } .stat-num { font-size: 2rem; font-weight: 700; line-height: 1.1; } .stat-num small { font-size: .9rem; font-weight: 500; color: var(--muted); margin-left: 2px; }
+.stat { text-align: left; } .stat-num { font-size: 1.75rem; font-weight: 700; line-height: 1.1; } .stat-num small { font-size: .9rem; font-weight: 500; color: var(--muted); margin-left: 2px; }
 .stat.warn .stat-num { color: var(--bad); }
-.hero { margin-bottom: .6rem; }
 
 /* buttons & forms */
 .btn { font: inherit; font-weight: 600; padding: .55rem 1rem; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: .4rem; }
@@ -77,22 +76,27 @@ textarea { resize: vertical; }
 .filters { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin: .5rem 0 1rem; } .filters select, .filters input { width: auto; flex: 1 1 140px; max-width: 220px; }
 .tabs { display: flex; gap: .3rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; } .tab { font: inherit; border: 0; background: transparent; color: var(--muted); padding: .4rem .9rem; border-radius: 99px; cursor: pointer; font-weight: 600; } .tab.active { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); }
 
-/* tasks */
-.day-h { margin: 1rem 0 .4rem; font-size: .9rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; } .day-h:first-child { margin-top: 0; }
-.task { display: flex; gap: .7rem; padding: .6rem .5rem .6rem .7rem; border-left: 4px solid var(--c, var(--line)); border-radius: 4px 10px 10px 4px; background: color-mix(in srgb, var(--c, var(--muted)) 6%, transparent); margin-bottom: .45rem; align-items: flex-start; }
-.task.is-done .task-title { text-decoration: line-through; color: var(--muted); }
-.task.is-overdue { background: color-mix(in srgb, var(--bad) 8%, transparent); }
-.check { flex: none; width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--muted); background: var(--card); color: #fff; font-weight: 800; cursor: pointer; display: grid; place-items: center; margin-top: 1px; padding: 0; } .check[aria-pressed="true"] { background: var(--good); border-color: var(--good); }
+/* rows */
+.day-h { margin: 1.1rem 0 .35rem; font-size: .78rem; font-weight: 650; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; } .day-h:first-child { margin-top: 0; }
+.card > .day-h:first-of-type { margin-top: .2rem; }
+.count { font-weight: 500; color: var(--muted); font-size: .85rem; margin-left: .25rem; }
+.card.flush { padding-top: .1rem; padding-bottom: .1rem; }
+.list > :last-child { border-bottom: 0; }
+.trow { display: flex; gap: .8rem; padding: .7rem 0; border-bottom: 1px solid var(--line); align-items: flex-start; }
+.trow.is-done .task-title { color: var(--muted); text-decoration: line-through; }
+.check { flex: none; width: 22px; height: 22px; border-radius: 7px; border: 1.5px solid var(--muted); background: transparent; color: #fff; font-weight: 800; font-size: .8rem; cursor: pointer; display: grid; place-items: center; margin-top: 1px; padding: 0; } .check:hover { border-color: var(--accent); } .check[aria-pressed="true"] { background: var(--good); border-color: var(--good); }
 .task-main { flex: 1; min-width: 0; } .task-main summary { cursor: pointer; list-style: none; } .task-main summary::-webkit-details-marker { display: none; }
 .task-title { font-weight: 600; overflow-wrap: anywhere; display: block; }
-.task-meta { display: flex; gap: .4rem .6rem; flex-wrap: wrap; align-items: center; font-size: .82rem; color: var(--muted); margin-top: .15rem; } .due em { font-style: normal; } .due.late { color: var(--bad); font-weight: 600; }
+.task-meta { display: flex; gap: .2rem .75rem; flex-wrap: wrap; align-items: center; font-size: .82rem; color: var(--muted); margin-top: .15rem; } .due.late { color: var(--bad); }
 .task-detail { padding: .6rem 0 .2rem; } .desc { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 .5rem; font-size: .92rem; max-height: 14rem; overflow: auto; }
-.badge { font-size: .72rem; font-weight: 700; padding: .1rem .5rem; border-radius: 99px; background: var(--line); color: var(--text); }
-.b-summ { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); } .b-form { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--warn); }
-.b-quick { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); } .b-learn { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); } .b-home { background: color-mix(in srgb, var(--warn) 15%, transparent); color: var(--warn); }
-.class-chip { font-size: .75rem; padding: .05rem .55rem; border-radius: 99px; text-decoration: none; color: var(--text); border: 1px solid var(--c); }
-.event-row { align-items: center; border-left-color: var(--muted); } .dot-ev { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; margin: 0 7px; }
-.mini-row { display: flex; justify-content: space-between; gap: .6rem; padding: .5rem .7rem; border-left: 4px solid var(--c); background: color-mix(in srgb, var(--c) 7%, transparent); border-radius: 4px 10px 10px 4px; margin-bottom: .4rem; text-decoration: none; color: var(--text); } .mini-title { font-weight: 600; overflow-wrap: anywhere; }
+.tag { font-size: .7rem; font-weight: 650; padding: .08rem .45rem; border-radius: 5px; background: var(--line); color: var(--muted); }
+.t-summ { background: color-mix(in srgb, var(--bad) 13%, transparent); color: var(--bad); } .t-form { background: color-mix(in srgb, var(--warn) 16%, transparent); color: var(--warn); } .t-quick { background: color-mix(in srgb, var(--good) 15%, transparent); color: var(--good); }
+.class-label { display: inline-flex; align-items: center; gap: .35rem; color: var(--muted); text-decoration: none; } .class-label:hover { color: var(--text); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--muted)); flex: none; display: inline-block; }
+.ev-dot { flex: none; width: 22px; height: 22px; position: relative; } .ev-dot::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: var(--muted); opacity: .5; }
+.mini-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding: .6rem 0; border-bottom: 1px solid var(--line); text-decoration: none; color: var(--text); } .mini-row:last-child { border-bottom: 0; } .mini-row:hover .mini-title { color: var(--accent); }
+.mini-row > span:first-child { display: flex; flex-direction: column; min-width: 0; } .mini-title { font-weight: 600; overflow-wrap: anywhere; } .mini-date { text-align: right; font-size: .82rem; color: var(--muted); white-space: nowrap; }
+.linkbtn { font: inherit; background: none; border: 0; padding: 0; color: var(--accent); text-decoration: underline; cursor: pointer; }
 
 /* classes, decks */
 .class-card, .deck { text-decoration: none; color: var(--text); border-top: 5px solid var(--c); display: block; transition: transform .1s; } .class-card:hover, .deck:hover { transform: translateY(-2px); }
@@ -100,7 +104,6 @@ textarea { resize: vertical; }
 .class-head { border-left: 6px solid var(--c); padding-left: .8rem; margin-top: .4rem; }
 .bar { display: flex; height: 9px; border-radius: 99px; background: var(--line); overflow: hidden; margin: .4rem 0; } .bar span { display: block; height: 100%; }
 .deck-foot { display: flex; justify-content: space-between; margin-top: .8rem; font-size: .9rem; } .due-pill { background: var(--accent); color: #fff; border-radius: 99px; padding: 0 .6rem; font-size: .8rem; font-weight: 700; }
-.quick { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; } .quick-btn { display: flex; flex-direction: column; gap: .2rem; align-items: flex-start; font-size: 1.5rem; text-decoration: none; padding: .8rem; border-radius: 12px; background: var(--bg); color: var(--text); border: 1px solid var(--line); } .quick-btn span { font-size: .85rem; font-weight: 600; } .quick-btn:hover { border-color: var(--accent); }
 .empty { text-align: center; padding: 2.5rem 1rem; } .empty-icon { font-size: 2.5rem; }
 
 /* calendar */
@@ -149,20 +152,23 @@ textarea { resize: vertical; }
 
 .sched-frame { width: 100%; height: calc(100vh - 8rem); min-height: 560px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); display: block; }
 @media (max-width: 760px) { .sched-frame { height: calc(100vh - 10rem); } }
+
+.narrow { max-width: 760px; }
+.note.info { background: color-mix(in srgb, var(--accent) 8%, transparent); border-left-color: var(--accent); }
 </style>
 </head>
 <body>
   <a class="skip" href="#view">Skip to content</a>
   <nav class="nav" aria-label="Main">
     <div class="brand"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM2MzY2ZjEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0MzM4Y2EiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0idXJsKCNnKSIvPjxwYXRoIGQ9Ik0yNTYgMTIwIDk2IDE5MmwxNjAgNzIgMTYwLTcyeiIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0xNjAgMjQ0djc4YzAgMjAgNDMgNDYgOTYgNDZzOTYtMjYgOTYtNDZ2LTc4bC05NiA0M3oiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii44NSIvPjxyZWN0IHg9IjQwNCIgeT0iMTk2IiB3aWR0aD0iMTQiIGhlaWdodD0iMTA4IiByeD0iNyIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=" alt="" width="28" height="28"><span>Study Hub</span></div>
-    <a href="#/" data-nav="start"><i>🏠</i><span>Start</span></a>
-    <a href="#/classes" data-nav="classes"><i>📚</i><span>Classes</span></a>
-    <a href="#/calendar" data-nav="calendar"><i>📅</i><span>Calendar</span></a>
-    <a href="#/schedule" data-nav="schedule"><i>🗓️</i><span>Schedule</span></a>
-    <a href="#/timer" data-nav="timer"><i>⏱️</i><span>Timer</span><b id="nav-timer"></b></a>
-    <a href="#/flashcards" data-nav="flashcards"><i>🗂️</i><span>Cards</span></a>
-    <a href="#/progress" data-nav="progress"><i>📈</i><span>Progress</span></a>
-    <a href="#/settings" data-nav="settings" class="nav-end"><i>⚙️</i><span>Settings</span></a>
+    <a href="#/" data-nav="start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M9.5 19.5v-5h5v5"/></svg><span>Start</span></a>
+    <a href="#/classes" data-nav="classes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h10.5A2.5 2.5 0 0 1 18 7v13H7.5A2.5 2.5 0 0 1 5 17.5z"/><path d="M5 17.5A2.5 2.5 0 0 1 7.5 15H18"/></svg><span>Classes</span></a>
+    <a href="#/calendar" data-nav="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Calendar</span></a>
+    <a href="#/schedule" data-nav="schedule"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16.5" rx="2.5"/><path d="M3.5 9.5h17M9.5 9.5v11M3.5 15h17"/></svg><span>Schedule</span></a>
+    <a href="#/timer" data-nav="timer"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.5M9.5 3h5"/></svg><span>Timer</span><b id="nav-timer"></b></a>
+    <a href="#/flashcards" data-nav="flashcards"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7.5" width="13.5" height="12" rx="2"/><path d="M7 7.5V6a2 2 0 0 1 2-2h9.5a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H17"/></svg><span>Cards</span></a>
+    <a href="#/progress" data-nav="progress"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-6M12 20V5M19 20v-10"/></svg><span>Progress</span></a>
+    <a href="#/settings" data-nav="settings" class="nav-end"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Settings</span></a>
   </nav>
   <main id="view" tabindex="-1"></main>
   <div id="toast" role="status" aria-live="polite"></div>
@@ -236,6 +242,9 @@ function download(filename, text, type = 'application/json') {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
+
+// Teachers prefix titles with emoji (🏠, ✏️). The type tag already says it, so drop them for display.
+const displayTitle = (t) => t.replace(/^[\p{Extended_Pictographic}\uFE0F\u200D\s]+/u, '') || t;
 
 // ---- ics.js ----
 // Parses a Toddle calendar feed (.ics) into plain assignment objects.
@@ -595,49 +604,49 @@ function offerMarkPastDone() {
 
 const isHomework = (e) => /^🏠/.test(e.title) || /\b(home ?learning|homework|HML)\b/i.test(e.title);
 
-function typeBadge(e) {
-  if (e.kind !== 'task') return `<span class="badge b-event">${esc(e.type)}</span>`;
+// Only tags that tell you something: "Learning" is the default and stays untagged.
+function tagsFor(e) {
+  if (e.kind !== 'task') return e.type === 'Holidays and vacations' ? '' : `<span class="tag">${esc(e.type)}</span>`;
   const map = {
-    'Summative Assessment': ['b-summ', 'Summative'],
-    'Formative Assessment': ['b-form', 'Formative'],
-    'Quick Task': ['b-quick', 'Quick task'],
-    'Learning Experience': ['b-learn', 'Learning'],
+    'Summative Assessment': ['t-summ', 'Summative'],
+    'Formative Assessment': ['t-form', 'Formative'],
+    'Quick Task': ['t-quick', 'Quick task'],
   };
-  const [cls, label] = map[e.type] || ['b-learn', e.type];
-  return `<span class="badge ${cls}">${esc(label)}</span>${isHomework(e) ? '<span class="badge b-home">Homework</span>' : ''}`;
+  const m = map[e.type];
+  return (m ? `<span class="tag ${m[0]}">${m[1]}</span>` : '') + (isHomework(e) ? '<span class="tag">Homework</span>' : '');
 }
 
-function dueText(e) {
+function dueText(e, timeOnly = false) {
+  if (timeOnly) return e.allDay ? 'All day' : fmtTime(e.time, state.settings.time24);
   const when = e.allDay ? '' : ' · ' + fmtTime(e.time, state.settings.time24);
   const range = e.endDate !== e.date ? ` – ${fmtDate(e.endDate)}` : '';
   return `${fmtDate(e.date)}${range}${when}`;
 }
 
-function classChip(full) {
+function classLabel(full) {
   const c = classInfo(full);
-  return `<a class="class-chip" href="#/class/${encodeURIComponent(full)}" style="--c:${c.color}">${esc(c.name)}</a>`;
+  return `<a class="class-label" href="#/class/${encodeURIComponent(full)}"><i class="dot" style="--c:${c.color}"></i>${esc(c.name)}</a>`;
 }
 
-function taskRow(e, { showClass = true } = {}) {
+function taskRow(e, { showClass = true, showRel = false, timeOnly = false } = {}) {
   const done = isDone(e.uid);
   const overdue = !done && e.date < today();
-  const color = classColor(e.classes[0]);
-  const rel = done ? 'Done' : relDay(e.date);
   return `
-  <div class="task ${done ? 'is-done' : ''} ${overdue ? 'is-overdue' : ''}" style="--c:${color}">
+  <div class="trow ${done ? 'is-done' : ''}">
     <button class="check" data-action="toggle" data-uid="${esc(e.uid)}" aria-pressed="${done}" aria-label="${done ? 'Mark as not done' : 'Mark as done'}">${done ? '✓' : ''}</button>
     <details class="task-main" data-keep="${esc(e.uid)}">
       <summary>
-        <span class="task-title">${esc(e.title)}</span>
+        <span class="task-title">${esc(displayTitle(e.title))}</span>
         <span class="task-meta">
-          ${typeBadge(e)}
-          <span class="due ${overdue ? 'late' : ''}">${esc(dueText(e))} <em>(${esc(rel)})</em></span>
-          ${showClass ? e.classes.map(classChip).join('') : ''}
+          ${tagsFor(e)}
+          <span class="due ${overdue ? 'late' : ''}">${esc(dueText(e, timeOnly))}</span>
+          ${showRel && !done ? `<span>${esc(relDay(e.date))}</span>` : ''}
+          ${showClass ? e.classes.map(classLabel).join('') : ''}
         </span>
       </summary>
       <div class="task-detail">
         ${e.description ? `<p class="desc">${linkify(e.description)}</p>` : '<p class="muted">No description.</p>'}
-        <p class="muted small">${e.createdBy ? 'By ' + esc(e.createdBy) : ''}</p>
+        ${e.createdBy ? `<p class="muted small">Set by ${esc(e.createdBy)}</p>` : ''}
         ${e.link ? `<a class="btn small" href="${esc(e.link)}" target="_blank" rel="noopener noreferrer">Open in Toddle ↗</a>` : ''}
       </div>
     </details>
@@ -646,10 +655,10 @@ function taskRow(e, { showClass = true } = {}) {
 
 function eventRow(e) {
   return `
-  <div class="task event-row">
-    <span class="dot-ev"></span>
-    <div class="task-main"><div class="task-title">${esc(e.title)}</div>
-      <div class="task-meta">${typeBadge(e)} <span class="due">${esc(dueText(e))}</span>${e.location ? ` <span class="muted">📍 ${esc(e.location)}</span>` : ''}</div>
+  <div class="trow event-row">
+    <span class="ev-dot"></span>
+    <div class="task-main"><div class="task-title">${esc(displayTitle(e.title))}</div>
+      <div class="task-meta">${tagsFor(e)}<span class="due">${esc(dueText(e))}</span>${e.location ? `<span>${esc(e.location)}</span>` : ''}</div>
     </div>
   </div>`;
 }
@@ -1081,14 +1090,17 @@ const importCta = () =>
 
 // ================= START =================
 function startPage() {
+  const t = today();
   const name = state.settings.name ? `, ${esc(state.settings.name)}` : '';
-  const head = `<div class="hero"><div><h1>${greeting()}${name} 👋</h1><p class="muted">${fmtDate(today(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p></div></div>`;
+  const cards = dueCardCount();
+  const head = `<div class="page-head"><div><h1>${greeting()}${name}</h1><p class="muted">${fmtDate(t, { weekday: 'long', day: 'numeric', month: 'long' })}</p></div>
+    <div class="row"><a class="btn primary" href="#/timer">Start focus timer</a><a class="btn" href="#/flashcards">Flashcards${cards ? ` · ${cards} due` : ''}</a></div></div>`;
   if (!state.events.length) return head + importCta();
 
-  const t = today();
-  const all = tasks();
-  const open = all.filter((e) => !isDone(e.uid));
-  const overdue = open.filter((e) => e.date < t);
+  const open = tasks().filter((e) => !isDone(e.uid));
+  const overdueAll = open.filter((e) => e.date < t).sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')));
+  const recent = overdueAll.filter((e) => diffDays(t, e.date) <= 14);
+  const older = overdueAll.length - recent.length;
   const week = open.filter((e) => e.date >= t && e.date <= addDays(t, 7));
   const assess = open.filter((e) => /Assessment/.test(e.type) && e.date >= t).slice(0, 4);
   const dueToday = open.filter((e) => e.date === t).length;
@@ -1096,38 +1108,43 @@ function startPage() {
 
   const days = {};
   week.forEach((e) => (days[e.date] ||= []).push(e));
-  const dayBlocks = Object.keys(days).sort().map((d) => `<h3 class="day-h">${fmtDate(d)} <span class="muted">${d === t ? 'Today' : diffDays(d, t) === 1 ? 'Tomorrow' : ''}</span></h3>${days[d].map((e) => taskRow(e)).join('')}`).join('');
+  const dayBlocks = Object.keys(days).sort().map((d) => `<h3 class="day-h">${d === t ? 'Today' : diffDays(d, t) === 1 ? 'Tomorrow' : fmtDate(d)}</h3><div class="list">${days[d].map((e) => taskRow(e, { timeOnly: true })).join('')}</div>`).join('');
+
+  const overdueCard = overdueAll.length ? `
+    <section class="card"><div class="sec-head"><h2>Overdue <span class="count">${overdueAll.length}</span></h2><button class="btn small" data-action="mark-overdue-done">Mark all done</button></div>
+      ${recent.length ? `<div class="list">${recent.slice(0, 6).map((e) => taskRow(e, { showRel: true })).join('')}</div>` : ''}
+      ${recent.length > 6 ? `<p class="muted small">+ ${recent.length - 6} more from the last two weeks. Open a class to see them.</p>` : ''}
+      ${older ? `<p class="muted small">${older} older item${older > 1 ? 's' : ''} not shown. <button class="linkbtn" data-action="mark-older-done">Mark them done</button></p>` : ''}
+    </section>` : '';
 
   return `${head}
   <div class="grid stats">
     <div class="card stat"><div class="stat-num">${dueToday}</div><div class="muted">due today</div></div>
-    <div class="card stat ${overdue.length ? 'warn' : ''}"><div class="stat-num">${overdue.length}</div><div class="muted">overdue</div></div>
+    <div class="card stat ${overdueAll.length ? 'warn' : ''}"><div class="stat-num">${overdueAll.length}</div><div class="muted">overdue</div></div>
     <div class="card stat"><div class="stat-num">${week.length}</div><div class="muted">next 7 days</div></div>
     <div class="card stat"><div class="stat-num">${studyMinutesOn(t)}<small>min</small></div><div class="muted">studied today</div></div>
   </div>
   <div class="grid two">
     <div>
-      ${overdue.length ? `<section class="card"><div class="sec-head"><h2>Overdue</h2><button class="btn small" data-action="mark-overdue-done">Mark all done</button></div>${overdue.slice(0, 5).map((e) => taskRow(e)).join('')}${overdue.length > 5 ? `<p class="muted small">+ ${overdue.length - 5} more — open a class to see them.</p>` : ''}</section>` : ''}
-      <section class="card"><h2>Coming up</h2>${dayBlocks || '<p class="muted">Nothing due in the next 7 days. Nice.</p>'}</section>
+      <section class="card"><h2>Coming up</h2>${dayBlocks || '<p class="muted">Nothing due in the next 7 days.</p>'}</section>
+      ${overdueCard}
     </div>
     <div>
-      <section class="card"><h2>Study tools</h2>
-        <div class="quick">
-          <a class="quick-btn" href="#/timer">⏱️<span>Start focus timer</span></a>
-          <a class="quick-btn" href="#/flashcards">🗂️<span>Flashcards${dueCardCount() ? ` · ${dueCardCount()} due` : ''}</span></a>
-          <a class="quick-btn" href="#/calendar">📅<span>Calendar</span></a>
-          <a class="quick-btn" href="#/progress">📈<span>Progress</span></a>
-        </div></section>
-      <section class="card"><h2>Upcoming assessments</h2>
-        ${assess.length ? assess.map((e) => `<a class="mini-row" href="#/class/${encodeURIComponent(e.classes[0])}" style="--c:${classColor(e.classes[0])}"><span class="mini-title">${esc(e.title)}</span><span class="muted small">${typeBadge(e)} ${fmtDate(e.date)}</span></a>`).join('') : '<p class="muted">No assessments coming up.</p>'}
+      <section class="card"><h2>Assessments</h2>
+        ${assess.length ? assess.map((e) => `<a class="mini-row" href="#/class/${encodeURIComponent(e.classes[0])}"><span><span class="mini-title">${esc(displayTitle(e.title))}</span><span class="muted small">${esc(classInfo(e.classes[0]).name)}</span></span><span class="mini-date">${fmtDate(e.date)}<br>${esc(relDay(e.date))}</span></a>`).join('') : '<p class="muted">No assessments coming up.</p>'}
       </section>
-      ${nextOff ? `<section class="card"><h2>Next time off</h2><p><strong>${esc(nextOff.title)}</strong><br><span class="muted">${fmtDate(nextOff.date)}${nextOff.endDate !== nextOff.date ? ' – ' + fmtDate(nextOff.endDate) : ''}</span></p></section>` : ''}
+      ${nextOff ? `<section class="card"><h2>Next time off</h2><p class="mini-title">${esc(nextOff.title)}</p><p class="muted">${fmtDate(nextOff.date)}${nextOff.endDate !== nextOff.date ? ' – ' + fmtDate(nextOff.endDate) : ''}</p></section>` : ''}
     </div>
   </div>`;
 }
 
 actions['toggle'] = (el) => {
   toggleDone(el.dataset.uid);
+  rerender();
+};
+actions['mark-older-done'] = () => {
+  const cutoff = addDays(today(), -14);
+  tasks().filter((e) => e.date < cutoff && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
   rerender();
 };
 actions['mark-overdue-done'] = () => {
@@ -1148,7 +1165,7 @@ function classesPage() {
       <div class="cc-top"><h3>${esc(i.name)}</h3><span class="muted small">${esc(i.code)}</span></div>
       <div class="cc-nums"><span><strong>${s.open}</strong> open</span>${s.overdue ? `<span class="late"><strong>${s.overdue}</strong> overdue</span>` : ''}<span class="muted">${s.total} total</span></div>
       ${bar([{ v: pct, c: i.color, t: 'done' }])}
-      <div class="muted small">${s.next ? `Next: ${esc(s.next.title)} · ${fmtDate(s.next.date)}` : 'Nothing upcoming'}</div>
+      <div class="muted small">${s.next ? `Next: ${esc(displayTitle(s.next.title))} · ${fmtDate(s.next.date)}` : 'Nothing upcoming'}</div>
     </a>`;
   }).join('');
   return `<div class="page-head"><h1>Classes</h1><span class="muted">${tasks().length} assignments in ${names.length} classes</span></div><div class="grid classes">${cards}</div>`;
@@ -1193,10 +1210,10 @@ function classPage(name) {
     const q = search.trim().toLowerCase();
     list = list.filter((e) => (e.title + ' ' + e.description).toLowerCase().includes(q));
   }
-  const overdue = list.filter((e) => e.date < t && !isDone(e.uid));
+  const overdue = list.filter((e) => e.date < t && !isDone(e.uid)).reverse();
   const upcoming = list.filter((e) => e.date >= t);
   const past = list.filter((e) => e.date < t && isDone(e.uid)).reverse();
-  const section = (title, arr) => (arr.length ? `<h3 class="day-h">${title} <span class="muted">${arr.length}</span></h3>${arr.map((e) => taskRow(e, { showClass: false })).join('')}` : '');
+  const section = (title, arr, rel) => (arr.length ? `<h3 class="day-h">${title} <span class="count">${arr.length}</span></h3><div class="card flush"><div class="list">${arr.map((e) => taskRow(e, { showClass: false, showRel: rel })).join('')}</div></div>` : '');
   const s = classStats(name);
   const chips = [['open', 'Open'], ['all', 'All'], ['done', 'Done']].map(([k, l]) => `<button class="chip ${classFilter === k ? 'active' : ''}" data-action="class-filter" data-f="${k}">${l}</button>`).join('');
   return `
@@ -1208,7 +1225,7 @@ function classPage(name) {
     <select data-change="type-filter" aria-label="Filter by type"><option value="">All types</option>${types.map((x) => `<option ${typeFilter === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>
     <input type="search" data-input="search" placeholder="Search…" value="${esc(search)}" aria-label="Search assignments">
   </div>
-  ${section('Overdue', overdue)}${section('Upcoming', upcoming)}${section('Earlier', past)}
+  ${section('Overdue', overdue, true)}${section('Upcoming', upcoming, true)}${section('Earlier', past, false)}
   ${list.length ? '' : '<p class="muted">Nothing matches these filters.</p>'}`;
 }
 
@@ -1247,7 +1264,7 @@ function calendarPage() {
     const evs = map[key] || [];
     const chips = evs.slice(0, 3).map((e) => {
       const c = e.kind === 'task' ? classColor(e.classes[0]) : e.type === 'Holidays and vacations' ? 'var(--muted)' : 'var(--accent)';
-      return `<span class="cal-chip ${e.kind === 'task' && isDone(e.uid) ? 'is-done' : ''}" style="--c:${c}">${esc(e.title)}</span>`;
+      return `<span class="cal-chip ${e.kind === 'task' && isDone(e.uid) ? 'is-done' : ''}" style="--c:${c}">${esc(displayTitle(e.title))}</span>`;
     }).join('');
     cells += `<button class="cal-cell ${d.getMonth() !== cal.m ? 'other' : ''} ${key === t ? 'today' : ''} ${key === cal.sel ? 'selected' : ''}" data-action="cal-select" data-date="${key}" aria-label="${fmtDate(key)}, ${evs.length} events">
       <span class="cal-num">${d.getDate()}</span><span class="cal-chips">${chips}</span>${evs.length > 3 ? `<span class="cal-more">+${evs.length - 3}</span>` : ''}</button>`;
@@ -1260,7 +1277,7 @@ function calendarPage() {
   ${state.events.length ? '' : '<p class="muted">Import your Toddle calendar in Settings to see assignments here.</p>'}
   <div class="cal">${heads}${cells}</div>
   <section class="card"><h2>${fmtDate(cal.sel, { weekday: 'long', day: 'numeric', month: 'long' })}</h2>
-    ${sel.length ? sel.map((e) => (e.kind === 'task' ? taskRow(e) : eventRow(e))).join('') : '<p class="muted">Nothing on this day.</p>'}</section>`;
+    ${sel.length ? `<div class="list">${sel.map((e) => (e.kind === 'task' ? taskRow(e) : eventRow(e))).join('')}</div>` : '<p class="muted">Nothing on this day.</p>'}</section>`;
 }
 
 // ================= PROGRESS =================
@@ -1447,7 +1464,7 @@ function settingsPage() {
   const chk = (k) => (s[k] ? 'checked' : '');
   const synced = state.lastSync ? new Date(state.lastSync).toLocaleString('en-GB') : 'never';
   return `
-  <h1>Settings</h1>
+  <div class="narrow"><h1>Settings</h1>
 
   <section class="card"><h2>Toddle import</h2>
     <p class="muted">${state.events.length ? `<strong>${state.events.length}</strong> events loaded (${tasks().length} assignments in ${classNames().length} classes). Last import: ${synced}.` : 'Nothing imported yet.'}</p>
@@ -1460,7 +1477,7 @@ function settingsPage() {
       ${state.events.length || state.feedUrl ? '<button class="btn danger" data-action="clear-feed">Remove imported data</button>' : ''}
     </div>
     ${getProxy()
-      ? `<div class="note"><strong>Your link is private.</strong> It is saved only in this browser. When you sync, it is sent through the app's sync service, which only forwards it to Toddle. Toddle refreshes its calendar about once a day, so new work can take up to 24 hours to show.</div>`
+      ? `<div class="note info"><strong>Your link is private.</strong> It is saved only in this browser. When you sync, it is sent through the app's sync service, which only forwards it to Toddle. Toddle refreshes its calendar about once a day, so new work can take up to 24 hours to show.</div>`
       : `<div class="note"><strong>Heads up:</strong> your link contains a private access key, so it is saved only in this browser. Toddle only lets its own website download the feed, so syncing from the link needs a proxy (see the README). Without one, download the file from the link and use <em>Upload .ics file</em> instead.</div>`}
     ${syncStatus.error ? `<div class="note err"><strong>Last sync problem</strong><pre>${esc(syncStatus.error)}</pre><button class="btn small" data-action="copy-error">Copy details</button></div>` : ''}
     <details><summary class="muted">Advanced: sync service address</summary>
@@ -1498,7 +1515,7 @@ function settingsPage() {
       <label class="btn">Restore backup<input type="file" accept=".json,application/json" data-change="import-data" hidden></label>
       <button class="btn danger" data-action="reset-all">Delete everything</button>
     </div>
-  </section>`;
+  </section></div>`;
 }
 
 // ---- app.js ----

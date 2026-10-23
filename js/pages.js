@@ -1,7 +1,7 @@
 // Page views: Start, Classes, Class, Calendar, Progress, Settings.
 import { state, save, classNames, classInfo, classStats, classColor, tasks, tasksFor, isDone, toggleDone, studyMinutesOn, resetAll, replaceWith, SCHEDULER_KEY } from './store.js';
-import { esc, today, addDays, diffDays, fmtDate, fmtTime, ymd, parseYmd, download } from './util.js';
-import { taskRow, eventRow, emptyState, bar, typeBadge } from './components.js';
+import { esc, today, addDays, diffDays, fmtDate, fmtTime, relDay, ymd, parseYmd, download, displayTitle } from './util.js';
+import { taskRow, eventRow, emptyState, bar } from './components.js';
 import { dueCardCount } from './cards.js';
 import { actions, changes, inputs, rerender, toast } from './ui.js';
 import { syncFromFeed, importText, offerMarkPastDone, getProxy, syncStatus } from './sync.js';
@@ -17,14 +17,17 @@ const importCta = () =>
 
 // ================= START =================
 export function startPage() {
+  const t = today();
   const name = state.settings.name ? `, ${esc(state.settings.name)}` : '';
-  const head = `<div class="hero"><div><h1>${greeting()}${name} 👋</h1><p class="muted">${fmtDate(today(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p></div></div>`;
+  const cards = dueCardCount();
+  const head = `<div class="page-head"><div><h1>${greeting()}${name}</h1><p class="muted">${fmtDate(t, { weekday: 'long', day: 'numeric', month: 'long' })}</p></div>
+    <div class="row"><a class="btn primary" href="#/timer">Start focus timer</a><a class="btn" href="#/flashcards">Flashcards${cards ? ` · ${cards} due` : ''}</a></div></div>`;
   if (!state.events.length) return head + importCta();
 
-  const t = today();
-  const all = tasks();
-  const open = all.filter((e) => !isDone(e.uid));
-  const overdue = open.filter((e) => e.date < t);
+  const open = tasks().filter((e) => !isDone(e.uid));
+  const overdueAll = open.filter((e) => e.date < t).sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')));
+  const recent = overdueAll.filter((e) => diffDays(t, e.date) <= 14);
+  const older = overdueAll.length - recent.length;
   const week = open.filter((e) => e.date >= t && e.date <= addDays(t, 7));
   const assess = open.filter((e) => /Assessment/.test(e.type) && e.date >= t).slice(0, 4);
   const dueToday = open.filter((e) => e.date === t).length;
@@ -32,38 +35,43 @@ export function startPage() {
 
   const days = {};
   week.forEach((e) => (days[e.date] ||= []).push(e));
-  const dayBlocks = Object.keys(days).sort().map((d) => `<h3 class="day-h">${fmtDate(d)} <span class="muted">${d === t ? 'Today' : diffDays(d, t) === 1 ? 'Tomorrow' : ''}</span></h3>${days[d].map((e) => taskRow(e)).join('')}`).join('');
+  const dayBlocks = Object.keys(days).sort().map((d) => `<h3 class="day-h">${d === t ? 'Today' : diffDays(d, t) === 1 ? 'Tomorrow' : fmtDate(d)}</h3><div class="list">${days[d].map((e) => taskRow(e, { timeOnly: true })).join('')}</div>`).join('');
+
+  const overdueCard = overdueAll.length ? `
+    <section class="card"><div class="sec-head"><h2>Overdue <span class="count">${overdueAll.length}</span></h2><button class="btn small" data-action="mark-overdue-done">Mark all done</button></div>
+      ${recent.length ? `<div class="list">${recent.slice(0, 6).map((e) => taskRow(e, { showRel: true })).join('')}</div>` : ''}
+      ${recent.length > 6 ? `<p class="muted small">+ ${recent.length - 6} more from the last two weeks. Open a class to see them.</p>` : ''}
+      ${older ? `<p class="muted small">${older} older item${older > 1 ? 's' : ''} not shown. <button class="linkbtn" data-action="mark-older-done">Mark them done</button></p>` : ''}
+    </section>` : '';
 
   return `${head}
   <div class="grid stats">
     <div class="card stat"><div class="stat-num">${dueToday}</div><div class="muted">due today</div></div>
-    <div class="card stat ${overdue.length ? 'warn' : ''}"><div class="stat-num">${overdue.length}</div><div class="muted">overdue</div></div>
+    <div class="card stat ${overdueAll.length ? 'warn' : ''}"><div class="stat-num">${overdueAll.length}</div><div class="muted">overdue</div></div>
     <div class="card stat"><div class="stat-num">${week.length}</div><div class="muted">next 7 days</div></div>
     <div class="card stat"><div class="stat-num">${studyMinutesOn(t)}<small>min</small></div><div class="muted">studied today</div></div>
   </div>
   <div class="grid two">
     <div>
-      ${overdue.length ? `<section class="card"><div class="sec-head"><h2>Overdue</h2><button class="btn small" data-action="mark-overdue-done">Mark all done</button></div>${overdue.slice(0, 5).map((e) => taskRow(e)).join('')}${overdue.length > 5 ? `<p class="muted small">+ ${overdue.length - 5} more — open a class to see them.</p>` : ''}</section>` : ''}
-      <section class="card"><h2>Coming up</h2>${dayBlocks || '<p class="muted">Nothing due in the next 7 days. Nice.</p>'}</section>
+      <section class="card"><h2>Coming up</h2>${dayBlocks || '<p class="muted">Nothing due in the next 7 days.</p>'}</section>
+      ${overdueCard}
     </div>
     <div>
-      <section class="card"><h2>Study tools</h2>
-        <div class="quick">
-          <a class="quick-btn" href="#/timer">⏱️<span>Start focus timer</span></a>
-          <a class="quick-btn" href="#/flashcards">🗂️<span>Flashcards${dueCardCount() ? ` · ${dueCardCount()} due` : ''}</span></a>
-          <a class="quick-btn" href="#/calendar">📅<span>Calendar</span></a>
-          <a class="quick-btn" href="#/progress">📈<span>Progress</span></a>
-        </div></section>
-      <section class="card"><h2>Upcoming assessments</h2>
-        ${assess.length ? assess.map((e) => `<a class="mini-row" href="#/class/${encodeURIComponent(e.classes[0])}" style="--c:${classColor(e.classes[0])}"><span class="mini-title">${esc(e.title)}</span><span class="muted small">${typeBadge(e)} ${fmtDate(e.date)}</span></a>`).join('') : '<p class="muted">No assessments coming up.</p>'}
+      <section class="card"><h2>Assessments</h2>
+        ${assess.length ? assess.map((e) => `<a class="mini-row" href="#/class/${encodeURIComponent(e.classes[0])}"><span><span class="mini-title">${esc(displayTitle(e.title))}</span><span class="muted small">${esc(classInfo(e.classes[0]).name)}</span></span><span class="mini-date">${fmtDate(e.date)}<br>${esc(relDay(e.date))}</span></a>`).join('') : '<p class="muted">No assessments coming up.</p>'}
       </section>
-      ${nextOff ? `<section class="card"><h2>Next time off</h2><p><strong>${esc(nextOff.title)}</strong><br><span class="muted">${fmtDate(nextOff.date)}${nextOff.endDate !== nextOff.date ? ' – ' + fmtDate(nextOff.endDate) : ''}</span></p></section>` : ''}
+      ${nextOff ? `<section class="card"><h2>Next time off</h2><p class="mini-title">${esc(nextOff.title)}</p><p class="muted">${fmtDate(nextOff.date)}${nextOff.endDate !== nextOff.date ? ' – ' + fmtDate(nextOff.endDate) : ''}</p></section>` : ''}
     </div>
   </div>`;
 }
 
 actions['toggle'] = (el) => {
   toggleDone(el.dataset.uid);
+  rerender();
+};
+actions['mark-older-done'] = () => {
+  const cutoff = addDays(today(), -14);
+  tasks().filter((e) => e.date < cutoff && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
   rerender();
 };
 actions['mark-overdue-done'] = () => {
@@ -84,7 +92,7 @@ export function classesPage() {
       <div class="cc-top"><h3>${esc(i.name)}</h3><span class="muted small">${esc(i.code)}</span></div>
       <div class="cc-nums"><span><strong>${s.open}</strong> open</span>${s.overdue ? `<span class="late"><strong>${s.overdue}</strong> overdue</span>` : ''}<span class="muted">${s.total} total</span></div>
       ${bar([{ v: pct, c: i.color, t: 'done' }])}
-      <div class="muted small">${s.next ? `Next: ${esc(s.next.title)} · ${fmtDate(s.next.date)}` : 'Nothing upcoming'}</div>
+      <div class="muted small">${s.next ? `Next: ${esc(displayTitle(s.next.title))} · ${fmtDate(s.next.date)}` : 'Nothing upcoming'}</div>
     </a>`;
   }).join('');
   return `<div class="page-head"><h1>Classes</h1><span class="muted">${tasks().length} assignments in ${names.length} classes</span></div><div class="grid classes">${cards}</div>`;
@@ -129,10 +137,10 @@ export function classPage(name) {
     const q = search.trim().toLowerCase();
     list = list.filter((e) => (e.title + ' ' + e.description).toLowerCase().includes(q));
   }
-  const overdue = list.filter((e) => e.date < t && !isDone(e.uid));
+  const overdue = list.filter((e) => e.date < t && !isDone(e.uid)).reverse();
   const upcoming = list.filter((e) => e.date >= t);
   const past = list.filter((e) => e.date < t && isDone(e.uid)).reverse();
-  const section = (title, arr) => (arr.length ? `<h3 class="day-h">${title} <span class="muted">${arr.length}</span></h3>${arr.map((e) => taskRow(e, { showClass: false })).join('')}` : '');
+  const section = (title, arr, rel) => (arr.length ? `<h3 class="day-h">${title} <span class="count">${arr.length}</span></h3><div class="card flush"><div class="list">${arr.map((e) => taskRow(e, { showClass: false, showRel: rel })).join('')}</div></div>` : '');
   const s = classStats(name);
   const chips = [['open', 'Open'], ['all', 'All'], ['done', 'Done']].map(([k, l]) => `<button class="chip ${classFilter === k ? 'active' : ''}" data-action="class-filter" data-f="${k}">${l}</button>`).join('');
   return `
@@ -144,7 +152,7 @@ export function classPage(name) {
     <select data-change="type-filter" aria-label="Filter by type"><option value="">All types</option>${types.map((x) => `<option ${typeFilter === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>
     <input type="search" data-input="search" placeholder="Search…" value="${esc(search)}" aria-label="Search assignments">
   </div>
-  ${section('Overdue', overdue)}${section('Upcoming', upcoming)}${section('Earlier', past)}
+  ${section('Overdue', overdue, true)}${section('Upcoming', upcoming, true)}${section('Earlier', past, false)}
   ${list.length ? '' : '<p class="muted">Nothing matches these filters.</p>'}`;
 }
 
@@ -183,7 +191,7 @@ export function calendarPage() {
     const evs = map[key] || [];
     const chips = evs.slice(0, 3).map((e) => {
       const c = e.kind === 'task' ? classColor(e.classes[0]) : e.type === 'Holidays and vacations' ? 'var(--muted)' : 'var(--accent)';
-      return `<span class="cal-chip ${e.kind === 'task' && isDone(e.uid) ? 'is-done' : ''}" style="--c:${c}">${esc(e.title)}</span>`;
+      return `<span class="cal-chip ${e.kind === 'task' && isDone(e.uid) ? 'is-done' : ''}" style="--c:${c}">${esc(displayTitle(e.title))}</span>`;
     }).join('');
     cells += `<button class="cal-cell ${d.getMonth() !== cal.m ? 'other' : ''} ${key === t ? 'today' : ''} ${key === cal.sel ? 'selected' : ''}" data-action="cal-select" data-date="${key}" aria-label="${fmtDate(key)}, ${evs.length} events">
       <span class="cal-num">${d.getDate()}</span><span class="cal-chips">${chips}</span>${evs.length > 3 ? `<span class="cal-more">+${evs.length - 3}</span>` : ''}</button>`;
@@ -196,7 +204,7 @@ export function calendarPage() {
   ${state.events.length ? '' : '<p class="muted">Import your Toddle calendar in Settings to see assignments here.</p>'}
   <div class="cal">${heads}${cells}</div>
   <section class="card"><h2>${fmtDate(cal.sel, { weekday: 'long', day: 'numeric', month: 'long' })}</h2>
-    ${sel.length ? sel.map((e) => (e.kind === 'task' ? taskRow(e) : eventRow(e))).join('') : '<p class="muted">Nothing on this day.</p>'}</section>`;
+    ${sel.length ? `<div class="list">${sel.map((e) => (e.kind === 'task' ? taskRow(e) : eventRow(e))).join('')}</div>` : '<p class="muted">Nothing on this day.</p>'}</section>`;
 }
 
 // ================= PROGRESS =================
@@ -383,7 +391,7 @@ export function settingsPage() {
   const chk = (k) => (s[k] ? 'checked' : '');
   const synced = state.lastSync ? new Date(state.lastSync).toLocaleString('en-GB') : 'never';
   return `
-  <h1>Settings</h1>
+  <div class="narrow"><h1>Settings</h1>
 
   <section class="card"><h2>Toddle import</h2>
     <p class="muted">${state.events.length ? `<strong>${state.events.length}</strong> events loaded (${tasks().length} assignments in ${classNames().length} classes). Last import: ${synced}.` : 'Nothing imported yet.'}</p>
@@ -396,7 +404,7 @@ export function settingsPage() {
       ${state.events.length || state.feedUrl ? '<button class="btn danger" data-action="clear-feed">Remove imported data</button>' : ''}
     </div>
     ${getProxy()
-      ? `<div class="note"><strong>Your link is private.</strong> It is saved only in this browser. When you sync, it is sent through the app's sync service, which only forwards it to Toddle. Toddle refreshes its calendar about once a day, so new work can take up to 24 hours to show.</div>`
+      ? `<div class="note info"><strong>Your link is private.</strong> It is saved only in this browser. When you sync, it is sent through the app's sync service, which only forwards it to Toddle. Toddle refreshes its calendar about once a day, so new work can take up to 24 hours to show.</div>`
       : `<div class="note"><strong>Heads up:</strong> your link contains a private access key, so it is saved only in this browser. Toddle only lets its own website download the feed, so syncing from the link needs a proxy (see the README). Without one, download the file from the link and use <em>Upload .ics file</em> instead.</div>`}
     ${syncStatus.error ? `<div class="note err"><strong>Last sync problem</strong><pre>${esc(syncStatus.error)}</pre><button class="btn small" data-action="copy-error">Copy details</button></div>` : ''}
     <details><summary class="muted">Advanced: sync service address</summary>
@@ -434,5 +442,5 @@ export function settingsPage() {
       <label class="btn">Restore backup<input type="file" accept=".json,application/json" data-change="import-data" hidden></label>
       <button class="btn danger" data-action="reset-all">Delete everything</button>
     </div>
-  </section>`;
+  </section></div>`;
 }

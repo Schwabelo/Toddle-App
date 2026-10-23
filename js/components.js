@@ -1,52 +1,52 @@
 // Reusable HTML fragments.
-import { state, isDone, classInfo, classColor } from './store.js';
-import { esc, today, fmtDate, fmtTime, relDay, linkify } from './util.js';
+import { state, isDone, classInfo } from './store.js';
+import { esc, today, fmtDate, fmtTime, relDay, linkify, displayTitle } from './util.js';
 
 export const isHomework = (e) => /^🏠/.test(e.title) || /\b(home ?learning|homework|HML)\b/i.test(e.title);
 
-export function typeBadge(e) {
-  if (e.kind !== 'task') return `<span class="badge b-event">${esc(e.type)}</span>`;
+// Only tags that tell you something: "Learning" is the default and stays untagged.
+export function tagsFor(e) {
+  if (e.kind !== 'task') return e.type === 'Holidays and vacations' ? '' : `<span class="tag">${esc(e.type)}</span>`;
   const map = {
-    'Summative Assessment': ['b-summ', 'Summative'],
-    'Formative Assessment': ['b-form', 'Formative'],
-    'Quick Task': ['b-quick', 'Quick task'],
-    'Learning Experience': ['b-learn', 'Learning'],
+    'Summative Assessment': ['t-summ', 'Summative'],
+    'Formative Assessment': ['t-form', 'Formative'],
+    'Quick Task': ['t-quick', 'Quick task'],
   };
-  const [cls, label] = map[e.type] || ['b-learn', e.type];
-  return `<span class="badge ${cls}">${esc(label)}</span>${isHomework(e) ? '<span class="badge b-home">Homework</span>' : ''}`;
+  const m = map[e.type];
+  return (m ? `<span class="tag ${m[0]}">${m[1]}</span>` : '') + (isHomework(e) ? '<span class="tag">Homework</span>' : '');
 }
 
-export function dueText(e) {
+export function dueText(e, timeOnly = false) {
+  if (timeOnly) return e.allDay ? 'All day' : fmtTime(e.time, state.settings.time24);
   const when = e.allDay ? '' : ' · ' + fmtTime(e.time, state.settings.time24);
   const range = e.endDate !== e.date ? ` – ${fmtDate(e.endDate)}` : '';
   return `${fmtDate(e.date)}${range}${when}`;
 }
 
-export function classChip(full) {
+export function classLabel(full) {
   const c = classInfo(full);
-  return `<a class="class-chip" href="#/class/${encodeURIComponent(full)}" style="--c:${c.color}">${esc(c.name)}</a>`;
+  return `<a class="class-label" href="#/class/${encodeURIComponent(full)}"><i class="dot" style="--c:${c.color}"></i>${esc(c.name)}</a>`;
 }
 
-export function taskRow(e, { showClass = true } = {}) {
+export function taskRow(e, { showClass = true, showRel = false, timeOnly = false } = {}) {
   const done = isDone(e.uid);
   const overdue = !done && e.date < today();
-  const color = classColor(e.classes[0]);
-  const rel = done ? 'Done' : relDay(e.date);
   return `
-  <div class="task ${done ? 'is-done' : ''} ${overdue ? 'is-overdue' : ''}" style="--c:${color}">
+  <div class="trow ${done ? 'is-done' : ''}">
     <button class="check" data-action="toggle" data-uid="${esc(e.uid)}" aria-pressed="${done}" aria-label="${done ? 'Mark as not done' : 'Mark as done'}">${done ? '✓' : ''}</button>
     <details class="task-main" data-keep="${esc(e.uid)}">
       <summary>
-        <span class="task-title">${esc(e.title)}</span>
+        <span class="task-title">${esc(displayTitle(e.title))}</span>
         <span class="task-meta">
-          ${typeBadge(e)}
-          <span class="due ${overdue ? 'late' : ''}">${esc(dueText(e))} <em>(${esc(rel)})</em></span>
-          ${showClass ? e.classes.map(classChip).join('') : ''}
+          ${tagsFor(e)}
+          <span class="due ${overdue ? 'late' : ''}">${esc(dueText(e, timeOnly))}</span>
+          ${showRel && !done ? `<span>${esc(relDay(e.date))}</span>` : ''}
+          ${showClass ? e.classes.map(classLabel).join('') : ''}
         </span>
       </summary>
       <div class="task-detail">
         ${e.description ? `<p class="desc">${linkify(e.description)}</p>` : '<p class="muted">No description.</p>'}
-        <p class="muted small">${e.createdBy ? 'By ' + esc(e.createdBy) : ''}</p>
+        ${e.createdBy ? `<p class="muted small">Set by ${esc(e.createdBy)}</p>` : ''}
         ${e.link ? `<a class="btn small" href="${esc(e.link)}" target="_blank" rel="noopener noreferrer">Open in Toddle ↗</a>` : ''}
       </div>
     </details>
@@ -55,10 +55,10 @@ export function taskRow(e, { showClass = true } = {}) {
 
 export function eventRow(e) {
   return `
-  <div class="task event-row">
-    <span class="dot-ev"></span>
-    <div class="task-main"><div class="task-title">${esc(e.title)}</div>
-      <div class="task-meta">${typeBadge(e)} <span class="due">${esc(dueText(e))}</span>${e.location ? ` <span class="muted">📍 ${esc(e.location)}</span>` : ''}</div>
+  <div class="trow event-row">
+    <span class="ev-dot"></span>
+    <div class="task-main"><div class="task-title">${esc(displayTitle(e.title))}</div>
+      <div class="task-meta">${tagsFor(e)}<span class="due">${esc(dueText(e))}</span>${e.location ? `<span>${esc(e.location)}</span>` : ''}</div>
     </div>
   </div>`;
 }

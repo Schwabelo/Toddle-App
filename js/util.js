@@ -54,3 +54,6 @@ export function download(filename, text, type = 'application/json') {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
+
+// Teachers prefix titles with emoji (🏠, ✏️). The type tag already says it, so drop them for display.
+export const displayTitle = (t) => t.replace(/^[\p{Extended_Pictographic}\uFE0F\u200D\s]+/u, '') || t;
