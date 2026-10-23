@@ -2,7 +2,17 @@
 // Usage: node build-single.mjs
 import fs from 'fs';
 
-const ORDER = ['config', 'util', 'ics', 'store', 'ui', 'sync', 'components', 'timer', 'cards', 'pages', 'app'];
+const ORDER = ['config', 'util', 'ics', 'store', 'ui', 'sync', 'components', 'timer', 'textmatch', 'planlogic', 'cards', 'planner', 'pages', 'app'];
+
+// Everything shares one scope in the single file, so a repeated top-level name would silently clash.
+const names = new Map();
+for (const n of ORDER) {
+  const src = fs.readFileSync(`js/${n}.js`, 'utf8');
+  for (const m of src.matchAll(/^(?:export\s+)?(?:async\s+)?(?:function\*?|const|let|class)\s+([A-Za-z_$][\w$]*)/gm)) {
+    if (names.has(m[1])) throw new Error(`Top-level name "${m[1]}" is defined in both ${names.get(m[1])}.js and ${n}.js`);
+    names.set(m[1], n);
+  }
+}
 
 const code = ORDER.map((n) => {
   let src = fs.readFileSync(`js/${n}.js`, 'utf8');

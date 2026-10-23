@@ -1,4 +1,5 @@
 // Parses a Toddle calendar feed (.ics) into plain assignment objects.
+import { addDays } from './util.js';
 
 const FIELD_RE = /^(Task Type|Classes|Description|Created By|View Task|Event Type|Location): ?(.*)$/;
 
@@ -39,13 +40,6 @@ function parseDate(value, params) {
     time: allDay ? null : `${m[4]}:${m[5]}`,
     allDay,
   };
-}
-
-function addDays(dateStr, n) {
-  const d = new Date(dateStr + 'T12:00:00');
-  d.setDate(d.getDate() + n);
-  const p = (x) => String(x).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
 export function splitClasses(raw) {

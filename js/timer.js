@@ -12,6 +12,10 @@ const total = (mode = timer.mode) =>
 
 timer.remaining = total();
 
+export function focusOn(cls) {
+  timer.cls = cls || '';
+}
+
 export function syncDurations() {
   if (!timer.running) timer.remaining = total();
 }

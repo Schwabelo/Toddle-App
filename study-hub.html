@@ -141,7 +141,7 @@ textarea { resize: vertical; }
 @media (max-width: 760px) {
   body { grid-template-columns: 1fr; padding-bottom: 66px; }
   .nav { position: fixed; inset: auto 0 0 0; height: auto; flex-direction: row; justify-content: space-around; padding: .3rem; border-right: 0; border-top: 1px solid var(--line); z-index: 20; gap: 0; }
-  .brand { display: none; } .nav a { flex-direction: column; gap: 0; padding: .3rem .2rem; font-size: .65rem; flex: 1; align-items: center; } .nav a b { margin: 0; position: absolute; transform: translateY(-14px); font-size: .6rem; } .nav-end { margin-top: 0; }
+  .brand { display: none; } .nav { padding: .3rem .1rem; } .nav a { flex-direction: column; gap: .1rem; padding: .3rem 0; font-size: .58rem; flex: 1 1 0; min-width: 0; align-items: center; } .nav a span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; } .nav a b { margin: 0; position: absolute; transform: translateY(-14px); font-size: .6rem; } .nav-end { margin-top: 0; }
   main { padding-top: 1rem; } h1 { font-size: 1.4rem; }
   .cal-cell { min-height: 58px; } .cal-chip { font-size: 0; padding: 0; width: 8px; height: 8px; border-radius: 50%; border: 0; background: var(--c); display: inline-block; margin-right: 2px; } .cal-chips { flex-direction: row; flex-wrap: wrap; } .cal-more { display: none; }
 }
@@ -155,6 +155,44 @@ textarea { resize: vertical; }
 
 .narrow { max-width: 760px; }
 .note.info { background: color-mix(in srgb, var(--accent) 8%, transparent); border-left-color: var(--accent); }
+
+/* planner */
+.pweek { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: .6rem; align-items: start; margin-bottom: 1rem; }
+@media (min-width: 1180px) { .pweek { grid-template-columns: var(--cols, repeat(7, minmax(0, 1fr))); } }
+.pday { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: .6rem; min-height: 170px; display: flex; flex-direction: column; gap: .4rem; }
+.pday.today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.pday.weekend { background: color-mix(in srgb, var(--bg) 55%, var(--card)); }
+.pday-head { display: flex; flex-direction: column; gap: .05rem; font-size: .9rem; }
+.over { color: var(--warn); font-weight: 600; }
+[data-drop].drop-on { outline: 2px dashed var(--accent); outline-offset: -2px; background: color-mix(in srgb, var(--accent) 7%, var(--card)); }
+.tray { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .5rem; margin: .4rem 0 .6rem; }
+.p-main { flex: 1; min-width: 0; } .p-main summary { cursor: pointer; list-style: none; } .p-main summary::-webkit-details-marker { display: none; }
+.p-edit { padding-top: .5rem; display: flex; flex-direction: column; gap: .4rem; } .p-edit .field { margin: 0; font-size: .75rem; }
+.due-mark { font-size: .72rem; color: var(--muted); border-left: 3px solid var(--bad); padding-left: .4rem; overflow-wrap: anywhere; } .due-mark b { color: var(--bad); }
+
+/* flashcard study modes */
+.quiz { max-width: 640px; margin: 1rem auto; text-align: center; display: flex; flex-direction: column; gap: .8rem; padding: 1.5rem; }
+.quiz input { text-align: center; font-size: 1.1rem; }
+.mc-list { display: grid; gap: .5rem; }
+.mc-opt { justify-content: flex-start; text-align: left; padding: .7rem 1rem; }
+.mc-key { display: inline-grid; place-items: center; width: 1.4rem; height: 1.4rem; border-radius: 6px; background: var(--line); font-size: .75rem; color: var(--muted); flex: none; }
+.mc-opt.right { border-color: var(--good); background: color-mix(in srgb, var(--good) 14%, transparent); }
+.mc-opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); }
+.mc-opt:disabled { opacity: 1; cursor: default; }
+.verdict { font-weight: 700; font-size: 1.1rem; } .v-correct { color: var(--good); } .v-almost { color: var(--warn); } .v-wrong { color: var(--bad); }
+.answer-cmp { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; text-align: left; overflow-wrap: anywhere; }
+.answer-cmp .fc-label { display: block; }
+.prev-row { display: flex; justify-content: space-between; gap: 1rem; padding: .25rem 0; border-bottom: 1px solid var(--line); font-size: .85rem; overflow-wrap: anywhere; }
+.study-opts { margin-top: 1rem; }
+@media (max-width: 380px) { .nav a { font-size: .52rem; } }
+.pcard { padding: .5rem .55rem; border: 1px solid var(--line); border-left: 3px solid var(--c, var(--accent)); border-radius: 9px; background: var(--card); cursor: grab; }
+.pcard.is-done { opacity: .55; } .pcard.dragging { opacity: .35; }
+.p-title { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: .84rem; line-height: 1.25; font-weight: 600; overflow-wrap: break-word; hyphens: auto; }
+.p-meta { display: flex; align-items: center; gap: .4rem; margin-top: .35rem; min-width: 0; font-size: .72rem; color: var(--muted); }
+.p-meta .check { width: 16px; height: 16px; border-radius: 5px; font-size: .6rem; margin: 0; }
+.p-cls { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-min { margin-left: auto; white-space: nowrap; }
+.p-flag { display: inline-block; margin-top: .3rem; font-size: .68rem; font-weight: 650; color: var(--warn); }
 </style>
 </head>
 <body>
@@ -164,6 +202,7 @@ textarea { resize: vertical; }
     <a href="#/" data-nav="start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M9.5 19.5v-5h5v5"/></svg><span>Start</span></a>
     <a href="#/classes" data-nav="classes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h10.5A2.5 2.5 0 0 1 18 7v13H7.5A2.5 2.5 0 0 1 5 17.5z"/><path d="M5 17.5A2.5 2.5 0 0 1 7.5 15H18"/></svg><span>Classes</span></a>
     <a href="#/calendar" data-nav="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Calendar</span></a>
+    <a href="#/planner" data-nav="planner"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.2"/><rect x="9.75" y="4" width="4.5" height="10" rx="1.2"/><rect x="16" y="4" width="4.5" height="13" rx="1.2"/></svg><span>Planner</span></a>
     <a href="#/schedule" data-nav="schedule"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16.5" rx="2.5"/><path d="M3.5 9.5h17M9.5 9.5v11M3.5 15h17"/></svg><span>Schedule</span></a>
     <a href="#/timer" data-nav="timer"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.5M9.5 3h5"/></svg><span>Timer</span><b id="nav-timer"></b></a>
     <a href="#/flashcards" data-nav="flashcards"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7.5" width="13.5" height="12" rx="2"/><path d="M7 7.5V6a2 2 0 0 1 2-2h9.5a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H17"/></svg><span>Cards</span></a>
@@ -290,13 +329,6 @@ function parseDate(value, params) {
   };
 }
 
-function addDays(dateStr, n) {
-  const d = new Date(dateStr + 'T12:00:00');
-  d.setDate(d.getDate() + n);
-  const p = (x) => String(x).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-}
-
 function splitClasses(raw) {
   if (!raw) return [];
   return raw.split(/(?<=\))\s*,\s*/).map((s) => s.trim()).filter(Boolean);
@@ -388,12 +420,17 @@ const defaults = () => ({
     sound: true,
     notify: false,
     proxy: '',
+    dailyLimit: 90,
+    defaultEst: 30,
+    planWeekends: false,
   },
   feedUrl: '',
   events: [],
   lastSync: null,
   pastPrompted: false,
   done: {}, // uid -> date completed
+  plan: {}, // uid -> day it is planned for
+  est: {}, // uid -> estimated minutes
   decks: [],
   sessions: [], // { date, minutes, cls }
   reviews: {}, // date -> flashcards reviewed
@@ -647,7 +684,10 @@ function taskRow(e, { showClass = true, showRel = false, timeOnly = false } = {}
       <div class="task-detail">
         ${e.description ? `<p class="desc">${linkify(e.description)}</p>` : '<p class="muted">No description.</p>'}
         ${e.createdBy ? `<p class="muted small">Set by ${esc(e.createdBy)}</p>` : ''}
-        ${e.link ? `<a class="btn small" href="${esc(e.link)}" target="_blank" rel="noopener noreferrer">Open in Toddle ↗</a>` : ''}
+        <div class="row">
+          ${e.link ? `<a class="btn small" href="${esc(e.link)}" target="_blank" rel="noopener noreferrer">Open in Toddle ↗</a>` : ''}
+          ${state.decks.filter((d) => d.link === e.uid).map((d) => `<a class="btn small" href="#/flashcards/${d.id}">Study cards: ${esc(d.name)}</a>`).join('')}
+        </div>
       </div>
     </details>
   </div>`;
@@ -682,6 +722,10 @@ const total = (mode = timer.mode) =>
   60 * (mode === 'focus' ? state.settings.focusMin : mode === 'short' ? state.settings.shortMin : state.settings.longMin);
 
 timer.remaining = total();
+
+function focusOn(cls) {
+  timer.cls = cls || '';
+}
 
 function syncDurations() {
   if (!timer.running) timer.remaining = total();
@@ -820,40 +864,172 @@ function timerMounted() {
   updateTimerUI();
 }
 
+// ---- textmatch.js ----
+// Pure text helpers for flashcards: checking typed answers and parsing pasted card lists.
+
+// Lowercase, strip accents and punctuation, collapse spaces, so "Café!" matches "cafe".
+function norm(s) {
+  return String(s ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function lev(a, b) {
+  if (a === b) return 0;
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+// 'correct' | 'almost' | 'wrong'. Alternatives may be separated by / or ;, and (bracketed notes) are optional.
+function judge(given, answer) {
+  const g = norm(given);
+  if (!g) return 'wrong';
+  const options = new Set(
+    [answer, answer.replace(/\([^)]*\)/g, ' '), ...answer.split(/\s*[/;]\s*/)].map(norm).filter(Boolean)
+  );
+  if (options.has(g)) return 'correct';
+  for (const o of options) {
+    if (/^\d+$/.test(o)) continue; // a wrong number is just wrong
+    const allowed = o.length >= 12 ? 2 : o.length >= 5 ? 1 : 0;
+    if (allowed && lev(g, o) <= allowed) return 'almost';
+  }
+  return 'wrong';
+}
+
+const PATTERNS = {
+  tab: /\t/,
+  dcolon: /\s*::\s*/,
+  semi: /\s*;\s*/,
+  dash: /\s+[-–—]\s+/,
+  equals: /\s+=\s+/,
+  comma: /\s*,\s*/,
+  colon: /\s*:\s*/,
+};
+const AUTO_ORDER = ['tab', 'dcolon', 'semi', 'dash', 'equals', 'comma'];
+
+function splitLine(line, sep = 'auto') {
+  for (const key of sep === 'auto' ? AUTO_ORDER : [sep]) {
+    const m = PATTERNS[key] && line.match(PATTERNS[key]);
+    if (!m) continue;
+    const front = line.slice(0, m.index).trim();
+    const back = line.slice(m.index + m[0].length).trim();
+    if (front && back) return { front, back };
+  }
+  return null;
+}
+
+function parseBulk(text, sep = 'auto') {
+  const cards = [];
+  let skipped = 0;
+  for (const raw of String(text ?? '').split('\n')) {
+    const line = raw.trim();
+    if (!line) continue;
+    const card = splitLine(line, sep);
+    if (card) cards.push(card);
+    else skipped++;
+  }
+  return { cards, skipped };
+}
+
+// ---- planlogic.js ----
+// Pure planner logic: spread unplanned assignments over the days before their deadlines.
+
+const isWeekend = (d) => [0, 6].includes(parseYmd(d).getDay());
+
+/**
+ * tasks:  open, unplanned assignments ({ uid, date, time })
+ * load:   minutes already planned per day { 'YYYY-MM-DD': minutes }
+ * Returns { uid: 'YYYY-MM-DD' }, or null when the week is already over.
+ * Earliest deadlines go first; each task takes the lightest allowed day on or before its deadline
+ * (earliest day wins a tie). Overdue work is spread over the whole week, starting from the first day still available.
+ */
+function autoPlan({ tasks, load, today, weekStart, weekEnd, weekends, estOf }) {
+  const first = today > weekStart ? today : weekStart;
+  if (first > weekEnd) return null;
+  const days = [];
+  for (let d = first; d <= weekEnd; d = addDays(d, 1)) days.push(d);
+  const loads = { ...load };
+  const out = {};
+  const order = [...tasks].sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
+  for (const t of order) {
+    // Overdue work has no live deadline left, so it may use any day this week; the rest must land by its due date.
+    const deadline = t.date < first || t.date > weekEnd ? weekEnd : t.date;
+    let candidates = days.filter((d) => d <= deadline);
+    const allowed = weekends ? candidates : candidates.filter((d) => !isWeekend(d));
+    if (allowed.length) candidates = allowed;
+    let best = candidates[0];
+    for (const d of candidates) if ((loads[d] || 0) < (loads[best] || 0)) best = d;
+    out[t.uid] = best;
+    loads[best] = (loads[best] || 0) + estOf(t.uid);
+  }
+  return out;
+}
+
 // ---- cards.js ----
-// Flashcard maker with simple spaced repetition (Leitner boxes).
+// Flashcards: decks, spaced repetition, and three ways to study (flip, type the answer, multiple choice).
+
 
 
 
 
 const INTERVALS = [0, 1, 3, 7, 14, 30, 60];
-let study = null; // { deckId, queue, flipped, total, seen, again, finished }
+const MASTERED_BOX = 4; // a card reviewed correctly often enough to be 14+ days away
+const STUDY_MODES = { flip: 'Flip cards', type: 'Type the answer', mc: 'Multiple choice' };
+const DIRS = { f: 'Front → back', b: 'Back → front', both: 'Both ways' };
+const SEPS = { auto: 'Detect automatically', tab: 'Tab', semi: 'Semicolon ;', comma: 'Comma ,', dash: 'Spaced dash -', colon: 'Colon :' };
 
+let study = null; // the study session in progress, see studyGo()
+let bulkSep = 'auto';
+
+// ---- helpers ----
 const deckById = (id) => state.decks.find((d) => d.id === id);
 const dueCards = (d) => d.cards.filter((c) => c.due <= today());
+const prefsOf = (d) => ({ mode: 'flip', dir: 'f', scope: 'due', ...(d.prefs || {}) });
+const newCard = (front, back) => ({ id: uid(), front, back, box: 0, due: today(), seen: 0, miss: 0 });
+const missRate = (c) => ((c.seen || 0) ? (c.miss || 0) / c.seen : 0);
+const weakCards = (d) =>
+  d.cards.filter((c) => (c.miss || 0) > 0).sort((a, b) => missRate(b) - missRate(a) || b.miss - a.miss).slice(0, 20);
+const masteredCount = (d) => d.cards.filter((c) => c.box >= MASTERED_BOX).length;
+const askText = (c, dir) => (dir === 'f' ? c.front : c.back);
+const answerText = (c, dir) => (dir === 'f' ? c.back : c.front);
+const shuffle = (arr) => arr.map((v) => [Math.random(), v]).sort((a, b) => a[0] - b[0]).map((p) => p[1]);
 
-function parseBulk(text) {
-  return text
-    .split('\n')
-    .map((l) => l.trim())
-    .filter(Boolean)
-    .map((l) => {
-      let parts = l.split('\t');
-      if (parts.length < 2) parts = l.split(/\s*(?:;|::)\s*/);
-      if (parts.length < 2) return null;
-      return { front: parts[0].trim(), back: parts.slice(1).join(' ').trim() };
-    })
-    .filter((c) => c && c.front && c.back);
+const dueCardCount = () => state.decks.reduce((a, d) => a + dueCards(d).length, 0);
+
+// ---- deck and card management ----
+function renderPreview(ta) {
+  const box = document.getElementById(ta.dataset.prev);
+  if (!box) return;
+  if (!ta.value.trim()) {
+    box.innerHTML = '';
+    return;
+  }
+  const { cards, skipped } = parseBulk(ta.value, bulkSep);
+  const rows = cards.slice(0, 4).map((c) => `<div class="prev-row"><span>${esc(c.front)}</span><span class="muted">${esc(c.back)}</span></div>`).join('');
+  box.innerHTML = `<p class="muted small">${cards.length} card${cards.length === 1 ? '' : 's'} found${skipped ? `, ${skipped} line${skipped === 1 ? '' : 's'} skipped (no separator)` : ''}.</p>${rows}${cards.length > 4 ? `<p class="muted small">…and ${cards.length - 4} more</p>` : ''}`;
 }
+inputs['bulk-preview'] = (el) => renderPreview(el);
+changes['bulk-sep'] = (el) => {
+  bulkSep = el.value;
+  document.querySelectorAll('[data-input="bulk-preview"]').forEach(renderPreview);
+};
 
-const newCard = (front, back) => ({ id: uid(), front, back, box: 0, due: today() });
-
-// ---- Actions ----
 actions['deck-create'] = () => {
   const name = document.getElementById('deck-name').value.trim();
   if (!name) return toast('Give the deck a name first.');
   const cls = document.getElementById('deck-class').value;
-  const cards = parseBulk(document.getElementById('deck-bulk').value).map((c) => newCard(c.front, c.back));
+  const cards = parseBulk(document.getElementById('deck-bulk').value, bulkSep).cards.map((c) => newCard(c.front, c.back));
   const deck = { id: uid(), name, cls, cards, created: today() };
   state.decks.unshift(deck);
   save();
@@ -880,7 +1056,7 @@ actions['card-add'] = (el) => {
 };
 actions['card-bulk'] = (el) => {
   const d = deckById(el.dataset.id);
-  const cards = parseBulk(document.getElementById('bulk-text').value);
+  const { cards } = parseBulk(document.getElementById('bulk-text').value, bulkSep);
   if (!cards.length) return toast('No cards found. Use one per line: term ; definition');
   cards.forEach((c) => d.cards.push(newCard(c.front, c.back)));
   save();
@@ -927,58 +1103,156 @@ changes['deck-import'] = async (el) => {
   }
   el.value = '';
 };
-
-actions['study-start'] = (el) => {
+changes['deck-pref'] = (el) => {
   const d = deckById(el.dataset.id);
-  let cards = el.dataset.mode === 'all' ? [...d.cards] : dueCards(d);
-  if (el.dataset.shuffle !== 'no') cards.sort(() => Math.random() - 0.5);
-  if (!cards.length) return toast('Nothing to study yet.');
-  study = { deckId: d.id, queue: cards.map((c) => c.id), flipped: false, total: cards.length, seen: 0, again: 0, finished: false };
-  rerender();
+  d.prefs = { ...prefsOf(d), [el.dataset.key]: el.value };
+  save();
 };
-actions['study-flip'] = () => {
-  if (study && !study.finished) {
-    study.flipped = !study.flipped;
-    rerender();
+changes['deck-link'] = (el) => {
+  const d = deckById(el.dataset.id);
+  if (el.value) d.link = el.value;
+  else delete d.link;
+  save();
+};
+
+// ---- studying ----
+const cardMode = () => (study.mode === 'mc' && study.options.length < 2 ? 'flip' : study.mode);
+const currentCard = () => {
+  const item = study.queue[0];
+  return { item, card: deckById(study.deckId).cards.find((c) => c.id === item.id) };
+};
+
+function prepare() {
+  if (!study || !study.queue.length) return;
+  study.flipped = false;
+  study.phase = 'ask';
+  study.result = null;
+  study.picked = null;
+  study.options = [];
+  if (study.mode === 'mc') {
+    const { item, card } = currentCard();
+    const right = answerText(card, item.dir);
+    const seen = new Set([norm(right)]);
+    const wrong = [];
+    for (const other of shuffle(deckById(study.deckId).cards.filter((c) => c.id !== card.id))) {
+      const text = answerText(other, item.dir);
+      if (!seen.has(norm(text))) {
+        seen.add(norm(text));
+        wrong.push(text);
+      }
+      if (wrong.length === 3) break;
+    }
+    study.options = shuffle([right, ...wrong]);
+    study.rightIndex = study.options.indexOf(right);
   }
+}
+
+const focusAnswer = () => document.getElementById('type-answer')?.focus();
+
+actions['study-go'] = (el) => {
+  const d = deckById(el.dataset.id);
+  const p = prefsOf(d);
+  if (p.mode === 'mc' && d.cards.length < 4) return toast('Multiple choice needs at least 4 cards in the deck.');
+  const pool = p.scope === 'all' ? d.cards : p.scope === 'weak' ? weakCards(d) : dueCards(d);
+  if (!pool.length) {
+    return toast(p.scope === 'weak' ? 'No hard cards yet. Study a few rounds first.' : p.scope === 'due' ? 'Nothing is due right now. Try "All cards".' : 'This deck has no cards yet.');
+  }
+  const queue = shuffle(pool).map((c) => ({ id: c.id, dir: p.dir === 'both' ? (Math.random() < 0.5 ? 'f' : 'b') : p.dir }));
+  study = { deckId: d.id, mode: p.mode, queue, total: queue.length, again: 0, finished: false };
+  prepare();
+  rerender();
+  focusAnswer();
 };
 actions['study-quit'] = () => {
   study = null;
   rerender();
 };
+actions['study-flip'] = () => {
+  if (study && !study.finished && cardMode() === 'flip') {
+    study.flipped = !study.flipped;
+    rerender();
+  }
+};
 actions['study-rate'] = (el) => rate(el.dataset.rating);
 
+actions['type-check'] = (el) => {
+  if (!study || study.phase !== 'ask') return;
+  const given = el && el.dataset && el.dataset.skip ? '' : document.getElementById('type-answer').value;
+  const { item, card } = currentCard();
+  study.result = { verdict: judge(given, answerText(card, item.dir)), given };
+  study.phase = 'result';
+  rerender();
+};
+actions['type-next'] = (el) => rate(study.result.verdict === 'correct' || (el && el.dataset && el.dataset.override) ? 'good' : 'again');
+
+const pick = (i) => {
+  if (!study || study.phase !== 'ask' || i < 0 || i >= study.options.length) return;
+  study.picked = i;
+  study.phase = 'result';
+  rerender();
+};
+actions['mc-pick'] = (el) => pick(Number(el.dataset.i));
+actions['mc-next'] = () => rate(study.picked === study.rightIndex ? 'good' : 'again');
+
 function rate(rating) {
-  if (!study || study.finished || !study.flipped) return;
+  if (!study || study.finished) return;
   const d = deckById(study.deckId);
-  const id = study.queue.shift();
-  const c = d.cards.find((x) => x.id === id);
+  const item = study.queue.shift();
+  const c = d.cards.find((x) => x.id === item.id);
   if (c) {
-    c.box = rating === 'again' ? 0 : Math.min(INTERVALS.length - 1, c.box + (rating === 'easy' ? 2 : 1));
-    c.due = addDays(today(), INTERVALS[c.box]);
+    c.seen = (c.seen || 0) + 1;
     if (rating === 'again') {
-      study.queue.push(id);
+      c.miss = (c.miss || 0) + 1;
+      c.box = 0;
       study.again++;
+      study.queue.push(item);
+    } else {
+      c.box = Math.min(INTERVALS.length - 1, c.box + (rating === 'easy' ? 2 : 1));
     }
+    c.due = addDays(today(), INTERVALS[c.box]);
   }
-  study.seen++;
   state.reviews[today()] = (state.reviews[today()] || 0) + 1;
   save();
-  study.flipped = false;
-  if (!study.queue.length) study.finished = true;
+  if (study.queue.length) prepare();
+  else study.finished = true;
   rerender();
+  focusAnswer();
 }
 
-// Keyboard shortcuts while studying
 document.addEventListener('keydown', (e) => {
-  if (!study || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if (!study || study.finished) return;
+  const mode = cardMode();
+  const inField = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+  if (mode === 'type') {
+    if (e.key !== 'Enter') return;
+    if (study.phase === 'ask' && e.target.id === 'type-answer') {
+      e.preventDefault();
+      actions['type-check']();
+    } else if (study.phase === 'result' && !inField) {
+      e.preventDefault();
+      actions['type-next']();
+    }
+    return;
+  }
+  if (inField) return;
+  if (mode === 'mc') {
+    if (study.phase === 'ask' && /^[1-4]$/.test(e.key)) pick(Number(e.key) - 1);
+    else if (study.phase === 'result' && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      actions['mc-next']();
+    }
+    return;
+  }
   if (e.key === ' ' || e.key === 'Enter') {
     e.preventDefault();
     actions['study-flip']();
   } else if (study.flipped && ['1', '2', '3'].includes(e.key)) rate(['again', 'good', 'easy'][e.key - 1]);
 });
 
-// ---- Views ----
+// ---- views ----
+const sepSelect = () =>
+  `<label class="field">Separator<select data-change="bulk-sep">${Object.entries(SEPS).map(([k, v]) => `<option value="${k}" ${bulkSep === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>`;
+
 function cardsPage(deckId) {
   if (deckId) return deckPage(deckById(deckId));
   const opts = classNames().map((c) => `<option value="${esc(c)}">${esc(classInfo(c).name)}</option>`).join('');
@@ -988,7 +1262,7 @@ function cardsPage(deckId) {
         return `<a class="card deck" href="#/flashcards/${d.id}" style="--c:${d.cls ? classInfo(d.cls).color : 'var(--accent)'}">
           <h3>${esc(d.name)}</h3>
           <div class="muted">${d.cls ? esc(classInfo(d.cls).name) : 'No class'}</div>
-          <div class="deck-foot"><span>${d.cards.length} cards</span><span class="${due ? 'due-pill' : 'muted'}">${due ? due + ' due' : 'all caught up'}</span></div>
+          <div class="deck-foot"><span>${d.cards.length} cards · ${masteredCount(d)} mastered</span><span class="${due ? 'due-pill' : 'muted'}">${due ? due + ' due' : 'all caught up'}</span></div>
         </a>`;
       }).join('')}</div>`
     : emptyState('🗂️', 'No decks yet', 'Make your first deck below. Paste a list of terms and definitions to fill it in one go.');
@@ -1002,31 +1276,53 @@ function cardsPage(deckId) {
       <label class="field grow">Name<input id="deck-name" type="text" maxlength="60" placeholder="e.g. Cell organelles"></label>
       <label class="field">Class<select id="deck-class"><option value="">None</option>${opts}</select></label>
     </div>
-    <label class="field">Cards <span class="muted">(optional, one per line: term ; definition)</span>
-      <textarea id="deck-bulk" rows="5" placeholder="mitochondria ; makes ATP&#10;nucleus ; contains DNA"></textarea></label>
+    <div class="form-row">
+      <label class="field grow">Cards <span class="muted">(optional, one per line: term ; definition)</span>
+        <textarea id="deck-bulk" rows="5" data-input="bulk-preview" data-prev="deck-prev" placeholder="mitochondria ; makes ATP&#10;nucleus ; contains DNA"></textarea></label>
+      ${sepSelect()}
+    </div>
+    <div id="deck-prev"></div>
     <button class="btn primary" data-action="deck-create">Create deck</button>
   </div>`;
+}
+
+function studyPanel(d) {
+  const p = prefsOf(d);
+  const scopes = { due: `Due today (${dueCards(d).length})`, all: `All cards (${d.cards.length})`, weak: `Hardest cards (${weakCards(d).length})` };
+  const select = (key, label, map) =>
+    `<label class="field">${label}<select data-change="deck-pref" data-id="${d.id}" data-key="${key}">${Object.entries(map).map(([k, v]) => `<option value="${k}" ${p[key] === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label>`;
+  return `
+  <div class="card study-opts"><div class="form-row">
+    ${select('mode', 'Mode', STUDY_MODES)}${select('dir', 'Direction', DIRS)}${select('scope', 'Cards', scopes)}
+    <button class="btn primary" data-action="study-go" data-id="${d.id}" ${d.cards.length ? '' : 'disabled'}>Start studying</button>
+  </div></div>`;
+}
+
+function linkOptions(d) {
+  const oldest = addDays(today(), -30);
+  const list = tasks().filter((e) => (!isDone(e.uid) && e.date >= oldest) || e.uid === d.link);
+  return ['<option value="">None</option>']
+    .concat(list.map((e) => `<option value="${esc(e.uid)}" ${d.link === e.uid ? 'selected' : ''}>${esc(displayTitle(e.title))} · ${esc(classInfo(e.classes[0] || '').name)} · ${fmtDate(e.date)}</option>`))
+    .join('');
 }
 
 function deckPage(d) {
   if (!d) return emptyState('🤔', 'Deck not found', '<a href="#/flashcards">Back to flashcards</a>');
   if (study && study.deckId === d.id) return studyView(d);
-  const due = dueCards(d).length;
-  const head = `
-  <div class="page-head"><div><a class="muted small" href="#/flashcards">← All decks</a><h1>${esc(d.name)}</h1>
-    <div class="muted">${d.cls ? esc(classInfo(d.cls).name) + ' · ' : ''}${d.cards.length} cards · ${due} due</div></div>
-    <div class="row">
-      <button class="btn primary" data-action="study-start" data-id="${d.id}" data-mode="due" ${due ? '' : 'disabled'}>Study due (${due})</button>
-      <button class="btn" data-action="study-start" data-id="${d.id}" data-mode="all" ${d.cards.length ? '' : 'disabled'}>Study all</button>
-    </div></div>`;
+  const reviews = d.cards.reduce((a, c) => a + (c.seen || 0), 0);
+  const misses = d.cards.reduce((a, c) => a + (c.miss || 0), 0);
+  const accuracy = reviews ? `${Math.round(100 * (1 - misses / reviews))}% accuracy over ${reviews} reviews` : 'not studied yet';
   const cardsList = d.cards.length
     ? `<div class="card-list">${d.cards.map((c) => `
         <div class="card-item"><div><strong>${esc(c.front)}</strong><div class="muted">${esc(c.back)}</div></div>
-        <div class="row"><span class="box-pill" title="Box ${c.box}">Lv ${c.box}</span>
+        <div class="row"><span class="box-pill" title="Level ${c.box}${c.miss ? `, missed ${c.miss} of ${c.seen}` : ''}">Lv ${c.box}${c.miss ? ` · ${c.miss}✕` : ''}</span>
         <button class="btn small" data-action="card-edit" data-id="${d.id}" data-card="${c.id}">Edit</button>
         <button class="btn small danger" data-action="card-delete" data-id="${d.id}" data-card="${c.id}" aria-label="Delete card">✕</button></div></div>`).join('')}</div>`
     : emptyState('✏️', 'No cards yet', 'Add one below, or paste a whole list.');
-  return `${head}
+  return `
+  <div class="page-head"><div><a class="muted small" href="#/flashcards">← All decks</a><h1>${esc(d.name)}</h1>
+    <div class="muted">${d.cls ? esc(classInfo(d.cls).name) + ' · ' : ''}${d.cards.length} cards · ${masteredCount(d)} mastered · ${dueCards(d).length} due · ${accuracy}</div></div></div>
+  ${studyPanel(d)}
   <div class="card form-card">
     <h2>Add cards</h2>
     <div class="form-row">
@@ -1035,9 +1331,13 @@ function deckPage(d) {
       <button class="btn primary" data-action="card-add" data-id="${d.id}">Add</button>
     </div>
     <details><summary class="muted">Paste many at once</summary>
-      <textarea id="bulk-text" rows="5" placeholder="term ; definition (one per line)"></textarea>
+      <div class="form-row"><label class="field grow">Cards
+        <textarea id="bulk-text" rows="5" data-input="bulk-preview" data-prev="bulk-prev" placeholder="term ; definition (one per line)"></textarea></label>${sepSelect()}</div>
+      <div id="bulk-prev"></div>
       <button class="btn" data-action="card-bulk" data-id="${d.id}">Add pasted cards</button></details>
   </div>
+  <div class="card"><label class="field">Linked assignment <span class="muted">(shows a "Study cards" button on it)</span>
+    <select data-change="deck-link" data-id="${d.id}">${linkOptions(d)}</select></label></div>
   ${cardsList}
   <div class="row footer-row">
     <button class="btn small" data-action="deck-export" data-id="${d.id}">Export deck</button>
@@ -1049,30 +1349,280 @@ function studyView(d) {
   if (study.finished) {
     return `<div class="card study-done">
       <div class="empty-icon">🎉</div><h2>Session complete</h2>
-      <p>${study.total} cards reviewed${study.again ? `, ${study.again} needed another go` : ' — no misses'}.</p>
+      <p>${study.total} cards reviewed${study.again ? `, ${study.again} needed another go` : ', no misses'}.</p>
       <div class="row center"><button class="btn primary" data-action="study-quit">Back to deck</button></div></div>`;
   }
-  const c = d.cards.find((x) => x.id === study.queue[0]);
-  const done = study.total - new Set(study.queue).size;
-  return `
+  const mode = cardMode();
+  const { item, card } = currentCard();
+  const q = askText(card, item.dir);
+  const a = answerText(card, item.dir);
+  const done = study.total - new Set(study.queue.map((i) => i.id)).size;
+  const hint = mode === 'flip' ? 'Space flips · 1 Again · 2 Good · 3 Easy' : mode === 'type' ? 'Enter checks your answer' : 'Press 1–4 to answer';
+  const head = `
   <div class="page-head"><h1>${esc(d.name)}</h1><button class="btn small" data-action="study-quit">Exit</button></div>
   <div class="bar"><span style="width:${(100 * done) / study.total}%;background:var(--accent)"></span></div>
-  <p class="muted small">${study.queue.length} left · Space flips · 1 Again · 2 Good · 3 Easy</p>
-  <button class="flashcard ${study.flipped ? 'flipped' : ''}" data-action="study-flip" aria-label="Flip card">
-    <span class="fc-label">${study.flipped ? 'Back' : 'Front'}</span>
-    <span class="fc-text">${esc(study.flipped ? c.back : c.front)}</span>
-  </button>
-  <div class="row center rate-row ${study.flipped ? '' : 'hidden'}">
-    <button class="btn danger" data-action="study-rate" data-rating="again">Again</button>
-    <button class="btn" data-action="study-rate" data-rating="good">Good</button>
-    <button class="btn primary" data-action="study-rate" data-rating="easy">Easy</button>
+  <p class="muted small">${study.queue.length} left · ${STUDY_MODES[study.mode]} · ${hint}</p>`;
+
+  if (mode === 'flip') {
+    const face = study.flipped ? (item.dir === 'f' ? 'Back' : 'Front') : item.dir === 'f' ? 'Front' : 'Back';
+    return `${head}
+    <button class="flashcard ${study.flipped ? 'flipped' : ''}" data-action="study-flip" aria-label="Flip card">
+      <span class="fc-label">${face}</span><span class="fc-text">${esc(study.flipped ? a : q)}</span>
+    </button>
+    <div class="row center rate-row ${study.flipped ? '' : 'hidden'}">
+      <button class="btn danger" data-action="study-rate" data-rating="again">Again</button>
+      <button class="btn" data-action="study-rate" data-rating="good">Good</button>
+      <button class="btn primary" data-action="study-rate" data-rating="easy">Easy</button>
+    </div>`;
+  }
+
+  if (mode === 'type') {
+    if (study.phase === 'ask') {
+      return `${head}
+      <div class="card quiz"><span class="fc-label">Question</span><div class="fc-text">${esc(q)}</div>
+        <input id="type-answer" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer">
+        <div class="row center"><button class="btn primary" data-action="type-check">Check</button><button class="btn" data-action="type-check" data-skip="1">I don't know</button></div></div>`;
+    }
+    const v = study.result.verdict;
+    const label = { correct: 'Correct ✓', almost: 'Almost. Close enough?', wrong: 'Not quite' }[v];
+    return `${head}
+    <div class="card quiz"><span class="fc-label">Question</span><div class="fc-text">${esc(q)}</div>
+      <div class="verdict v-${v}">${label}</div>
+      <div class="answer-cmp"><div><span class="fc-label">Your answer</span>${esc(study.result.given) || '—'}</div><div><span class="fc-label">Answer</span>${esc(a)}</div></div>
+      <div class="row center">${v === 'correct' ? '' : '<button class="btn" data-action="type-next" data-override="1">I was right</button>'}<button class="btn primary" data-action="type-next">${v === 'correct' ? 'Next' : 'Next (counts as missed)'}</button></div></div>`;
+  }
+
+  const asked = study.phase === 'ask';
+  const buttons = study.options.map((o, i) => {
+    const cls = asked ? '' : i === study.rightIndex ? 'right' : i === study.picked ? 'wrong' : '';
+    return `<button class="btn mc-opt ${cls}" data-action="mc-pick" data-i="${i}" ${asked ? '' : 'disabled'}><span class="mc-key">${i + 1}</span>${esc(o)}</button>`;
+  }).join('');
+  return `${head}
+  <div class="card quiz"><span class="fc-label">Question</span><div class="fc-text">${esc(q)}</div>
+    <div class="mc-list">${buttons}</div>
+    ${asked ? '' : `<div class="verdict ${study.picked === study.rightIndex ? 'v-correct' : 'v-wrong'}">${study.picked === study.rightIndex ? 'Correct ✓' : 'Not quite'}</div><div class="row center"><button class="btn primary" data-action="mc-next">Next</button></div>`}</div>`;
+}
+
+// ---- planner.js ----
+// Weekly planner: put assignments on days, watch the load per day, and auto-spread what's left.
+
+
+
+
+
+
+let anchor = null; // any date inside the week being shown
+
+const startOfWeek = (d) => addDays(d, -((parseYmd(d).getDay() - Number(state.settings.weekStart) + 7) % 7));
+function weekOf() {
+  anchor ||= today();
+  const start = startOfWeek(anchor);
+  return { start, end: addDays(start, 6), days: Array.from({ length: 7 }, (_, i) => addDays(start, i)) };
+}
+
+const estOf = (uid) => state.est[uid] || Number(state.settings.defaultEst) || 30;
+
+function setPlan(uid, date) {
+  if (date) state.plan[uid] = date;
+  else delete state.plan[uid];
+  save();
+}
+
+function loadByDay(days) {
+  const load = {};
+  for (const e of tasks()) {
+    const d = state.plan[e.uid];
+    if (d && days.includes(d) && !isDone(e.uid)) load[d] = (load[d] || 0) + estOf(e.uid);
+  }
+  return load;
+}
+
+// Open, unplanned work due by the end of this week (plus anything recently overdue).
+function trayTasks(w) {
+  const oldest = addDays(today(), -14);
+  return tasks().filter((e) => !isDone(e.uid) && !state.plan[e.uid] && e.date <= w.end && e.date >= oldest);
+}
+
+function todaysPlan() {
+  const items = tasks().filter((e) => state.plan[e.uid] === today() && !isDone(e.uid));
+  return { items, minutes: items.reduce((a, e) => a + estOf(e.uid), 0) };
+}
+
+// ---- views ----
+function planCard(e, w) {
+  const id = esc(e.uid);
+  const done = isDone(e.uid);
+  const planned = state.plan[e.uid] || '';
+  const est = state.est[e.uid];
+  const cls = e.classes[0] || '';
+  const c = classInfo(cls);
+  const late = !done && e.date < today();
+  const after = planned && planned > e.date && !done && !late;
+  const options = ['<option value="">Not planned</option>']
+    .concat(w.days.map((d) => `<option value="${d}" ${d === planned ? 'selected' : ''}>${fmtDate(d)}</option>`))
+    .join('');
+  return `
+  <div class="pcard ${done ? 'is-done' : ''}" draggable="true" data-drag="${id}" style="--c:${c.color}">
+    <details class="p-main" data-keep="p-${id}">
+      <summary>
+        <span class="p-title">${esc(displayTitle(e.title))}</span>
+        <span class="p-meta">
+          <button class="check" data-action="toggle" data-uid="${id}" aria-pressed="${done}" aria-label="${done ? 'Mark as not done' : 'Mark as done'}">${done ? '✓' : ''}</button>
+          <span class="p-cls">${esc(c.name)}</span>
+          <span class="p-min">${est ? est : '~' + estOf(e.uid)} min</span>
+        </span>
+        ${late ? '<span class="p-flag">overdue</span>' : ''}${after ? '<span class="p-flag">after due date</span>' : ''}
+      </summary>
+      <div class="p-edit">
+        <div class="muted small">Due ${esc(fmtDate(e.date))}${e.allDay ? '' : ' · ' + esc(fmtTime(e.time, state.settings.time24))}</div>
+        <label class="field">Day <select data-change="plan-day" data-uid="${id}">${options}</select></label>
+        <label class="field">Minutes <input type="number" min="5" max="480" step="5" data-change="plan-est" data-uid="${id}" value="${est || ''}" placeholder="${estOf(e.uid)}"></label>
+        <div class="row"><button class="btn small" data-action="plan-focus" data-cls="${esc(cls)}">Start timer</button>${e.link ? `<a class="btn small" href="${esc(e.link)}" target="_blank" rel="noopener noreferrer">Toddle ↗</a>` : ''}</div>
+      </div>
+    </details>
   </div>`;
 }
 
-const dueCardCount = () => state.decks.reduce((a, d) => a + dueCards(d).length, 0);
+const dueMark = (e) =>
+  `<div class="due-mark"><b>Due</b> ${e.allDay ? '' : esc(fmtTime(e.time, state.settings.time24)) + ' · '}${esc(displayTitle(e.title))}</div>`;
+
+function plannerPage() {
+  if (!state.events.length) {
+    return '<h1>Planner</h1>' + emptyState('📥', 'Import your Toddle calendar first', 'The planner works with your assignments.', '<a class="btn primary" href="#/settings">Go to import</a>');
+  }
+  const w = weekOf();
+  const t = today();
+  const limit = Number(state.settings.dailyLimit) || 90;
+  const load = loadByDay(w.days);
+  const tray = trayTasks(w);
+
+  const plannedBy = {};
+  const dueBy = {};
+  for (const e of tasks()) {
+    const p = state.plan[e.uid];
+    if (p && p >= w.start && p <= w.end) (plannedBy[p] ||= []).push(e);
+    if (!isDone(e.uid) && e.date >= w.start && e.date <= w.end) (dueBy[e.date] ||= []).push(e);
+  }
+
+  const columns = w.days.map((d) => {
+    const mins = load[d] || 0;
+    const over = mins > limit;
+    const planned = plannedBy[d] || [];
+    const due = (dueBy[d] || []).filter((e) => state.plan[e.uid] !== d);
+    return `
+    <div class="pday ${d === t ? 'today' : ''} ${isWeekend(d) ? 'weekend' : ''}" data-drop="${d}">
+      <div class="pday-head"><strong>${fmtDate(d, { weekday: 'short', day: 'numeric' })}</strong><span class="small ${over ? 'over' : 'muted'}">${mins} / ${limit} min</span></div>
+      <div class="bar"><span style="width:${Math.min(100, (100 * mins) / limit)}%;background:${over ? 'var(--warn)' : 'var(--accent)'}"></span></div>
+      ${due.map(dueMark).join('')}
+      ${planned.map((e) => planCard(e, w)).join('')}
+      ${planned.length || due.length ? '' : '<p class="muted small">Free</p>'}
+    </div>`;
+  }).join('');
+
+  const range = `${fmtDate(w.start, { day: 'numeric', month: 'short' })} – ${fmtDate(w.end, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  return `
+  <div class="page-head"><div><h1>Planner</h1><p class="muted">${range}</p></div>
+    <div class="row"><button class="btn small" data-action="plan-prev" aria-label="Previous week">‹</button><button class="btn small" data-action="plan-today">This week</button><button class="btn small" data-action="plan-next" aria-label="Next week">›</button></div></div>
+  <section class="card" data-drop="">
+    <div class="sec-head"><h2>To plan <span class="count">${tray.length}</span></h2>
+      <div class="row"><button class="btn small" data-action="plan-clear">Clear week</button><button class="btn small primary" data-action="plan-auto">Auto-plan</button></div></div>
+    ${tray.length ? `<div class="tray">${tray.map((e) => planCard(e, w)).join('')}</div>` : '<p class="muted">Everything due this week is planned.</p>'}
+    <p class="muted small">Drag a card onto a day, or open it and pick a day. Auto-plan spreads the work before each deadline, up to ${limit} min a day${state.settings.planWeekends ? '' : ', weekdays only'}. Limits are in Settings.</p>
+  </section>
+  <div class="pweek" style="--cols:${w.days.map((d) => (isWeekend(d) && !state.settings.planWeekends ? 'minmax(0,.8fr)' : 'minmax(0,1.3fr)')).join(' ')}">${columns}</div>`;
+}
+
+// ---- actions ----
+actions['plan-prev'] = () => { anchor = addDays(weekOf().start, -7); rerender(); };
+actions['plan-next'] = () => { anchor = addDays(weekOf().start, 7); rerender(); };
+actions['plan-today'] = () => { anchor = today(); rerender(); };
+
+actions['plan-auto'] = () => {
+  const w = weekOf();
+  const open = trayTasks(w);
+  if (!open.length) return toast('Nothing left to plan this week.');
+  const plan = autoPlan({
+    tasks: open,
+    load: loadByDay(w.days),
+    today: today(),
+    weekStart: w.start,
+    weekEnd: w.end,
+    weekends: Boolean(state.settings.planWeekends),
+    estOf,
+  });
+  if (!plan) return toast('That week is already over. Pick this week or a later one.');
+  Object.entries(plan).forEach(([uid, d]) => { state.plan[uid] = d; });
+  save();
+  const over = Object.values(loadByDay(w.days)).filter((m) => m > (Number(state.settings.dailyLimit) || 90)).length;
+  toast(`Planned ${Object.keys(plan).length} assignments${over ? `. ${over} day${over > 1 ? 's are' : ' is'} over your daily limit` : ''}`);
+  rerender();
+};
+
+actions['plan-clear'] = () => {
+  const w = weekOf();
+  const mine = Object.entries(state.plan).filter(([uid, d]) => d >= w.start && d <= w.end && !isDone(uid));
+  if (!mine.length) return toast('Nothing planned this week.');
+  if (!confirm(`Remove the plan for ${mine.length} assignment${mine.length > 1 ? 's' : ''} this week?`)) return;
+  mine.forEach(([uid]) => delete state.plan[uid]);
+  save();
+  rerender();
+};
+
+actions['plan-focus'] = (el) => {
+  focusOn(el.dataset.cls);
+  location.hash = '#/timer';
+};
+
+changes['plan-day'] = (el) => {
+  setPlan(el.dataset.uid, el.value);
+  rerender();
+};
+changes['plan-est'] = (el) => {
+  const n = Math.round(Number(el.value));
+  if (n >= 1) state.est[el.dataset.uid] = Math.min(480, n);
+  else delete state.est[el.dataset.uid];
+  save();
+  rerender();
+};
+
+// ---- drag and drop (a select on each card covers touch screens) ----
+let dragUid = null;
+const zoneOf = (e) => (e.target instanceof Element ? e.target.closest('[data-drop]') : null);
+
+document.addEventListener('dragstart', (e) => {
+  const card = e.target instanceof Element ? e.target.closest('[data-drag]') : null;
+  if (!card) return;
+  dragUid = card.dataset.drag;
+  e.dataTransfer.setData('text/plain', dragUid);
+  e.dataTransfer.effectAllowed = 'move';
+  card.classList.add('dragging');
+});
+document.addEventListener('dragend', () => {
+  dragUid = null;
+  document.querySelectorAll('.dragging, .drop-on').forEach((el) => el.classList.remove('dragging', 'drop-on'));
+});
+document.addEventListener('dragover', (e) => {
+  const zone = zoneOf(e);
+  if (!zone || !dragUid) return;
+  e.preventDefault();
+  zone.classList.add('drop-on');
+});
+document.addEventListener('dragleave', (e) => {
+  const zone = zoneOf(e);
+  if (zone && !zone.contains(e.relatedTarget)) zone.classList.remove('drop-on');
+});
+document.addEventListener('drop', (e) => {
+  const zone = zoneOf(e);
+  if (!zone || !dragUid) return;
+  e.preventDefault();
+  setPlan(dragUid, zone.dataset.drop);
+  dragUid = null;
+  rerender();
+});
 
 // ---- pages.js ----
 // Page views: Start, Classes, Class, Calendar, Progress, Settings.
+
 
 
 
@@ -1110,6 +1660,11 @@ function startPage() {
   week.forEach((e) => (days[e.date] ||= []).push(e));
   const dayBlocks = Object.keys(days).sort().map((d) => `<h3 class="day-h">${d === t ? 'Today' : diffDays(d, t) === 1 ? 'Tomorrow' : fmtDate(d)}</h3><div class="list">${days[d].map((e) => taskRow(e, { timeOnly: true })).join('')}</div>`).join('');
 
+  const plan = todaysPlan();
+  const todaysPlanCard = plan.items.length
+    ? `<section class="card"><div class="sec-head"><h2>Today's plan <span class="count">${plan.minutes} min</span></h2><a class="btn small" href="#/planner">Open planner</a></div><div class="list">${plan.items.map((e) => taskRow(e, { timeOnly: true })).join('')}</div></section>`
+    : '';
+
   const overdueCard = overdueAll.length ? `
     <section class="card"><div class="sec-head"><h2>Overdue <span class="count">${overdueAll.length}</span></h2><button class="btn small" data-action="mark-overdue-done">Mark all done</button></div>
       ${recent.length ? `<div class="list">${recent.slice(0, 6).map((e) => taskRow(e, { showRel: true })).join('')}</div>` : ''}
@@ -1126,6 +1681,7 @@ function startPage() {
   </div>
   <div class="grid two">
     <div>
+      ${todaysPlanCard}
       <section class="card"><h2>Coming up</h2>${dayBlocks || '<p class="muted">Nothing due in the next 7 days.</p>'}</section>
       ${overdueCard}
     </div>
@@ -1508,6 +2064,14 @@ function settingsPage() {
     <label class="check-row"><input type="checkbox" data-change="setting" data-setting="notify" ${chk('notify')}> Show a notification when a session ends</label>
   </section>
 
+  <section class="card"><h2>Planner</h2>
+    <div class="form-row">
+      <label class="field">Daily study limit (min)<input type="number" min="15" max="480" step="5" data-change="setting" data-setting="dailyLimit" value="${s.dailyLimit}"></label>
+      <label class="field">Assumed time per assignment (min)<input type="number" min="5" max="480" step="5" data-change="setting" data-setting="defaultEst" value="${s.defaultEst}"></label>
+    </div>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="planWeekends" ${chk('planWeekends')}> Auto-plan on Saturday and Sunday</label>
+  </section>
+
   <section class="card"><h2>Your data</h2>
     <p class="muted">Everything lives in this browser. Export a backup to move to another device (your Toddle link is left out of backups).</p>
     <div class="row">
@@ -1526,6 +2090,7 @@ function settingsPage() {
 
 
 
+
 const view = document.getElementById('view');
 
 const ROUTES = {
@@ -1533,6 +2098,7 @@ const ROUTES = {
   classes: { nav: 'classes', page: classesPage },
   class: { nav: 'classes', page: (a) => classPage(decodeURIComponent(a)) },
   calendar: { nav: 'calendar', page: calendarPage },
+  planner: { nav: 'planner', page: plannerPage },
   schedule: { nav: 'schedule', page: schedulePage },
   timer: { nav: 'timer', page: timerPage },
   flashcards: { nav: 'flashcards', page: cardsPage },

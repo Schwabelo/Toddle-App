@@ -1,6 +1,6 @@
 # Roadmap
 
-Two features are planned: a **weekly planner** and **better flashcards**. Effort guide: **S** = under an hour, **M** = a few hours, **L** = a day or more. These are rough guesses, not measurements.
+Two features: a **weekly planner** and **better flashcards**. **Status: first version of both is built.** Everything below is what was built, followed by the settings and choices I picked so they can be changed. Effort guide: **S** = under an hour, **M** = a few hours, **L** = a day or more. These are rough guesses, not measurements.
 
 Rules for both: stay a static site with everything in the browser, work with mouse, touch and keyboard (school Chromebooks vary), and include the new data in **Export backup** and **Delete everything**.
 
@@ -70,3 +70,23 @@ Parked, not deleted: AI assistant, syncing between devices, class-wide / teacher
 - **The shared sync proxy** handles everyone's private links. Keep it forwarding-only with no logging. Apps Script has daily usage quotas that I haven't looked up, so check them before a wide rollout.
 - **Browser storage can be cleared**, which wipes the data. Backups are the safeguard.
 - **Public repository:** keep links, keys and student data out of commits.
+
+## Built in the first version
+
+**Planner** (`#/planner`): week view with a "To plan" tray, drag and drop plus a day picker on every card, minutes per assignment, daily load bar that turns amber over the limit, "after due date" and "overdue" flags, auto-plan, clear week, start the timer from a card, and a "Today's plan" card on the Start page. Plans and estimates are in backups.
+
+**Flashcards:** flip, type-the-answer (ignores case, accents, punctuation; alternatives with `/` or `;`; one-letter typos are "almost" with an "I was right" override), multiple choice (needs 4+ cards), front→back / back→front / both, due / all / hardest cards, import preview with a separator choice, per-deck mastered count and accuracy, and a deck-to-assignment link.
+
+**Defaults I chose (all easy to change, tell me what you prefer):**
+- Daily limit 90 min, set in Settings → Planner.
+- Assignments without an estimate count as 30 min (shown as "~30 min"), set in Settings → Planner.
+- Auto-plan skips Saturday and Sunday, unless you tick the box in Settings → Planner.
+- Overdue work is spread across the week, not stacked on one day.
+- A card counts as "mastered" once it is 14+ days from its next review.
+- "Hardest cards" = up to 20 cards you've missed, worst miss rate first.
+
+**Known limits of the first version**
+- Planned work that you miss is not rolled forward automatically; it stays on its old day (and still appears on Start as overdue or coming up).
+- Auto-plan only looks at the week on screen. Work due after that week isn't touched.
+- Typed answers are checked by text match, so long free-form answers will not grade well.
+- No images on flashcards (browser storage is small).

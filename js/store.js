@@ -19,12 +19,17 @@ const defaults = () => ({
     sound: true,
     notify: false,
     proxy: '',
+    dailyLimit: 90,
+    defaultEst: 30,
+    planWeekends: false,
   },
   feedUrl: '',
   events: [],
   lastSync: null,
   pastPrompted: false,
   done: {}, // uid -> date completed
+  plan: {}, // uid -> day it is planned for
+  est: {}, // uid -> estimated minutes
   decks: [],
   sessions: [], // { date, minutes, cls }
   reviews: {}, // date -> flashcards reviewed

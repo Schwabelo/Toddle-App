@@ -4,6 +4,7 @@ import { actions, changes, inputs, setRender } from './ui.js';
 import { startPage, classesPage, classPage, calendarPage, progressPage, settingsPage, schedulePage, applyTheme } from './pages.js';
 import { timerPage, updateTimerUI } from './timer.js';
 import { cardsPage } from './cards.js';
+import { plannerPage } from './planner.js';
 import { syncFromFeed, getProxy } from './sync.js';
 
 const view = document.getElementById('view');
@@ -13,6 +14,7 @@ const ROUTES = {
   classes: { nav: 'classes', page: classesPage },
   class: { nav: 'classes', page: (a) => classPage(decodeURIComponent(a)) },
   calendar: { nav: 'calendar', page: calendarPage },
+  planner: { nav: 'planner', page: plannerPage },
   schedule: { nav: 'schedule', page: schedulePage },
   timer: { nav: 'timer', page: timerPage },
   flashcards: { nav: 'flashcards', page: cardsPage },

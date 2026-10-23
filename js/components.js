@@ -47,7 +47,10 @@ export function taskRow(e, { showClass = true, showRel = false, timeOnly = false
       <div class="task-detail">
         ${e.description ? `<p class="desc">${linkify(e.description)}</p>` : '<p class="muted">No description.</p>'}
         ${e.createdBy ? `<p class="muted small">Set by ${esc(e.createdBy)}</p>` : ''}
-        ${e.link ? `<a class="btn small" href="${esc(e.link)}" target="_blank" rel="noopener noreferrer">Open in Toddle ↗</a>` : ''}
+        <div class="row">
+          ${e.link ? `<a class="btn small" href="${esc(e.link)}" target="_blank" rel="noopener noreferrer">Open in Toddle ↗</a>` : ''}
+          ${state.decks.filter((d) => d.link === e.uid).map((d) => `<a class="btn small" href="#/flashcards/${d.id}">Study cards: ${esc(d.name)}</a>`).join('')}
+        </div>
       </div>
     </details>
   </div>`;

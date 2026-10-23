@@ -3,6 +3,7 @@ import { state, save, classNames, classInfo, classStats, classColor, tasks, task
 import { esc, today, addDays, diffDays, fmtDate, fmtTime, relDay, ymd, parseYmd, download, displayTitle } from './util.js';
 import { taskRow, eventRow, emptyState, bar } from './components.js';
 import { dueCardCount } from './cards.js';
+import { todaysPlan } from './planner.js';
 import { actions, changes, inputs, rerender, toast } from './ui.js';
 import { syncFromFeed, importText, offerMarkPastDone, getProxy, syncStatus } from './sync.js';
 import { syncDurations } from './timer.js';
@@ -37,6 +38,11 @@ export function startPage() {
   week.forEach((e) => (days[e.date] ||= []).push(e));
   const dayBlocks = Object.keys(days).sort().map((d) => `<h3 class="day-h">${d === t ? 'Today' : diffDays(d, t) === 1 ? 'Tomorrow' : fmtDate(d)}</h3><div class="list">${days[d].map((e) => taskRow(e, { timeOnly: true })).join('')}</div>`).join('');
 
+  const plan = todaysPlan();
+  const todaysPlanCard = plan.items.length
+    ? `<section class="card"><div class="sec-head"><h2>Today's plan <span class="count">${plan.minutes} min</span></h2><a class="btn small" href="#/planner">Open planner</a></div><div class="list">${plan.items.map((e) => taskRow(e, { timeOnly: true })).join('')}</div></section>`
+    : '';
+
   const overdueCard = overdueAll.length ? `
     <section class="card"><div class="sec-head"><h2>Overdue <span class="count">${overdueAll.length}</span></h2><button class="btn small" data-action="mark-overdue-done">Mark all done</button></div>
       ${recent.length ? `<div class="list">${recent.slice(0, 6).map((e) => taskRow(e, { showRel: true })).join('')}</div>` : ''}
@@ -53,6 +59,7 @@ export function startPage() {
   </div>
   <div class="grid two">
     <div>
+      ${todaysPlanCard}
       <section class="card"><h2>Coming up</h2>${dayBlocks || '<p class="muted">Nothing due in the next 7 days.</p>'}</section>
       ${overdueCard}
     </div>
@@ -433,6 +440,14 @@ export function settingsPage() {
     </div>
     <label class="check-row"><input type="checkbox" data-change="setting" data-setting="sound" ${chk('sound')}> Play a sound when a session ends</label>
     <label class="check-row"><input type="checkbox" data-change="setting" data-setting="notify" ${chk('notify')}> Show a notification when a session ends</label>
+  </section>
+
+  <section class="card"><h2>Planner</h2>
+    <div class="form-row">
+      <label class="field">Daily study limit (min)<input type="number" min="15" max="480" step="5" data-change="setting" data-setting="dailyLimit" value="${s.dailyLimit}"></label>
+      <label class="field">Assumed time per assignment (min)<input type="number" min="5" max="480" step="5" data-change="setting" data-setting="defaultEst" value="${s.defaultEst}"></label>
+    </div>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="planWeekends" ${chk('planWeekends')}> Auto-plan on Saturday and Sunday</label>
   </section>
 
   <section class="card"><h2>Your data</h2>
