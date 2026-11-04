@@ -39,6 +39,7 @@ function parseDate(value, params) {
     date: `${m[1]}-${m[2]}-${m[3]}`,
     time: allDay ? null : `${m[4]}:${m[5]}`,
     allDay,
+    tz: (params.match(/TZID=([^;:]+)/) || [])[1] || null,
   };
 }
 
@@ -99,6 +100,7 @@ export function parseIcs(text) {
       endDate,
       endTime: end && !end.allDay ? end.time : null,
       allDay: start.allDay,
+      tz: start.tz,
       kind: isTask ? 'task' : 'event',
       type: fields['Task Type'] || fields['Event Type'] || 'Event',
       classes,

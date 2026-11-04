@@ -4,6 +4,8 @@ import { esc, today, addDays, diffDays, fmtDate, fmtTime, relDay, ymd, parseYmd,
 import { taskRow, eventRow, emptyState, bar } from './components.js';
 import { dueCardCount } from './cards.js';
 import { todaysPlan } from './planner.js';
+import { needsAttentionCard, syncLineHtml, currentAlerts } from './alerts.js';
+import { isOverdue } from './urgency.js';
 import { actions, changes, inputs, rerender, toast } from './ui.js';
 import { syncFromFeed, importText, offerMarkPastDone, getProxy, syncStatus } from './sync.js';
 import { syncDurations } from './timer.js';
@@ -21,17 +23,16 @@ export function startPage() {
   const t = today();
   const name = state.settings.name ? `, ${esc(state.settings.name)}` : '';
   const cards = dueCardCount();
-  const head = `<div class="page-head"><div><h1>${greeting()}${name}</h1><p class="muted">${fmtDate(t, { weekday: 'long', day: 'numeric', month: 'long' })}</p></div>
+  const head = `<div class="page-head"><div><h1>${greeting()}${name}</h1><p class="muted">${fmtDate(t, { weekday: 'long', day: 'numeric', month: 'long' })}${syncLineHtml() ? ' · ' + syncLineHtml() : ''}</p></div>
     <div class="row"><a class="btn primary" href="#/timer">Start focus timer</a><a class="btn" href="#/flashcards">Flashcards${cards ? ` · ${cards} due` : ''}</a></div></div>`;
   if (!state.events.length) return head + importCta();
 
   const open = tasks().filter((e) => !isDone(e.uid));
-  const overdueAll = open.filter((e) => e.date < t).sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')));
-  const recent = overdueAll.filter((e) => diffDays(t, e.date) <= 14);
-  const older = overdueAll.length - recent.length;
-  const week = open.filter((e) => e.date >= t && e.date <= addDays(t, 7));
-  const assess = open.filter((e) => /Assessment/.test(e.type) && e.date >= t).slice(0, 4);
-  const dueToday = open.filter((e) => e.date === t).length;
+  const alerts = currentAlerts();
+  const overdueCount = alerts.overdue.length;
+  const week = open.filter((e) => !isOverdue(e) && e.date <= addDays(t, 7));
+  const assess = open.filter((e) => /Assessment/.test(e.type) && !isOverdue(e)).slice(0, 4);
+  const dueToday = open.filter((e) => e.date === t && !isOverdue(e)).length;
   const nextOff = state.events.find((e) => e.kind === 'event' && e.type === 'Holidays and vacations' && e.endDate >= t);
 
   const days = {};
@@ -43,25 +44,18 @@ export function startPage() {
     ? `<section class="card"><div class="sec-head"><h2>Today's plan <span class="count">${plan.minutes} min</span></h2><a class="btn small" href="#/planner">Open planner</a></div><div class="list">${plan.items.map((e) => taskRow(e, { timeOnly: true })).join('')}</div></section>`
     : '';
 
-  const overdueCard = overdueAll.length ? `
-    <section class="card"><div class="sec-head"><h2>Overdue <span class="count">${overdueAll.length}</span></h2><button class="btn small" data-action="mark-overdue-done">Mark all done</button></div>
-      ${recent.length ? `<div class="list">${recent.slice(0, 6).map((e) => taskRow(e, { showRel: true })).join('')}</div>` : ''}
-      ${recent.length > 6 ? `<p class="muted small">+ ${recent.length - 6} more from the last two weeks. Open a class to see them.</p>` : ''}
-      ${older ? `<p class="muted small">${older} older item${older > 1 ? 's' : ''} not shown. <button class="linkbtn" data-action="mark-older-done">Mark them done</button></p>` : ''}
-    </section>` : '';
-
   return `${head}
   <div class="grid stats">
     <div class="card stat"><div class="stat-num">${dueToday}</div><div class="muted">due today</div></div>
-    <div class="card stat ${overdueAll.length ? 'warn' : ''}"><div class="stat-num">${overdueAll.length}</div><div class="muted">overdue</div></div>
+    <div class="card stat ${overdueCount ? 'warn' : ''}"><div class="stat-num">${overdueCount}</div><div class="muted">overdue${alerts.older ? ` · ${alerts.older} older` : ''}</div></div>
     <div class="card stat"><div class="stat-num">${week.length}</div><div class="muted">next 7 days</div></div>
     <div class="card stat"><div class="stat-num">${studyMinutesOn(t)}<small>min</small></div><div class="muted">studied today</div></div>
   </div>
   <div class="grid two">
     <div>
+      ${needsAttentionCard()}
       ${todaysPlanCard}
       <section class="card"><h2>Coming up</h2>${dayBlocks || '<p class="muted">Nothing due in the next 7 days.</p>'}</section>
-      ${overdueCard}
     </div>
     <div>
       <section class="card"><h2>Assessments</h2>
@@ -74,16 +68,6 @@ export function startPage() {
 
 actions['toggle'] = (el) => {
   toggleDone(el.dataset.uid);
-  rerender();
-};
-actions['mark-older-done'] = () => {
-  const cutoff = addDays(today(), -14);
-  tasks().filter((e) => e.date < cutoff && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
-  rerender();
-};
-actions['mark-overdue-done'] = () => {
-  const t = today();
-  tasks().filter((e) => e.date < t && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
   rerender();
 };
 
@@ -127,13 +111,18 @@ inputs['search'] = (el) => {
   }
 };
 actions['class-mark-past'] = (el) => {
-  const t = today();
-  tasksFor(el.dataset.cls).filter((e) => e.date < t && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
+  tasksFor(el.dataset.cls).filter((e) => isOverdue(e) && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
   rerender();
 };
 
-export function classPage(name) {
+export function classPage(name, focusUid = '') {
   if (!classNames().includes(name)) return emptyState('🤔', 'Class not found', '<a href="#/classes">Back to classes</a>');
+  if (focusUid) {
+    // coming from an alert: make sure the filters cannot hide the task
+    typeFilter = '';
+    search = '';
+    if (classFilter === 'done') classFilter = 'all';
+  }
   const i = classInfo(name);
   const t = today();
   const all = tasksFor(name);
@@ -144,10 +133,11 @@ export function classPage(name) {
     const q = search.trim().toLowerCase();
     list = list.filter((e) => (e.title + ' ' + e.description).toLowerCase().includes(q));
   }
-  const overdue = list.filter((e) => e.date < t && !isDone(e.uid)).reverse();
-  const upcoming = list.filter((e) => e.date >= t);
+  const late = (e) => !isDone(e.uid) && isOverdue(e);
+  const overdue = list.filter(late).reverse();
+  const upcoming = list.filter((e) => !late(e) && !(e.date < t && isDone(e.uid)));
   const past = list.filter((e) => e.date < t && isDone(e.uid)).reverse();
-  const section = (title, arr, rel) => (arr.length ? `<h3 class="day-h">${title} <span class="count">${arr.length}</span></h3><div class="card flush"><div class="list">${arr.map((e) => taskRow(e, { showClass: false, showRel: rel })).join('')}</div></div>` : '');
+  const section = (title, arr, rel) => (arr.length ? `<h3 class="day-h">${title} <span class="count">${arr.length}</span></h3><div class="card flush"><div class="list">${arr.map((e) => taskRow(e, { showClass: false, showRel: rel, focus: e.uid === focusUid })).join('')}</div></div>` : '');
   const s = classStats(name);
   const chips = [['open', 'Open'], ['all', 'All'], ['done', 'Done']].map(([k, l]) => `<button class="chip ${classFilter === k ? 'active' : ''}" data-action="class-filter" data-f="${k}">${l}</button>`).join('');
   return `
@@ -229,7 +219,7 @@ export function progressPage() {
     const list = tasksFor(c);
     const n = list.length || 1;
     const d = list.filter((e) => isDone(e.uid)).length;
-    const od = list.filter((e) => !isDone(e.uid) && e.date < t).length;
+    const od = list.filter((e) => !isDone(e.uid) && isOverdue(e)).length;
     return `<div class="prog-row" style="--c:${i.color}"><div class="prog-name"><a href="#/class/${encodeURIComponent(c)}">${esc(i.name)}</a><span class="muted small">${d}/${list.length} done${od ? ` · <span class="late">${od} overdue</span>` : ''}</span></div>
       ${bar([{ v: (100 * d) / n, c: i.color, t: 'done' }, { v: (100 * od) / n, c: 'var(--bad)', t: 'overdue' }])}</div>`;
   }).join('');
@@ -335,10 +325,16 @@ changes['setting'] = (el) => {
   const k = el.dataset.setting;
   let v = el.type === 'checkbox' ? el.checked : el.type === 'number' ? Math.max(1, Number(el.value) || 1) : el.value;
   if (k === 'weekStart') v = Number(v);
+  if (k === 'alertNotify' && v && 'Notification' in window && Notification.permission === 'default') Notification.requestPermission();
   state.settings[k] = v;
   save();
   applyTheme();
   syncDurations();
+  rerender();
+};
+actions['unmute-all'] = () => {
+  state.mute = {};
+  save();
   rerender();
 };
 actions['accent'] = (el) => {
@@ -448,6 +444,17 @@ export function settingsPage() {
       <label class="field">Assumed time per assignment (min)<input type="number" min="5" max="480" step="5" data-change="setting" data-setting="defaultEst" value="${s.defaultEst}"></label>
     </div>
     <label class="check-row"><input type="checkbox" data-change="setting" data-setting="planWeekends" ${chk('planWeekends')}> Auto-plan on Saturday and Sunday</label>
+  </section>
+
+  <section class="card"><h2>Alerts and sync</h2>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="alerts" ${chk('alerts')}> Warn me about overdue and upcoming work</label>
+    <div class="form-row">
+      <label class="field">Warn this many hours before something is due<input type="number" min="1" max="168" data-change="setting" data-setting="warnHours" value="${s.warnHours}"></label>
+      <label class="field">Warn about assessments this many days ahead<input type="number" min="1" max="30" data-change="setting" data-setting="warnAssessDays" value="${s.warnAssessDays}"></label>
+    </div>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="alertNotify" ${chk('alertNotify')}> Show a browser notification for new warnings while the app is open in another tab</label>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="autoSync" ${chk('autoSync')}> Sync from Toddle automatically when I open the app</label>
+    <p class="muted small">Notifications only work while the app is open in a browser tab. Toddle itself refreshes its calendar about once a day, so new work can take up to 24 hours to appear.${Object.keys(state.mute).length ? ` <button class="linkbtn" data-action="unmute-all">Stop ignoring ${Object.keys(state.mute).length} item${Object.keys(state.mute).length > 1 ? 's' : ''}</button>` : ''}</p>
   </section>
 
   <section class="card"><h2>Your data</h2>

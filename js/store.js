@@ -1,5 +1,6 @@
 // App state, persisted in localStorage. Nothing leaves the browser.
 import { today } from './util.js';
+import { isOverdue } from './urgency.js';
 
 const KEY = 'toddle-study-hub:v1';
 export const SCHEDULER_KEY = 'classScheduler.v2'; // owned by the embedded scheduler (scheduler.html)
@@ -22,6 +23,11 @@ const defaults = () => ({
     dailyLimit: 90,
     defaultEst: 30,
     planWeekends: false,
+    alerts: true,
+    warnHours: 24,
+    warnAssessDays: 3,
+    alertNotify: false,
+    autoSync: true,
   },
   feedUrl: '',
   events: [],
@@ -30,6 +36,9 @@ const defaults = () => ({
   done: {}, // uid -> date completed
   plan: {}, // uid -> day it is planned for
   est: {}, // uid -> estimated minutes
+  mute: {}, // uid -> true: stop warning about this one
+  changes: [], // new or moved assignments found by the last imports: { uid, kind, from?, at }
+  notified: {}, // uid -> last alert level a notification was sent for
   decks: [],
   sessions: [], // { date, minutes, cls }
   reviews: {}, // date -> flashcards reviewed
@@ -105,7 +114,7 @@ export function classStats(cls) {
   const list = tasksFor(cls);
   const done = list.filter((e) => isDone(e.uid));
   const open = list.filter((e) => !isDone(e.uid));
-  const overdue = open.filter((e) => e.date < t);
+  const overdue = open.filter((e) => isOverdue(e));
   const upcoming = open.filter((e) => e.date >= t);
   return { total: list.length, done: done.length, open: open.length, overdue: overdue.length, upcoming: upcoming.length, next: upcoming[0] || null };
 }

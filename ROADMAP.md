@@ -90,3 +90,14 @@ Parked, not deleted: AI assistant, syncing between devices, class-wide / teacher
 - Auto-plan only looks at the week on screen. Work due after that week isn't touched.
 - Typed answers are checked by text match, so long free-form answers will not grade well.
 - No images on flashcards (browser storage is small).
+
+## Built after the first version: alerts and background sync
+
+- **One definition of "overdue"** everywhere: the exact due moment, using the time zone in the Toddle feed (so "due in 3 h" is right on any device). Before, each page compared dates only.
+- **Warnings:** a banner on every page, a count on the Start icon, a "Needs attention" card on Start and a full `#/alerts` page. Work is "due soon" within 24 hours (assessments: 3 days), both adjustable in Settings → Alerts and sync. The banner updates by itself as time passes.
+- **Acting on a warning:** Done, Plan today, and a menu with Open in class (scrolls to and expands that assignment), Open in planner (on the right week), Open in Toddle, Study cards, Start timer, and Ignore this one.
+- **New or moved in Toddle:** each import is compared with the previous one; new assignments and changed due times are listed for 3 days.
+- **Background sync:** on open (at most every 5 minutes), when you return to the tab (after 15 minutes), and every 30 minutes while open. No dialogs or toasts; a status line shows "Synced 3 min ago" or "Sync failed. Retry" with details in Settings. It never redraws the page while you are typing.
+- **Browser notifications (optional):** for new warnings while the app is open in a background tab.
+
+**Limits:** warnings and notifications only happen while the app is open in a browser, because nothing can run when it is closed without a server. New work in Toddle can take up to a day to appear because Toddle refreshes its feed about once a day. Day names like "today" and "tomorrow" follow the device's clock.

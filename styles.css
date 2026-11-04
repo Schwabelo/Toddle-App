@@ -28,8 +28,10 @@ h3 { font-size: 1rem; margin: 0 0 .3rem; }
 .nav a:hover { background: var(--bg); }
 .nav a.active { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
 .nav a b { margin-left: auto; font: 600 .8rem/1 ui-monospace, monospace; color: var(--accent); }
-.nav-end { margin-top: auto; }
-main { padding: 1.5rem clamp(1rem, 3vw, 2.5rem) 3rem; max-width: 1150px; width: 100%; outline: none; }
+.nav-end { margin-top: 0; }
+.nav-sync { margin-top: auto; padding: 0 .25rem .4rem; min-height: 2rem; }
+main { padding: 1.5rem clamp(1rem, 3vw, 2.5rem) 3rem; max-width: 1150px; width: 100%; }
+#view { outline: none; }
 
 /* layout bits */
 .grid { display: grid; gap: 1rem; margin-bottom: 1rem; }
@@ -183,3 +185,25 @@ textarea { resize: vertical; }
 .p-cls { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .p-min { margin-left: auto; white-space: nowrap; }
 .p-flag { display: inline-block; margin-top: .3rem; font-size: .68rem; font-weight: 650; color: var(--warn); }
+
+/* alerts */
+.alertbar { display: flex; align-items: center; gap: .75rem; padding: .6rem .9rem; margin-bottom: 1rem; border: 1px solid color-mix(in srgb, var(--warn) 45%, var(--line)); border-left: 4px solid var(--warn); border-radius: var(--radius); background: color-mix(in srgb, var(--warn) 9%, var(--card)); }
+.alertbar.hot { border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); border-left-color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, var(--card)); }
+.alertbar-text { flex: 1; font-size: .92rem; } .alertbar-x { border: 0; background: none; color: var(--muted); font-size: 1.3rem; line-height: 1; cursor: pointer; padding: 0 .25rem; }
+.nav a b.count-badge { margin-left: auto; min-width: 1.25rem; padding: .05rem .4rem; border-radius: 99px; background: var(--bad); color: #fff; font: 700 .7rem/1.3 system-ui, sans-serif; text-align: center; }
+.nav a b.count-badge[hidden] { display: none; }
+.alist > .arow { border-bottom: 1px solid var(--line); } .alist > .arow:last-child { border-bottom: 0; }
+.arow { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: .7rem 0; }
+.arow-main { min-width: 0; flex: 1; } .arow .task-title { text-decoration: none; color: var(--text); } .arow .task-title:hover { color: var(--accent); }
+.arow-actions { display: flex; align-items: center; gap: .4rem; flex: none; flex-wrap: wrap; justify-content: flex-end; }
+.soonc { color: var(--warn); font-weight: 600; } .arow.hot .late { font-weight: 600; }
+.more { position: relative; } .more > summary { list-style: none; cursor: pointer; } .more > summary::-webkit-details-marker { display: none; }
+.more-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 10; min-width: 190px; padding: .3rem; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.14); display: flex; flex-direction: column; }
+.more-menu a, .more-menu button { text-align: left; font: inherit; font-size: .88rem; padding: .45rem .6rem; border: 0; background: none; color: var(--text); border-radius: 7px; cursor: pointer; text-decoration: none; } .more-menu a:hover, .more-menu button:hover { background: var(--bg); }
+.chip-sync { display: inline-flex; align-items: center; gap: .45rem; width: 100%; font: inherit; font-size: .78rem; color: var(--muted); background: none; border: 0; padding: .3rem .5rem; border-radius: 8px; cursor: pointer; text-align: left; } .chip-sync:hover { background: var(--bg); color: var(--text); }
+.chip-sync .dot { --c: var(--good); } .chip-sync.busy .dot { --c: var(--accent); animation: pulse 1s infinite; } .chip-sync.err { color: var(--bad); } .chip-sync.err .dot { --c: var(--bad); }
+@keyframes pulse { 50% { opacity: .3; } }
+.flash { animation: flash 2.4s ease-out; border-radius: 8px; }
+@keyframes flash { 0% { background: color-mix(in srgb, var(--accent) 22%, transparent); } 100% { background: transparent; } }
+.attn { border-color: color-mix(in srgb, var(--warn) 40%, var(--line)); }
+@media (max-width: 760px) { .nav-sync { display: none; } .nav a b.count-badge { position: absolute; transform: translate(14px, -12px); margin: 0; } .arow { flex-direction: column; gap: .5rem; } .arow-actions { justify-content: flex-start; } .alertbar { flex-wrap: wrap; } }

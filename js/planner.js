@@ -1,12 +1,18 @@
 // Weekly planner: put assignments on days, watch the load per day, and auto-spread what's left.
 import { state, save, tasks, isDone, classInfo } from './store.js';
 import { esc, today, addDays, fmtDate, fmtTime, parseYmd, displayTitle } from './util.js';
+import { isOverdue } from './urgency.js';
 import { actions, changes, rerender, toast } from './ui.js';
 import { emptyState } from './components.js';
 import { autoPlan, isWeekend } from './planlogic.js';
 import { focusOn } from './timer.js';
 
 let anchor = null; // any date inside the week being shown
+
+// Used by alerts to open the planner on the week of a given day.
+export function showWeekOf(date) {
+  anchor = date;
+}
 
 const startOfWeek = (d) => addDays(d, -((parseYmd(d).getDay() - Number(state.settings.weekStart) + 7) % 7));
 function weekOf() {
@@ -51,7 +57,7 @@ function planCard(e, w) {
   const est = state.est[e.uid];
   const cls = e.classes[0] || '';
   const c = classInfo(cls);
-  const late = !done && e.date < today();
+  const late = !done && isOverdue(e);
   const after = planned && planned > e.date && !done && !late;
   const options = ['<option value="">Not planned</option>']
     .concat(w.days.map((d) => `<option value="${d}" ${d === planned ? 'selected' : ''}>${fmtDate(d)}</option>`))

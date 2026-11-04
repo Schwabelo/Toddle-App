@@ -1,6 +1,7 @@
 // Reusable HTML fragments.
 import { state, isDone, classInfo } from './store.js';
-import { esc, today, fmtDate, fmtTime, relDay, linkify, displayTitle } from './util.js';
+import { esc, fmtDate, fmtTime, relDay, linkify, displayTitle } from './util.js';
+import { isOverdue } from './urgency.js';
 
 export const isHomework = (e) => /^🏠/.test(e.title) || /\b(home ?learning|homework|HML)\b/i.test(e.title);
 
@@ -28,13 +29,13 @@ export function classLabel(full) {
   return `<a class="class-label" href="#/class/${encodeURIComponent(full)}"><i class="dot" style="--c:${c.color}"></i>${esc(c.name)}</a>`;
 }
 
-export function taskRow(e, { showClass = true, showRel = false, timeOnly = false } = {}) {
+export function taskRow(e, { showClass = true, showRel = false, timeOnly = false, focus = false } = {}) {
   const done = isDone(e.uid);
-  const overdue = !done && e.date < today();
+  const overdue = !done && isOverdue(e);
   return `
-  <div class="trow ${done ? 'is-done' : ''}">
+  <div class="trow ${done ? 'is-done' : ''} ${focus ? 'flash' : ''}" ${focus ? 'data-focus="1"' : ''}>
     <button class="check" data-action="toggle" data-uid="${esc(e.uid)}" aria-pressed="${done}" aria-label="${done ? 'Mark as not done' : 'Mark as done'}">${done ? '✓' : ''}</button>
-    <details class="task-main" data-keep="${esc(e.uid)}">
+    <details class="task-main" data-keep="${esc(e.uid)}" ${focus ? 'open' : ''}>
       <summary>
         <span class="task-title">${esc(displayTitle(e.title))}</span>
         <span class="task-meta">

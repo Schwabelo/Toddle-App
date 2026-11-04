@@ -2,7 +2,8 @@
 
 A static web app that turns your Toddle calendar feed into a study dashboard. No build step, no backend, no dependencies.
 
-- **Start** – what's due today, overdue work, the next 7 days, upcoming assessments
+- **Start** – what needs attention now, what's due today, the next 7 days, upcoming assessments
+- **Alerts** – a banner and a "Needs attention" page warn about overdue and soon-due work and about new or moved assignments, with one-click Done / Plan today and links to the class, planner, Toddle, flashcards or timer
 - **Classes** – every assignment sorted into its class, with filters, search, descriptions and links back to Toddle
 - **Calendar** – month view with assignments, holidays and school events
 - **Planner** – put assignments on days (drag, or pick a day), set time estimates, see the load per day, auto-plan the week
@@ -78,7 +79,7 @@ export default {
 export const DEFAULT_PROXY = 'https://script.google.com/macros/s/XXXXXXXX/exec?url=';
 ```
 
-(or your Worker address followed by `/?url=`). Commit and push. Users no longer see or need a proxy setting; they paste their link and press *Sync*. The app also re-syncs automatically when opened (at most once an hour). Toddle itself refreshes the feed about every 24 hours.
+(or your Worker address followed by `/?url=`). Commit and push. Users no longer see or need a proxy setting; they paste their link and press *Sync*. The app also re-syncs by itself in the background: when it opens (at most every 5 minutes), when you come back to the tab (after 15 minutes), and every 30 minutes while it stays open. Toddle itself refreshes the feed about every 24 hours. Turn this off in Settings → Alerts and sync.
 
 If you use `study-hub.html` instead of the website, run `node build-single.mjs` after editing `config.js`. Note: the Cloudflare option only works from the website, not from a downloaded file.
 
@@ -98,7 +99,9 @@ styles.css          all styling (light/dark, responsive)
 js/ics.js           Toddle .ics parser
 js/store.js         saved state
 js/config.js        shared proxy address (edit this)
-js/sync.js          import from link / file
+js/sync.js          import from link / file, background sync, new/moved detection
+js/urgency.js       deadline logic: due moments (time-zone aware), overdue, due soon
+js/alerts.js        banner, Needs attention page, notifications, sync status
 js/pages.js         Start, Classes, Calendar, Progress, Settings
 js/planner.js       weekly planner (planlogic.js holds the auto-plan rules)
 scheduler.html      the Class Scheduler (self-contained, shown in the Schedule section)

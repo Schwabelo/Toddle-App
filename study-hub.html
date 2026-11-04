@@ -38,8 +38,10 @@ h3 { font-size: 1rem; margin: 0 0 .3rem; }
 .nav a:hover { background: var(--bg); }
 .nav a.active { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
 .nav a b { margin-left: auto; font: 600 .8rem/1 ui-monospace, monospace; color: var(--accent); }
-.nav-end { margin-top: auto; }
-main { padding: 1.5rem clamp(1rem, 3vw, 2.5rem) 3rem; max-width: 1150px; width: 100%; outline: none; }
+.nav-end { margin-top: 0; }
+.nav-sync { margin-top: auto; padding: 0 .25rem .4rem; min-height: 2rem; }
+main { padding: 1.5rem clamp(1rem, 3vw, 2.5rem) 3rem; max-width: 1150px; width: 100%; }
+#view { outline: none; }
 
 /* layout bits */
 .grid { display: grid; gap: 1rem; margin-bottom: 1rem; }
@@ -193,13 +195,35 @@ textarea { resize: vertical; }
 .p-cls { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .p-min { margin-left: auto; white-space: nowrap; }
 .p-flag { display: inline-block; margin-top: .3rem; font-size: .68rem; font-weight: 650; color: var(--warn); }
+
+/* alerts */
+.alertbar { display: flex; align-items: center; gap: .75rem; padding: .6rem .9rem; margin-bottom: 1rem; border: 1px solid color-mix(in srgb, var(--warn) 45%, var(--line)); border-left: 4px solid var(--warn); border-radius: var(--radius); background: color-mix(in srgb, var(--warn) 9%, var(--card)); }
+.alertbar.hot { border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); border-left-color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, var(--card)); }
+.alertbar-text { flex: 1; font-size: .92rem; } .alertbar-x { border: 0; background: none; color: var(--muted); font-size: 1.3rem; line-height: 1; cursor: pointer; padding: 0 .25rem; }
+.nav a b.count-badge { margin-left: auto; min-width: 1.25rem; padding: .05rem .4rem; border-radius: 99px; background: var(--bad); color: #fff; font: 700 .7rem/1.3 system-ui, sans-serif; text-align: center; }
+.nav a b.count-badge[hidden] { display: none; }
+.alist > .arow { border-bottom: 1px solid var(--line); } .alist > .arow:last-child { border-bottom: 0; }
+.arow { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: .7rem 0; }
+.arow-main { min-width: 0; flex: 1; } .arow .task-title { text-decoration: none; color: var(--text); } .arow .task-title:hover { color: var(--accent); }
+.arow-actions { display: flex; align-items: center; gap: .4rem; flex: none; flex-wrap: wrap; justify-content: flex-end; }
+.soonc { color: var(--warn); font-weight: 600; } .arow.hot .late { font-weight: 600; }
+.more { position: relative; } .more > summary { list-style: none; cursor: pointer; } .more > summary::-webkit-details-marker { display: none; }
+.more-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 10; min-width: 190px; padding: .3rem; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,.14); display: flex; flex-direction: column; }
+.more-menu a, .more-menu button { text-align: left; font: inherit; font-size: .88rem; padding: .45rem .6rem; border: 0; background: none; color: var(--text); border-radius: 7px; cursor: pointer; text-decoration: none; } .more-menu a:hover, .more-menu button:hover { background: var(--bg); }
+.chip-sync { display: inline-flex; align-items: center; gap: .45rem; width: 100%; font: inherit; font-size: .78rem; color: var(--muted); background: none; border: 0; padding: .3rem .5rem; border-radius: 8px; cursor: pointer; text-align: left; } .chip-sync:hover { background: var(--bg); color: var(--text); }
+.chip-sync .dot { --c: var(--good); } .chip-sync.busy .dot { --c: var(--accent); animation: pulse 1s infinite; } .chip-sync.err { color: var(--bad); } .chip-sync.err .dot { --c: var(--bad); }
+@keyframes pulse { 50% { opacity: .3; } }
+.flash { animation: flash 2.4s ease-out; border-radius: 8px; }
+@keyframes flash { 0% { background: color-mix(in srgb, var(--accent) 22%, transparent); } 100% { background: transparent; } }
+.attn { border-color: color-mix(in srgb, var(--warn) 40%, var(--line)); }
+@media (max-width: 760px) { .nav-sync { display: none; } .nav a b.count-badge { position: absolute; transform: translate(14px, -12px); margin: 0; } .arow { flex-direction: column; gap: .5rem; } .arow-actions { justify-content: flex-start; } .alertbar { flex-wrap: wrap; } }
 </style>
 </head>
 <body>
   <a class="skip" href="#view">Skip to content</a>
   <nav class="nav" aria-label="Main">
     <div class="brand"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiM2MzY2ZjEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM0MzM4Y2EiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExMiIgZmlsbD0idXJsKCNnKSIvPjxwYXRoIGQ9Ik0yNTYgMTIwIDk2IDE5MmwxNjAgNzIgMTYwLTcyeiIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0xNjAgMjQ0djc4YzAgMjAgNDMgNDYgOTYgNDZzOTYtMjYgOTYtNDZ2LTc4bC05NiA0M3oiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii44NSIvPjxyZWN0IHg9IjQwNCIgeT0iMTk2IiB3aWR0aD0iMTQiIGhlaWdodD0iMTA4IiByeD0iNyIgZmlsbD0iI2ZmZiIvPjwvc3ZnPgo=" alt="" width="28" height="28"><span>Study Hub</span></div>
-    <a href="#/" data-nav="start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M9.5 19.5v-5h5v5"/></svg><span>Start</span></a>
+    <a href="#/" data-nav="start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M9.5 19.5v-5h5v5"/></svg><span>Start</span><b id="nav-alerts" class="count-badge" hidden></b></a>
     <a href="#/classes" data-nav="classes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h10.5A2.5 2.5 0 0 1 18 7v13H7.5A2.5 2.5 0 0 1 5 17.5z"/><path d="M5 17.5A2.5 2.5 0 0 1 7.5 15H18"/></svg><span>Classes</span></a>
     <a href="#/calendar" data-nav="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Calendar</span></a>
     <a href="#/planner" data-nav="planner"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.2"/><rect x="9.75" y="4" width="4.5" height="10" rx="1.2"/><rect x="16" y="4" width="4.5" height="13" rx="1.2"/></svg><span>Planner</span></a>
@@ -207,9 +231,13 @@ textarea { resize: vertical; }
     <a href="#/timer" data-nav="timer"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.5M9.5 3h5"/></svg><span>Timer</span><b id="nav-timer"></b></a>
     <a href="#/flashcards" data-nav="flashcards"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7.5" width="13.5" height="12" rx="2"/><path d="M7 7.5V6a2 2 0 0 1 2-2h9.5a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2H17"/></svg><span>Cards</span></a>
     <a href="#/progress" data-nav="progress"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-6M12 20V5M19 20v-10"/></svg><span>Progress</span></a>
+    <div id="sync-chip" class="nav-sync"></div>
     <a href="#/settings" data-nav="settings" class="nav-end"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg><span>Settings</span></a>
   </nav>
-  <main id="view" tabindex="-1"></main>
+  <main>
+    <div id="alertbar"></div>
+    <div id="view" tabindex="-1"></div>
+  </main>
   <div id="toast" role="status" aria-live="polite"></div>
   <noscript><p style="padding:2rem">This app needs JavaScript.</p></noscript>
   <script>
@@ -285,6 +313,74 @@ function download(filename, text, type = 'application/json') {
 // Teachers prefix titles with emoji (🏠, ✏️). The type tag already says it, so drop them for display.
 const displayTitle = (t) => t.replace(/^[\p{Extended_Pictographic}\uFE0F\u200D\s]+/u, '') || t;
 
+// ---- urgency.js ----
+// Pure deadline logic: when something is due, whether it is overdue, and what deserves a warning.
+const HOUR = 3600e3;
+const DAY = 24 * HOUR;
+
+// How far a time zone is ahead of UTC at a given instant, in ms.
+function zoneOffsetMs(ms, tz) {
+  const f = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric',
+  });
+  const p = Object.fromEntries(f.formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
+  return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - Math.floor(ms / 1000) * 1000;
+}
+
+// A wall-clock time in a given zone (e.g. 10:15 in Europe/Zurich) as an instant. Falls back to the device's zone.
+function wallToMs(date, time, tz) {
+  const [y, m, d] = date.split('-').map(Number);
+  const [hh, mm] = time.split(':').map(Number);
+  if (tz) {
+    try {
+      const asUtc = Date.UTC(y, m - 1, d, hh, mm);
+      const guess = asUtc - zoneOffsetMs(asUtc, tz);
+      return asUtc - zoneOffsetMs(guess, tz); // second pass corrects across a daylight-saving change
+    } catch (e) { /* unknown zone: use the device zone */ }
+  }
+  return new Date(y, m - 1, d, hh, mm).getTime();
+}
+
+// Items without a time are due at the end of their day.
+const dueMs = (e) => wallToMs(e.date, e.time || '23:59', e.tz);
+const isOverdue = (e, now = Date.now()) => dueMs(e) < now;
+const isAssessment = (e) => /Assessment/.test(e.type);
+
+/**
+ * Splits open work into what is overdue and what is due soon.
+ * soon = due within warnHours, or an assessment due within assessDays.
+ * Overdue by more than recentDays is only counted (older), not listed.
+ */
+function classify(items, { now = Date.now(), warnHours = 24, assessDays = 3, isDone = () => false, isMuted = () => false, recentDays = 14 } = {}) {
+  const overdue = [];
+  const soon = [];
+  let older = 0;
+  for (const e of items) {
+    if (isDone(e.uid) || isMuted(e.uid)) continue;
+    const due = dueMs(e);
+    const diff = due - now;
+    if (diff < 0) {
+      if (-diff > recentDays * DAY) older++;
+      else overdue.push({ e, due, late: -diff });
+    } else if (diff <= warnHours * HOUR || (isAssessment(e) && diff <= assessDays * DAY)) {
+      soon.push({ e, due, left: diff, urgent: diff <= 3 * HOUR });
+    }
+  }
+  // Assessments first, then the most recently missed.
+  overdue.sort((a, b) => Number(isAssessment(b.e)) - Number(isAssessment(a.e)) || a.late - b.late);
+  soon.sort((a, b) => a.due - b.due);
+  return { overdue, soon, older };
+}
+
+function humanSpan(ms) {
+  const min = Math.round(Math.abs(ms) / 60000);
+  if (min < 1) return 'less than a minute';
+  if (min < 60) return `${min} min`;
+  const h = Math.round(min / 60);
+  if (h < 36) return `${h} h`;
+  return `${Math.round(h / 24)} days`;
+}
+
 // ---- ics.js ----
 // Parses a Toddle calendar feed (.ics) into plain assignment objects.
 
@@ -326,6 +422,7 @@ function parseDate(value, params) {
     date: `${m[1]}-${m[2]}-${m[3]}`,
     time: allDay ? null : `${m[4]}:${m[5]}`,
     allDay,
+    tz: (params.match(/TZID=([^;:]+)/) || [])[1] || null,
   };
 }
 
@@ -386,6 +483,7 @@ function parseIcs(text) {
       endDate,
       endTime: end && !end.allDay ? end.time : null,
       allDay: start.allDay,
+      tz: start.tz,
       kind: isTask ? 'task' : 'event',
       type: fields['Task Type'] || fields['Event Type'] || 'Event',
       classes,
@@ -401,6 +499,7 @@ function parseIcs(text) {
 
 // ---- store.js ----
 // App state, persisted in localStorage. Nothing leaves the browser.
+
 
 const KEY = 'toddle-study-hub:v1';
 const SCHEDULER_KEY = 'classScheduler.v2'; // owned by the embedded scheduler (scheduler.html)
@@ -423,6 +522,11 @@ const defaults = () => ({
     dailyLimit: 90,
     defaultEst: 30,
     planWeekends: false,
+    alerts: true,
+    warnHours: 24,
+    warnAssessDays: 3,
+    alertNotify: false,
+    autoSync: true,
   },
   feedUrl: '',
   events: [],
@@ -431,6 +535,9 @@ const defaults = () => ({
   done: {}, // uid -> date completed
   plan: {}, // uid -> day it is planned for
   est: {}, // uid -> estimated minutes
+  mute: {}, // uid -> true: stop warning about this one
+  changes: [], // new or moved assignments found by the last imports: { uid, kind, from?, at }
+  notified: {}, // uid -> last alert level a notification was sent for
   decks: [],
   sessions: [], // { date, minutes, cls }
   reviews: {}, // date -> flashcards reviewed
@@ -506,7 +613,7 @@ function classStats(cls) {
   const list = tasksFor(cls);
   const done = list.filter((e) => isDone(e.uid));
   const open = list.filter((e) => !isDone(e.uid));
-  const overdue = open.filter((e) => e.date < t);
+  const overdue = open.filter((e) => isOverdue(e));
   const upcoming = open.filter((e) => e.date >= t);
   return { total: list.length, done: done.length, open: open.length, overdue: overdue.length, upcoming: upcoming.length, next: upcoming[0] || null };
 }
@@ -552,7 +659,7 @@ function normalizeProxy(p) {
 const getProxy = () => normalizeProxy(state.settings.proxy) || DEFAULT_PROXY;
 
 // Latest sync problem, shown in Settings so it can be read and copied.
-const syncStatus = { error: null };
+const syncStatus = { error: null, busy: false };
 
 const safeUrl = (u) => {
   try {
@@ -616,18 +723,59 @@ function importText(text) {
   if (!text.includes('BEGIN:VCALENDAR')) throw new Error('That does not look like a calendar (.ics) file.');
   const events = parseIcs(text);
   if (!events.length) throw new Error('No events found in that calendar.');
+  recordChanges(state.events, events);
   state.events = events;
   state.lastSync = Date.now();
   save();
   return events.length;
 }
 
+// Remember assignments that are new, or whose due time moved, since the previous import (kept for 3 days).
+function recordChanges(before, after) {
+  if (!before.length) return; // the very first import is not "news"
+  const old = new Map(before.map((e) => [e.uid, e]));
+  const now = Date.now();
+  const found = [];
+  for (const e of after) {
+    if (e.kind !== 'task') continue;
+    const o = old.get(e.uid);
+    if (!o) found.push({ uid: e.uid, kind: 'new', at: now });
+    else if (o.date !== e.date || o.time !== e.time) found.push({ uid: e.uid, kind: 'moved', from: { date: o.date, time: o.time }, at: now });
+  }
+  const fresh = new Set(found.map((c) => c.uid));
+  state.changes = (state.changes || []).filter((c) => now - c.at < 3 * 864e5 && !fresh.has(c.uid)).concat(found);
+}
+
+// Minimum time between automatic syncs. Toddle itself only refreshes its feed about once a day.
+const MIN_AGE = { open: 5 * 60e3, focus: 15 * 60e3, timer: 30 * 60e3, manual: 0 };
+
+/**
+ * Sync quietly (no dialogs, no toasts). Returns null when skipped, { changed } on success, { error: true } on failure.
+ * reason: 'open' (app opened), 'focus' (tab came back), 'timer' (while left open), 'manual' (button, ignores the limits).
+ */
+async function backgroundSync(reason = 'open') {
+  if (syncStatus.busy || !state.feedUrl || !getProxy()) return null;
+  if (reason !== 'manual' && !state.settings.autoSync) return null;
+  if (Date.now() - (state.lastSync || 0) < MIN_AGE[reason]) return null;
+  syncStatus.busy = true;
+  const before = JSON.stringify(state.events);
+  try {
+    await syncFromFeed();
+    syncStatus.error = null;
+    return { changed: JSON.stringify(state.events) !== before };
+  } catch (e) {
+    syncStatus.error = e.details ? `${e.message}\n\n${e.details}` : e.message;
+    return { error: true };
+  } finally {
+    syncStatus.busy = false;
+  }
+}
+
 // One-time offer so a fresh import doesn't show weeks of old work as overdue.
 function offerMarkPastDone() {
   if (state.pastPrompted) return;
   state.pastPrompted = true;
-  const t = today();
-  const past = tasks().filter((e) => e.date < t && !state.done[e.uid]);
+  const past = tasks().filter((e) => isOverdue(e) && !state.done[e.uid]);
   save();
   if (!past.length) return;
   if (confirm(`Mark the ${past.length} assignments that are already past their due date as done?\n\nYou can still untick any of them later.`)) {
@@ -637,6 +785,7 @@ function offerMarkPastDone() {
 
 // ---- components.js ----
 // Reusable HTML fragments.
+
 
 
 const isHomework = (e) => /^🏠/.test(e.title) || /\b(home ?learning|homework|HML)\b/i.test(e.title);
@@ -665,13 +814,13 @@ function classLabel(full) {
   return `<a class="class-label" href="#/class/${encodeURIComponent(full)}"><i class="dot" style="--c:${c.color}"></i>${esc(c.name)}</a>`;
 }
 
-function taskRow(e, { showClass = true, showRel = false, timeOnly = false } = {}) {
+function taskRow(e, { showClass = true, showRel = false, timeOnly = false, focus = false } = {}) {
   const done = isDone(e.uid);
-  const overdue = !done && e.date < today();
+  const overdue = !done && isOverdue(e);
   return `
-  <div class="trow ${done ? 'is-done' : ''}">
+  <div class="trow ${done ? 'is-done' : ''} ${focus ? 'flash' : ''}" ${focus ? 'data-focus="1"' : ''}>
     <button class="check" data-action="toggle" data-uid="${esc(e.uid)}" aria-pressed="${done}" aria-label="${done ? 'Mark as not done' : 'Mark as done'}">${done ? '✓' : ''}</button>
-    <details class="task-main" data-keep="${esc(e.uid)}">
+    <details class="task-main" data-keep="${esc(e.uid)}" ${focus ? 'open' : ''}>
       <summary>
         <span class="task-title">${esc(displayTitle(e.title))}</span>
         <span class="task-meta">
@@ -1411,7 +1560,13 @@ function studyView(d) {
 
 
 
+
 let anchor = null; // any date inside the week being shown
+
+// Used by alerts to open the planner on the week of a given day.
+function showWeekOf(date) {
+  anchor = date;
+}
 
 const startOfWeek = (d) => addDays(d, -((parseYmd(d).getDay() - Number(state.settings.weekStart) + 7) % 7));
 function weekOf() {
@@ -1456,7 +1611,7 @@ function planCard(e, w) {
   const est = state.est[e.uid];
   const cls = e.classes[0] || '';
   const c = classInfo(cls);
-  const late = !done && e.date < today();
+  const late = !done && isOverdue(e);
   const after = planned && planned > e.date && !done && !late;
   const options = ['<option value="">Not planned</option>']
     .concat(w.days.map((d) => `<option value="${d}" ${d === planned ? 'selected' : ''}>${fmtDate(d)}</option>`))
@@ -1620,8 +1775,249 @@ document.addEventListener('drop', (e) => {
   rerender();
 });
 
+// ---- alerts.js ----
+// Alerts: what is overdue or due soon, what is new from Toddle, and a direct way to deal with each.
+
+
+
+
+
+
+
+
+const num = (v, fallback) => (Number(v) > 0 ? Number(v) : fallback);
+
+function currentAlerts(now = Date.now()) {
+  const s = state.settings;
+  const all = tasks();
+  const found = classify(all, {
+    now,
+    warnHours: num(s.warnHours, 24),
+    assessDays: num(s.warnAssessDays, 3),
+    isDone,
+    isMuted: (uid) => Boolean(state.mute[uid]),
+  });
+  const byUid = new Map(all.map((e) => [e.uid, e]));
+  const news = (state.changes || [])
+    .map((c) => ({ ...c, e: byUid.get(c.uid) }))
+    .filter((c) => c.e && !isDone(c.uid) && !state.mute[c.uid] && now - c.at < 3 * DAY);
+  return { ...found, news, count: found.overdue.length + found.soon.length };
+}
+
+// ---- rows ----
+const classLink = (e) => `#/class/${encodeURIComponent(e.classes[0] || '')}/${encodeURIComponent(e.uid)}`;
+
+function alertRow(item, kind) {
+  const e = item.e;
+  const id = esc(e.uid);
+  const hot = kind === 'overdue' || item.urgent;
+  const when = kind === 'overdue' ? `Overdue by ${humanSpan(item.late)}` : `Due in ${humanSpan(item.left)}`;
+  const cls = e.classes[0] || '';
+  const decks = state.decks.filter((d) => d.link === e.uid);
+  return `
+  <div class="arow ${hot ? 'hot' : ''}">
+    <div class="arow-main">
+      <a class="task-title" href="${classLink(e)}">${esc(displayTitle(e.title))}</a>
+      <div class="task-meta"><span class="${hot ? 'late' : 'soonc'}">${when}</span><span>${esc(dueText(e))}</span>${tagsFor(e)}${e.classes.map(classLabel).join('')}</div>
+    </div>
+    <div class="arow-actions">
+      <button class="btn small" data-action="toggle" data-uid="${id}">Done</button>
+      ${state.plan[e.uid] === today() ? '<span class="muted small">Planned today ✓</span>' : `<button class="btn small" data-action="alert-today" data-uid="${id}">Plan today</button>`}
+      <details class="more"><summary class="btn small" aria-label="More actions">⋯</summary>
+        <div class="more-menu">
+          <a href="${classLink(e)}">Open in class</a>
+          <button data-action="alert-planner" data-date="${kind === 'overdue' ? today() : e.date}">Open in planner</button>
+          ${e.link ? `<a href="${esc(e.link)}" target="_blank" rel="noopener noreferrer">Open in Toddle ↗</a>` : ''}
+          ${decks.map((d) => `<a href="#/flashcards/${d.id}">Study cards: ${esc(d.name)}</a>`).join('')}
+          <button data-action="alert-timer" data-cls="${esc(cls)}">Start timer</button>
+          <button data-action="alert-mute" data-uid="${id}">Ignore this one</button>
+        </div>
+      </details>
+    </div>
+  </div>`;
+}
+
+function newsRow(c) {
+  const e = c.e;
+  const what = c.kind === 'new'
+    ? 'New'
+    : `Moved from ${fmtDate(c.from.date)}${c.from.time ? ' ' + fmtTime(c.from.time, state.settings.time24) : ''}`;
+  return `
+  <div class="arow">
+    <div class="arow-main">
+      <a class="task-title" href="${classLink(e)}">${esc(displayTitle(e.title))}</a>
+      <div class="task-meta"><span class="soonc">${what}</span><span>Due ${esc(dueText(e))}</span>${tagsFor(e)}${e.classes.map(classLabel).join('')}</div>
+    </div>
+    <div class="arow-actions"><a class="btn small" href="${classLink(e)}">Open</a></div>
+  </div>`;
+}
+
+const section = (title, count, body, extra = '') =>
+  `<section class="card"><div class="sec-head"><h2>${title} <span class="count">${count}</span></h2>${extra}</div><div class="alist">${body}</div></section>`;
+
+// ---- pages and cards ----
+function alertsPage() {
+  if (!state.events.length) {
+    return '<h1>Needs attention</h1>' + emptyState('📥', 'Nothing imported yet', 'Import your Toddle calendar and this page will warn you about overdue and upcoming work.', '<a class="btn primary" href="#/settings">Go to import</a>');
+  }
+  const a = currentAlerts();
+  const head = `<div class="page-head"><div><h1>Needs attention</h1><p class="muted">${syncLineHtml()}</p></div><a class="btn small" href="#/settings">Alert settings</a></div>`;
+  if (!a.count && !a.news.length && !a.older) {
+    return head + emptyState('✅', 'All clear', `Nothing is overdue and nothing is due in the next ${num(state.settings.warnHours, 24)} hours.`);
+  }
+  const overdueBody = a.overdue.map((x) => alertRow(x, 'overdue')).join('')
+    + (a.older ? `<p class="muted small">${a.older} older overdue item${a.older > 1 ? 's are' : ' is'} not listed. <button class="linkbtn" data-action="mark-older-done">Mark them done</button></p>` : '');
+  return `${head}
+  ${a.overdue.length || a.older ? section('Overdue', a.overdue.length, overdueBody) : ''}
+  ${a.soon.length ? section('Due soon', a.soon.length, a.soon.map((x) => alertRow(x, 'soon')).join('')) : ''}
+  ${a.news.length ? section('New or changed in Toddle', a.news.length, a.news.map(newsRow).join(''), '<button class="btn small" data-action="changes-seen">Mark as seen</button>') : ''}`;
+}
+
+// Compact version for the Start page: the most pressing items first.
+function needsAttentionCard() {
+  const a = currentAlerts();
+  if (!a.count && !a.news.length) return '';
+  const rows = [
+    ...a.soon.filter((x) => x.urgent).map((x) => [x, 'soon']),
+    ...a.overdue.map((x) => [x, 'overdue']),
+    ...a.soon.filter((x) => !x.urgent).map((x) => [x, 'soon']),
+  ];
+  return `<section class="card attn"><div class="sec-head"><h2>Needs attention <span class="count">${a.count || ''}</span></h2><a class="btn small" href="#/alerts">See all</a></div>
+    ${rows.length ? `<div class="alist">${rows.slice(0, 5).map(([x, k]) => alertRow(x, k)).join('')}</div>` : ''}
+    ${rows.length > 5 ? `<p class="muted small">+ ${rows.length - 5} more. <a href="#/alerts">See all</a></p>` : ''}
+    ${a.news.length ? `<p class="muted small"><a href="#/alerts">${a.news.length} new or changed in Toddle</a></p>` : ''}</section>`;
+}
+
+// ---- actions ----
+actions['alert-today'] = (el) => {
+  state.plan[el.dataset.uid] = today();
+  save();
+  toast('Planned for today');
+  rerender();
+};
+actions['alert-planner'] = (el) => {
+  showWeekOf(el.dataset.date);
+  location.hash = '#/planner';
+};
+actions['alert-timer'] = (el) => {
+  focusOn(el.dataset.cls);
+  location.hash = '#/timer';
+};
+actions['alert-mute'] = (el) => {
+  state.mute[el.dataset.uid] = true;
+  save();
+  toast('Ignored. You can undo this in Settings → Alerts.');
+  rerender();
+};
+actions['changes-seen'] = () => {
+  state.changes = [];
+  save();
+  rerender();
+};
+actions['mark-older-done'] = () => {
+  const now = Date.now();
+  const isMuted = (u) => Boolean(state.mute[u]);
+  tasks().filter((e) => classify([e], { now, isDone, isMuted }).older > 0).forEach((e) => toggleDone(e.uid, 'bulk'));
+  rerender();
+};
+
+// ---- sync status ----
+const ago = (ts) => {
+  const m = Math.round((Date.now() - ts) / 60000);
+  return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : m < 48 * 60 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} days ago`;
+};
+const canSync = () => Boolean(state.feedUrl && getProxy());
+
+function syncText() {
+  if (syncStatus.busy) return 'Syncing…';
+  if (syncStatus.error) return 'Sync failed. Retry';
+  return state.lastSync ? `Synced ${ago(state.lastSync)}` : 'Not synced yet';
+}
+
+// "Synced 3 min ago · Sync now" for page headers.
+function syncLineHtml() {
+  if (!canSync()) return state.events.length ? 'Updates come from the file you uploaded.' : '';
+  return `<span id="sync-line"><span class="${syncStatus.error ? 'late' : ''}">${esc(syncText())}</span> · <button class="linkbtn" data-action="sync-bg">Sync now</button></span>`;
+}
+
+actions['sync-bg'] = async () => {
+  if (!canSync()) return toast('Add your Toddle link in Settings first.');
+  const r = await backgroundSync('manual');
+  updateChrome();
+  if (r && r.error) toast('Sync failed. Details are in Settings.');
+  else if (r && r.changed) {
+    toast('Updated from Toddle');
+    rerender();
+  } else toast('Already up to date');
+};
+
+// ---- banner, nav badge, sync chip, notifications ----
+let hiddenSig = '';
+const hash = (str) => [...str].reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0).toString(36);
+
+function bannerHtml(a) {
+  if (state.settings.alerts === false || location.hash.startsWith('#/alerts')) return '';
+  if (!a.count && !a.news.length) return '';
+  const sig = hash([...a.overdue, ...a.soon].map((x) => x.e.uid).concat(a.news.map((c) => c.uid + c.kind)).join('|'));
+  if (sig === hiddenSig) return '';
+  const urgent = a.soon.filter((x) => x.urgent).length;
+  const later = a.soon.length - urgent;
+  const parts = [];
+  if (a.overdue.length) parts.push(`<b>${a.overdue.length}</b> overdue`);
+  if (urgent) parts.push(`<b>${urgent}</b> due within 3 hours`);
+  if (later) parts.push(`<b>${later}</b> due soon`);
+  if (a.news.length) parts.push(`<b>${a.news.length}</b> new or changed`);
+  const hot = a.overdue.length > 0 || urgent > 0;
+  return `<div class="alertbar ${hot ? 'hot' : ''}" role="status"><span class="alertbar-text">${hot ? '⚠ ' : ''}${parts.join(' · ')}</span>
+    <a class="btn small" href="#/alerts">Review</a><button class="alertbar-x" data-action="alerts-hide" data-sig="${sig}" aria-label="Hide for now">×</button></div>`;
+}
+actions['alerts-hide'] = (el) => {
+  hiddenSig = el.dataset.sig;
+  updateChrome();
+};
+
+function maybeNotify(a) {
+  if (!state.settings.alertNotify || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const fresh = [];
+  for (const x of a.overdue) {
+    if (state.notified[x.e.uid] !== 'overdue') { state.notified[x.e.uid] = 'overdue'; fresh.push(['overdue', x.e]); }
+  }
+  for (const x of a.soon) {
+    if (!state.notified[x.e.uid]) { state.notified[x.e.uid] = 'soon'; fresh.push(['soon', x.e]); }
+  }
+  if (!fresh.length) return;
+  save();
+  if (!document.hidden) return; // someone is looking at the page, the banner already shows it
+  const late = fresh.filter((f) => f[0] === 'overdue').length;
+  const soon = fresh.length - late;
+  const summary = [late ? `${late} overdue` : '', soon ? `${soon} due soon` : ''].filter(Boolean).join(', ');
+  new Notification('Study Hub', { body: `${summary}: ${displayTitle(fresh[0][1].title)}${fresh.length > 1 ? ' and more' : ''}`, tag: 'study-hub-alerts' });
+}
+
+// Refresh everything that lives outside the page content. Cheap, so it runs after every render and once a minute.
+function updateChrome() {
+  const a = currentAlerts();
+  const badge = document.getElementById('nav-alerts');
+  if (badge) {
+    badge.textContent = a.count ? String(a.count) : '';
+    badge.hidden = !a.count;
+  }
+  const bar = document.getElementById('alertbar');
+  if (bar) bar.innerHTML = bannerHtml(a);
+  const chip = document.getElementById('sync-chip');
+  if (chip) {
+    const cls = syncStatus.busy ? 'busy' : syncStatus.error ? 'err' : 'ok';
+    chip.innerHTML = canSync() ? `<button class="chip-sync ${cls}" data-action="sync-bg" title="Sync from Toddle now"><i class="dot"></i>${esc(syncText())}</button>` : '';
+  }
+  const line = document.getElementById('sync-line');
+  if (line) line.outerHTML = syncLineHtml();
+  maybeNotify(a);
+}
+
 // ---- pages.js ----
 // Page views: Start, Classes, Class, Calendar, Progress, Settings.
+
+
 
 
 
@@ -1643,17 +2039,16 @@ function startPage() {
   const t = today();
   const name = state.settings.name ? `, ${esc(state.settings.name)}` : '';
   const cards = dueCardCount();
-  const head = `<div class="page-head"><div><h1>${greeting()}${name}</h1><p class="muted">${fmtDate(t, { weekday: 'long', day: 'numeric', month: 'long' })}</p></div>
+  const head = `<div class="page-head"><div><h1>${greeting()}${name}</h1><p class="muted">${fmtDate(t, { weekday: 'long', day: 'numeric', month: 'long' })}${syncLineHtml() ? ' · ' + syncLineHtml() : ''}</p></div>
     <div class="row"><a class="btn primary" href="#/timer">Start focus timer</a><a class="btn" href="#/flashcards">Flashcards${cards ? ` · ${cards} due` : ''}</a></div></div>`;
   if (!state.events.length) return head + importCta();
 
   const open = tasks().filter((e) => !isDone(e.uid));
-  const overdueAll = open.filter((e) => e.date < t).sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')));
-  const recent = overdueAll.filter((e) => diffDays(t, e.date) <= 14);
-  const older = overdueAll.length - recent.length;
-  const week = open.filter((e) => e.date >= t && e.date <= addDays(t, 7));
-  const assess = open.filter((e) => /Assessment/.test(e.type) && e.date >= t).slice(0, 4);
-  const dueToday = open.filter((e) => e.date === t).length;
+  const alerts = currentAlerts();
+  const overdueCount = alerts.overdue.length;
+  const week = open.filter((e) => !isOverdue(e) && e.date <= addDays(t, 7));
+  const assess = open.filter((e) => /Assessment/.test(e.type) && !isOverdue(e)).slice(0, 4);
+  const dueToday = open.filter((e) => e.date === t && !isOverdue(e)).length;
   const nextOff = state.events.find((e) => e.kind === 'event' && e.type === 'Holidays and vacations' && e.endDate >= t);
 
   const days = {};
@@ -1665,25 +2060,18 @@ function startPage() {
     ? `<section class="card"><div class="sec-head"><h2>Today's plan <span class="count">${plan.minutes} min</span></h2><a class="btn small" href="#/planner">Open planner</a></div><div class="list">${plan.items.map((e) => taskRow(e, { timeOnly: true })).join('')}</div></section>`
     : '';
 
-  const overdueCard = overdueAll.length ? `
-    <section class="card"><div class="sec-head"><h2>Overdue <span class="count">${overdueAll.length}</span></h2><button class="btn small" data-action="mark-overdue-done">Mark all done</button></div>
-      ${recent.length ? `<div class="list">${recent.slice(0, 6).map((e) => taskRow(e, { showRel: true })).join('')}</div>` : ''}
-      ${recent.length > 6 ? `<p class="muted small">+ ${recent.length - 6} more from the last two weeks. Open a class to see them.</p>` : ''}
-      ${older ? `<p class="muted small">${older} older item${older > 1 ? 's' : ''} not shown. <button class="linkbtn" data-action="mark-older-done">Mark them done</button></p>` : ''}
-    </section>` : '';
-
   return `${head}
   <div class="grid stats">
     <div class="card stat"><div class="stat-num">${dueToday}</div><div class="muted">due today</div></div>
-    <div class="card stat ${overdueAll.length ? 'warn' : ''}"><div class="stat-num">${overdueAll.length}</div><div class="muted">overdue</div></div>
+    <div class="card stat ${overdueCount ? 'warn' : ''}"><div class="stat-num">${overdueCount}</div><div class="muted">overdue${alerts.older ? ` · ${alerts.older} older` : ''}</div></div>
     <div class="card stat"><div class="stat-num">${week.length}</div><div class="muted">next 7 days</div></div>
     <div class="card stat"><div class="stat-num">${studyMinutesOn(t)}<small>min</small></div><div class="muted">studied today</div></div>
   </div>
   <div class="grid two">
     <div>
+      ${needsAttentionCard()}
       ${todaysPlanCard}
       <section class="card"><h2>Coming up</h2>${dayBlocks || '<p class="muted">Nothing due in the next 7 days.</p>'}</section>
-      ${overdueCard}
     </div>
     <div>
       <section class="card"><h2>Assessments</h2>
@@ -1696,16 +2084,6 @@ function startPage() {
 
 actions['toggle'] = (el) => {
   toggleDone(el.dataset.uid);
-  rerender();
-};
-actions['mark-older-done'] = () => {
-  const cutoff = addDays(today(), -14);
-  tasks().filter((e) => e.date < cutoff && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
-  rerender();
-};
-actions['mark-overdue-done'] = () => {
-  const t = today();
-  tasks().filter((e) => e.date < t && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
   rerender();
 };
 
@@ -1749,13 +2127,18 @@ inputs['search'] = (el) => {
   }
 };
 actions['class-mark-past'] = (el) => {
-  const t = today();
-  tasksFor(el.dataset.cls).filter((e) => e.date < t && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
+  tasksFor(el.dataset.cls).filter((e) => isOverdue(e) && !isDone(e.uid)).forEach((e) => toggleDone(e.uid, 'bulk'));
   rerender();
 };
 
-function classPage(name) {
+function classPage(name, focusUid = '') {
   if (!classNames().includes(name)) return emptyState('🤔', 'Class not found', '<a href="#/classes">Back to classes</a>');
+  if (focusUid) {
+    // coming from an alert: make sure the filters cannot hide the task
+    typeFilter = '';
+    search = '';
+    if (classFilter === 'done') classFilter = 'all';
+  }
   const i = classInfo(name);
   const t = today();
   const all = tasksFor(name);
@@ -1766,10 +2149,11 @@ function classPage(name) {
     const q = search.trim().toLowerCase();
     list = list.filter((e) => (e.title + ' ' + e.description).toLowerCase().includes(q));
   }
-  const overdue = list.filter((e) => e.date < t && !isDone(e.uid)).reverse();
-  const upcoming = list.filter((e) => e.date >= t);
+  const late = (e) => !isDone(e.uid) && isOverdue(e);
+  const overdue = list.filter(late).reverse();
+  const upcoming = list.filter((e) => !late(e) && !(e.date < t && isDone(e.uid)));
   const past = list.filter((e) => e.date < t && isDone(e.uid)).reverse();
-  const section = (title, arr, rel) => (arr.length ? `<h3 class="day-h">${title} <span class="count">${arr.length}</span></h3><div class="card flush"><div class="list">${arr.map((e) => taskRow(e, { showClass: false, showRel: rel })).join('')}</div></div>` : '');
+  const section = (title, arr, rel) => (arr.length ? `<h3 class="day-h">${title} <span class="count">${arr.length}</span></h3><div class="card flush"><div class="list">${arr.map((e) => taskRow(e, { showClass: false, showRel: rel, focus: e.uid === focusUid })).join('')}</div></div>` : '');
   const s = classStats(name);
   const chips = [['open', 'Open'], ['all', 'All'], ['done', 'Done']].map(([k, l]) => `<button class="chip ${classFilter === k ? 'active' : ''}" data-action="class-filter" data-f="${k}">${l}</button>`).join('');
   return `
@@ -1851,7 +2235,7 @@ function progressPage() {
     const list = tasksFor(c);
     const n = list.length || 1;
     const d = list.filter((e) => isDone(e.uid)).length;
-    const od = list.filter((e) => !isDone(e.uid) && e.date < t).length;
+    const od = list.filter((e) => !isDone(e.uid) && isOverdue(e)).length;
     return `<div class="prog-row" style="--c:${i.color}"><div class="prog-name"><a href="#/class/${encodeURIComponent(c)}">${esc(i.name)}</a><span class="muted small">${d}/${list.length} done${od ? ` · <span class="late">${od} overdue</span>` : ''}</span></div>
       ${bar([{ v: (100 * d) / n, c: i.color, t: 'done' }, { v: (100 * od) / n, c: 'var(--bad)', t: 'overdue' }])}</div>`;
   }).join('');
@@ -1957,10 +2341,16 @@ changes['setting'] = (el) => {
   const k = el.dataset.setting;
   let v = el.type === 'checkbox' ? el.checked : el.type === 'number' ? Math.max(1, Number(el.value) || 1) : el.value;
   if (k === 'weekStart') v = Number(v);
+  if (k === 'alertNotify' && v && 'Notification' in window && Notification.permission === 'default') Notification.requestPermission();
   state.settings[k] = v;
   save();
   applyTheme();
   syncDurations();
+  rerender();
+};
+actions['unmute-all'] = () => {
+  state.mute = {};
+  save();
   rerender();
 };
 actions['accent'] = (el) => {
@@ -2072,6 +2462,17 @@ function settingsPage() {
     <label class="check-row"><input type="checkbox" data-change="setting" data-setting="planWeekends" ${chk('planWeekends')}> Auto-plan on Saturday and Sunday</label>
   </section>
 
+  <section class="card"><h2>Alerts and sync</h2>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="alerts" ${chk('alerts')}> Warn me about overdue and upcoming work</label>
+    <div class="form-row">
+      <label class="field">Warn this many hours before something is due<input type="number" min="1" max="168" data-change="setting" data-setting="warnHours" value="${s.warnHours}"></label>
+      <label class="field">Warn about assessments this many days ahead<input type="number" min="1" max="30" data-change="setting" data-setting="warnAssessDays" value="${s.warnAssessDays}"></label>
+    </div>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="alertNotify" ${chk('alertNotify')}> Show a browser notification for new warnings while the app is open in another tab</label>
+    <label class="check-row"><input type="checkbox" data-change="setting" data-setting="autoSync" ${chk('autoSync')}> Sync from Toddle automatically when I open the app</label>
+    <p class="muted small">Notifications only work while the app is open in a browser tab. Toddle itself refreshes its calendar about once a day, so new work can take up to 24 hours to appear.${Object.keys(state.mute).length ? ` <button class="linkbtn" data-action="unmute-all">Stop ignoring ${Object.keys(state.mute).length} item${Object.keys(state.mute).length > 1 ? 's' : ''}</button>` : ''}</p>
+  </section>
+
   <section class="card"><h2>Your data</h2>
     <p class="muted">Everything lives in this browser. Export a backup to move to another device (your Toddle link is left out of backups).</p>
     <div class="row">
@@ -2091,12 +2492,14 @@ function settingsPage() {
 
 
 
+
 const view = document.getElementById('view');
 
 const ROUTES = {
   '': { nav: 'start', page: startPage },
+  alerts: { nav: 'start', page: alertsPage },
   classes: { nav: 'classes', page: classesPage },
-  class: { nav: 'classes', page: (a) => classPage(decodeURIComponent(a)) },
+  class: { nav: 'classes', page: (a, b) => classPage(decodeURIComponent(a), b ? decodeURIComponent(b) : '') },
   calendar: { nav: 'calendar', page: calendarPage },
   planner: { nav: 'planner', page: plannerPage },
   schedule: { nav: 'schedule', page: schedulePage },
@@ -2107,30 +2510,43 @@ const ROUTES = {
 };
 
 function route() {
-  const [name = '', arg] = location.hash.replace(/^#\/?/, '').split('/');
-  return { r: ROUTES[name] || ROUTES[''], arg };
+  const [name = '', a, b] = location.hash.replace(/^#\/?/, '').split('/');
+  return { r: ROUTES[name] || ROUTES[''], a, b };
 }
 
+let freshNav = true; // true until the first render after a navigation, so a deep link can scroll to its target
+
 function render() {
-  const { r, arg } = route();
+  const { r, a, b } = route();
   // Re-rendering would reload the scheduler frame and lose unsaved edits (e.g. when the timer ends).
-  if (r.nav === 'schedule' && view.querySelector('.sched-frame')) return;
+  if (r.nav === 'schedule' && view.querySelector('.sched-frame')) {
+    updateChrome();
+    return;
+  }
   // Keep expanded assignment details and scroll position across re-renders.
   const open = new Set([...view.querySelectorAll('details[open][data-keep]')].map((d) => d.dataset.keep));
   const y = window.scrollY;
-  view.innerHTML = r.page(arg);
+  view.innerHTML = r.page(a, b);
   const frame = view.querySelector('iframe[data-srcdoc]');
   if (frame) frame.srcdoc = window.SCHEDULER_SRCDOC;
   view.querySelectorAll('details[data-keep]').forEach((d) => open.has(d.dataset.keep) && (d.open = true));
   window.scrollTo(0, y);
-  document.querySelectorAll('[data-nav]').forEach((a) => a.classList.toggle('active', a.dataset.nav === r.nav));
+  if (freshNav) {
+    const target = view.querySelector('[data-focus]');
+    if (target) target.scrollIntoView({ block: 'center' });
+    freshNav = false;
+  }
+  document.querySelectorAll('[data-nav]').forEach((el) => el.classList.toggle('active', el.dataset.nav === r.nav));
   updateTimerUI();
+  updateChrome();
 }
 
 setRender(render);
 
 window.addEventListener('hashchange', () => {
+  if (location.hash && !location.hash.startsWith('#/')) return; // e.g. the skip link
   window.scrollTo(0, 0);
+  freshNav = true;
   render();
 });
 
@@ -2152,10 +2568,24 @@ document.addEventListener('input', (e) => {
 applyTheme();
 render();
 
-// Quietly refresh from Toddle when a proxy is configured (direct downloads are blocked by Toddle's CORS rules).
-if (state.feedUrl && getProxy() && (!state.lastSync || Date.now() - state.lastSync > 3600e3)) {
-  syncFromFeed().then(render).catch(() => {});
+// ---- background sync and warnings ----
+const typing = () => /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
+
+async function sync(reason) {
+  const before = backgroundSync(reason); // runs the request; the chip shows "Syncing…" meanwhile
+  updateChrome();
+  const result = await before;
+  updateChrome();
+  // Only redraw when something changed, and never while someone is typing (it would wipe their text).
+  if (result && result.changed && !typing()) render();
 }
+
+sync('open');
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) sync('focus');
+});
+setInterval(() => sync('timer'), 30 * 60e3);
+setInterval(updateChrome, 60e3); // warnings change as time passes, even without a sync
 
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});

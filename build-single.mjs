@@ -2,7 +2,7 @@
 // Usage: node build-single.mjs
 import fs from 'fs';
 
-const ORDER = ['config', 'util', 'ics', 'store', 'ui', 'sync', 'components', 'timer', 'textmatch', 'planlogic', 'cards', 'planner', 'pages', 'app'];
+const ORDER = ['config', 'util', 'urgency', 'ics', 'store', 'ui', 'sync', 'components', 'timer', 'textmatch', 'planlogic', 'cards', 'planner', 'alerts', 'pages', 'app'];
 
 // Everything shares one scope in the single file, so a repeated top-level name would silently clash.
 const names = new Map();
