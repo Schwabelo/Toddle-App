@@ -32,8 +32,8 @@ export function build() {
     return `// ---- ${n}.js ----\n${src}`;
   }).join('\n');
 
-  const font = 'data:font/woff2;base64,' + read('fonts/nunito-latin.woff2', null).toString('base64');
-  const css = read('styles.css').replace('url("fonts/nunito-latin.woff2")', `url("${font}")`);
+  const font = 'data:font/woff2;base64,' + read('fonts/nunito-sans-latin.woff2', null).toString('base64');
+  const css = read('styles.css').replace('url("fonts/nunito-sans-latin.woff2")', `url("${font}")`);
   const icon = 'data:image/svg+xml;base64,' + read('icon.svg', null).toString('base64');
   // The scheduler is embedded as text and loaded into its frame with srcdoc, so no second file is needed.
   const scheduler = JSON.stringify(read('scheduler.html')).replace(/<\//g, '<\\/');

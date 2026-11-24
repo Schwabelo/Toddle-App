@@ -17,5 +17,5 @@ test('every module is in the single-file build', () => {
 test('the service worker caches every module and the font', () => {
   const sw = fs.readFileSync(new URL('sw.js', root), 'utf8');
   for (const f of jsFiles) assert.ok(sw.includes(`'js/${f}'`), `sw.js is missing js/${f}`);
-  assert.ok(sw.includes("'fonts/nunito-latin.woff2'"));
+  assert.ok(sw.includes("'fonts/nunito-sans-latin.woff2'"));
 });

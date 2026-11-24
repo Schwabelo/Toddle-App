@@ -353,7 +353,8 @@ export function schedulePage() {
 }
 
 // ================= SETTINGS =================
-const ACCENTS = ['#4f46e5', '#db2777', '#059669', '#c2410c', '#0369a1', '#7c3aed'];
+// Toddle palette: red-400, blue-400, violet-400, pink-400, teal-400, orange-400
+const ACCENTS = ['#d63a3f', '#008392', '#5a5ae2', '#cd3769', '#008768', '#ca4f25'];
 
 actions['sync-now'] = async (el) => {
   const url = document.getElementById('feed-url').value.trim();

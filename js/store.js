@@ -10,7 +10,7 @@ const defaults = () => ({
   settings: {
     name: '',
     theme: 'auto',
-    accent: '#4f46e5',
+    accent: '#d63a3f',
     time24: true,
     weekStart: 1,
     hideClosures: false,
@@ -57,7 +57,11 @@ function load() {
   const base = defaults();
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
-    if (raw) return { ...base, ...raw, settings: { ...base.settings, ...(raw.settings || {}) } };
+    if (raw) {
+      const settings = { ...base.settings, ...(raw.settings || {}) };
+      if (settings.accent === '#4f46e5') settings.accent = base.settings.accent; // old default -> Toddle-style red
+      return { ...base, ...raw, settings };
+    }
   } catch (e) {
     console.warn('Could not read saved data', e);
   }

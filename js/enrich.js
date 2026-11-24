@@ -240,7 +240,8 @@ export function topicGroups(items, titleOf = (x) => x.title) {
 }
 
 // ---------- colours ----------
-export const PALETTE = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#a16207', '#8b5cf6', '#84cc16', '#f97316', '#14b8a6', '#0ea5e9', '#d946ef'];
+// Toddle's decorative colours (500 and 400 steps), so class colours sit well next to its red.
+export const PALETTE = ['#6a6af5', '#ef4371', '#e8653a', '#00ac8a', '#00b0c2', '#d67d00', '#b646ee', '#6d9c00', '#008392', '#cd3769', '#5a5ae2', '#ca4f25'];
 
 /**
  * Gives every class a colour once and keeps it: existing choices never change,

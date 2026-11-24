@@ -118,3 +118,7 @@ Based on a review of a real Toddle export:
 **Not done on purpose:** the phone layout (bottom bar with many small tabs) was left for later; the To-do tab makes it 10 items.
 
 **Guesses to keep an eye on:** the to-do/material guess and the topic groups work from words in titles, so some will be wrong (one tap fixes a task). MYP criteria only show when a title names them. Timetable-to-class matching is by name and can be changed in Settings.
+
+## Toddle-style theme
+
+Colours, corner radii, borders and tag styles now follow the design tokens Toddle's own web app uses (read from web.toddleapp.com's stylesheet): red primary buttons (`#d63a3f`, darker on hover), teal-blue links (`#008392`), near-black text (`#1f1f1f`), grey secondary text (`#707070`), flat white cards with thin `#e6e6e6` borders, 6–8 px button corners, and tags as soft coloured chips (summative red, formative orange, quick task green). Class colours come from Toddle's decorative palette. Toddle's own font (Avenir Next) isn't free, so the app uses Avenir Next where the device has it (Mac, iPhone) and the bundled Nunito Sans everywhere else. The app keeps its own name and icon, so it doesn't pass itself off as Toddle.

@@ -98,7 +98,7 @@ In Chrome, open the site and use **⋮ → Cast, save and share → Install page
 
 ```
 index.html          page shell and navigation
-fonts/              Nunito (SIL Open Font License, see fonts/OFL.txt), served locally so nothing loads from Google
+fonts/              Nunito Sans (SIL Open Font License, see fonts/OFL.txt), served locally so nothing loads from Google
 styles.css          all styling (light/dark, responsive)
 js/ics.js           Toddle .ics parser (plain and HTML descriptions)
 js/enrich.js        safe HTML, resource links, MYP criteria, to-do vs class material, topics, class colours
