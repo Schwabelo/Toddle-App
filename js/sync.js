@@ -1,7 +1,7 @@
 // Getting Toddle data into the app: from the feed link (via optional proxy) or an uploaded .ics file.
 import { parseIcs } from './ics.js';
-import { state, save, tasks, toggleDone } from './store.js';
-import { isOverdue } from './urgency.js';
+import { state, save, todos, isDone, ensureClassColors } from './store.js';
+import { dueMs } from './urgency.js';
 import { DEFAULT_PROXY } from './config.js';
 
 // Accepts a bare proxy address and adds the "?url=" ending if it is missing.
@@ -81,6 +81,7 @@ export function importText(text) {
   recordChanges(state.events, events);
   state.events = events;
   state.lastSync = Date.now();
+  ensureClassColors();
   save();
   return events.length;
 }
@@ -126,14 +127,12 @@ export async function backgroundSync(reason = 'open') {
   }
 }
 
-// One-time offer so a fresh import doesn't show weeks of old work as overdue.
-export function offerMarkPastDone() {
+// After the first import, everything already past its due date is probably handed in, but the feed can't say.
+// Instead of a pop-up, the Start page offers a one-time "catch up" (see catchupItems in pages.js).
+export function prepareCatchup() {
   if (state.pastPrompted) return;
   state.pastPrompted = true;
-  const past = tasks().filter((e) => isOverdue(e) && !state.done[e.uid]);
+  const now = Date.now();
+  if (todos().some((e) => dueMs(e) < now && !isDone(e.uid))) state.catchupBefore = now;
   save();
-  if (!past.length) return;
-  if (confirm(`Mark the ${past.length} assignments that are already past their due date as done?\n\nYou can still untick any of them later.`)) {
-    past.forEach((e) => toggleDone(e.uid, 'bulk'));
-  }
 }

@@ -1,0 +1,53 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Toddle//Toddle Calendar//EN
+X-WR-TIMEZONE:Europe/Zurich
+BEGIN:VEVENT
+UID:sample-slides
+DTSTART;TZID=Europe/Zurich:20260821T114500
+DTEND;TZID=Europe/Zurich:20260821T121500
+SUMMARY:Plant Cells
+DESCRIPTION:\nTask Type: Learning Experience\nClasses: MYP Sciences (8XY S
+ ci)\nDescription: Slides: Plant Cells\nCreated By: Sample Teacher\nView Ta
+ sk: https://share.toddleapp.com/tiny/sample1
+X-ALT-DESC;FMTTYPE=text/html:<br><b>Task Type</b>: Learning Experience<br>
+ <b>Classes</b>: MYP Sciences (8XY Sci)<br><b>Description</b>: <p class=\\"
+ tde-paragraph\\" dir=\\"ltr\\" style=\\"text-align: left\;\\"><a href=\\"h
+ ttps://docs.google.com/presentation/d/SAMPLE/edit\\" class=\\"tde-link\\" 
+ target=\\"_blank\\"><span style=\\"font-size:16px\\">Slides: Plant Cells</
+ span></a></p><br><b>Created By</b>: Sample Teacher<br><b>View Task</b>: ht
+ tps://share.toddleapp.com/tiny/sample1
+END:VEVENT
+BEGIN:VEVENT
+UID:sample-letter
+DTSTART;TZID=Europe/Zurich:20260903T101500
+DTEND;TZID=Europe/Zurich:20260903T104500
+SUMMARY:HML: \\tWorksheet 3
+DESCRIPTION:\nTask Type: Learning Experience\nClasses: MYP Spanish (8z Sp
+ a)\nDescription: Dear students,Please complete the questionnaire.\nCreate
+ d By: Other Teacher\nView Task: https://share.toddleapp.com/tiny/sample2
+X-ALT-DESC;FMTTYPE=text/html:<br><b>Task Type</b>: Learning Experience<br>
+ <b>Classes</b>: MYP Spanish (8z Spa)<br><b>Description</b>: <p><br>Dear st
+ udents\,</p><p>Please complete the <b>questionnaire</b>.<script>alert(1)</
+ script><img src=x onerror=alert(2)></p><p><a href=\\"javascript:alert(3)\\
+ ">bad</a></p><br><b>Created By</b>: Other Teacher<br><b>View Task</b>: htt
+ ps://share.toddleapp.com/tiny/sample2
+END:VEVENT
+BEGIN:VEVENT
+UID:sample-summative
+DTSTART;TZID=Europe/Zurich:20261030T101500
+DTEND;TZID=Europe/Zurich:20261030T104500
+SUMMARY:Criteria B Assessment - Patterns
+DESCRIPTION:\nTask Type: Summative Assessment\nClasses: Maths Extended (8
+ XY)\nCreated By: Sample Teacher\nView Task: javascript:alert(1)
+END:VEVENT
+BEGIN:VEVENT
+UID:sample-break
+DTSTART;VALUE=DATE:20261221
+DTEND;VALUE=DATE:20270109
+X-MICROSOFT-CDO-ALLDAYEVENT:TRUE
+SUMMARY:Winter Break - School Closed
+DESCRIPTION:\nEvent Type: Holidays and vacations
+X-ALT-DESC;FMTTYPE=text/html:<br><b>Event Type</b>: Holidays and vacations
+END:VEVENT
+END:VCALENDAR

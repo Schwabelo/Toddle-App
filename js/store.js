@@ -1,6 +1,7 @@
 // App state, persisted in localStorage. Nothing leaves the browser.
-import { today } from './util.js';
-import { isOverdue } from './urgency.js';
+import { today, addDays } from './util.js';
+import { isOverdue, dueConfig, dueMs } from './urgency.js';
+import { defaultKind, assignColors, teachersByClass } from './enrich.js';
 
 const KEY = 'toddle-study-hub:v1';
 export const SCHEDULER_KEY = 'classScheduler.v2'; // owned by the embedded scheduler (scheduler.html)
@@ -28,12 +29,20 @@ const defaults = () => ({
     warnAssessDays: 3,
     alertNotify: false,
     autoSync: true,
+    dueAtEnd: false, // Toddle deadline = end of the 30-min slot instead of the start
+    prepSessions: true, // add "Revise" sessions before summatives in the planner
+    prepMin: 45,
+    cycleAnchor: '', // a day in Week 1 of the timetable cycle
   },
   feedUrl: '',
   events: [],
   lastSync: null,
   pastPrompted: false,
   done: {}, // uid -> date completed
+  status: {}, // uid -> 'todo' | 'material': overrides the guess from defaultKind()
+  classColors: {}, // class name -> colour, assigned once so colours never shift
+  catchupBefore: null, // ms: past work due before the first import, offered for a one-time clean-up
+  ttMap: {}, // timetable (scheduler) class id -> Toddle class name ('' = not linked)
   plan: {}, // uid -> day it is planned for
   est: {}, // uid -> estimated minutes
   mute: {}, // uid -> true: stop warning about this one
@@ -56,6 +65,7 @@ function load() {
 }
 
 export const state = load();
+dueConfig.end = Boolean(state.settings.dueAtEnd);
 
 export function save() {
   try {
@@ -90,6 +100,29 @@ export const tasks = () => state.events.filter((e) => e.kind === 'task');
 export const tasksFor = (cls) => tasks().filter((e) => e.classes.includes(cls));
 export const isDone = (uid) => Boolean(state.done[uid]);
 
+// 'todo', 'material' (class material, nothing to hand in) or 'event'.
+export const kindOf = (e) => (e.kind === 'task' ? state.status[e.uid] || defaultKind(e) : 'event');
+export const isTodo = (e) => kindOf(e) === 'todo';
+export const todos = () => tasks().filter(isTodo);
+export const todosFor = (cls) => todos().filter((e) => e.classes.includes(cls));
+
+// The three states a student can pick: to do, done, or not homework (class material).
+export function setStatus(uid, s) {
+  if (s === 'material') {
+    state.status[uid] = 'material';
+    delete state.done[uid];
+  } else {
+    state.status[uid] = 'todo';
+    if (s === 'done') state.done[uid] ||= today();
+    else delete state.done[uid];
+  }
+  save();
+}
+// Past work waiting in the one-time catch-up (see todo.js). It stays out of warnings and the planner until sorted.
+export const isCatchup = (e) =>
+  Boolean(state.catchupBefore) && kindOf(e) === 'todo' && !isDone(e.uid) && !state.status[e.uid] && dueMs(e) < state.catchupBefore;
+export const statusOf = (e) => (kindOf(e) === 'material' ? 'material' : isDone(e.uid) ? 'done' : 'todo');
+
 // `mark` is the completion date; bulk actions pass 'bulk' so they don't count toward the streak.
 export function toggleDone(uid, mark = today()) {
   if (state.done[uid]) delete state.done[uid];
@@ -97,11 +130,35 @@ export function toggleDone(uid, mark = today()) {
   save();
 }
 
-const PALETTE = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#a16207', '#8b5cf6', '#84cc16', '#f97316', '#14b8a6', '#0ea5e9', '#d946ef'];
+
+// Colours are handed out once per class and saved, so a new class never shifts the others.
+export function ensureClassColors() {
+  const names = classNames();
+  if (names.every((n) => state.classColors[n])) return;
+  state.classColors = assignColors(names, state.classColors);
+  save();
+}
 
 export function classColor(name) {
-  const i = classNames().indexOf(name);
-  return i < 0 ? '#94a3b8' : PALETTE[i % PALETTE.length];
+  if (!name) return '#94a3b8';
+  if (!state.classColors[name] && classNames().includes(name)) ensureClassColors();
+  return state.classColors[name] || '#94a3b8';
+}
+
+let teacherCache = { events: null, map: {} };
+export function classTeachers(name) {
+  if (teacherCache.events !== state.events) teacherCache = { events: state.events, map: teachersByClass(state.events) };
+  return teacherCache.map[name] || [];
+}
+
+// School closures (holidays, in-service days) by date: { 'YYYY-MM-DD': 'Winter Break - School Closed' }
+export function closures() {
+  const out = {};
+  for (const e of state.events) {
+    if (e.type !== 'Holidays and vacations') continue;
+    for (let d = e.date, n = 0; d <= e.endDate && n < 60; d = addDays(d, 1), n++) out[d] = e.title;
+  }
+  return out;
 }
 
 export function classInfo(full) {
@@ -110,12 +167,11 @@ export function classInfo(full) {
 }
 
 export function classStats(cls) {
-  const t = today();
-  const list = tasksFor(cls);
+  const list = todosFor(cls);
   const done = list.filter((e) => isDone(e.uid));
   const open = list.filter((e) => !isDone(e.uid));
   const overdue = open.filter((e) => isOverdue(e));
-  const upcoming = open.filter((e) => e.date >= t);
+  const upcoming = open.filter((e) => !isOverdue(e)); // same rule as the alerts: the exact due moment
   return { total: list.length, done: done.length, open: open.length, overdue: overdue.length, upcoming: upcoming.length, next: upcoming[0] || null };
 }
 

@@ -101,3 +101,20 @@ Parked, not deleted: AI assistant, syncing between devices, class-wide / teacher
 - **Browser notifications (optional):** for new warnings while the app is open in a background tab.
 
 **Limits:** warnings and notifications only happen while the app is open in a browser, because nothing can run when it is closed without a server. New work in Toddle can take up to a day to appear because Toddle refreshes its feed about once a day. Day names like "today" and "tomorrow" follow the device's clock.
+
+## Built after the review (November 2026)
+
+Based on a review of a real Toddle export:
+
+- **To do / Done / Not homework.** The feed has no submission status, and about a fifth of its entries are class material (slides, videos, feedback). Each task now gets a best-guess kind (assessments, homework and anything with work words or Forms/Edpuzzle/IXL links are to-dos), which the student can change. Class material never raises warnings and stays out of the planner.
+- **Catch up** replaces the old "mark past as done?" pop-up: after the first import, older work is listed by class with Done / Not homework / Still to do, or "Mark all as done". Until it is sorted it stays out of warnings and the planner.
+- **Parser:** reads Toddle's HTML description (links behind text like "Slides: Cell Theory", paragraph breaks) through a whitelist sanitizer; strips the escaped `\t` Toddle leaves in titles; only accepts `toddleapp.com` "View Task" links. A setting picks whether deadlines are the start or the end of Toddle's 30-minute slot (the feed doesn't say).
+- **Fixes:** class colours are saved per class and never shift (with a picker); class cards and Progress use the exact due moment like the alerts; the planner no longer lists unplanned work twice; flashcards edit in place; in-page dialogs replace `confirm()`/`prompt()`; search only redraws the list.
+- **Look:** Nunito (bundled), softer cards, class tiles with banner, subject icon and teacher, a task details side panel, resource buttons, MYP criteria chips, To-do page with tabs, calmer Start page (one warning area instead of banner + red stat + card).
+- **Calendar:** holidays as continuous bars, assessments filled in their class colour, a week view with time slots and lessons.
+- **Features:** MYP criteria per class and on Progress, busy-week warnings, revision sessions before summatives (3 days early in busy weeks, always on a school day), auto-plan skips school holidays, school events on Start, teacher filter, group by topic, timetable linked to Toddle classes (lessons and free periods in the planner and week view, next lesson on class pages and task details).
+- **Hygiene:** build check (`--check`) plus tests that the single file is current and the service worker caches every file, CI workflow, tests for all of the above.
+
+**Not done on purpose:** the phone layout (bottom bar with many small tabs) was left for later; the To-do tab makes it 10 items.
+
+**Guesses to keep an eye on:** the to-do/material guess and the topic groups work from words in titles, so some will be wrong (one tap fixes a task). MYP criteria only show when a title names them. Timetable-to-class matching is by name and can be changed in Settings.

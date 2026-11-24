@@ -2,16 +2,19 @@
 
 A static web app that turns your Toddle calendar feed into a study dashboard. No build step, no backend, no dependencies.
 
-- **Start** – what needs attention now, what's due today, the next 7 days, upcoming assessments
-- **Alerts** – a banner and a "Needs attention" page warn about overdue and soon-due work and about new or moved assignments, with one-click Done / Plan today and links to the class, planner, Toddle, flashcards or timer
-- **Classes** – every assignment sorted into its class, with filters, search, descriptions and links back to Toddle
-- **Calendar** – month view with assignments, holidays and school events
-- **Planner** – put assignments on days (drag, or pick a day), set time estimates, see the load per day, auto-plan the week
-- **Schedule** – build your class timetable: periods, week cycles, clash detection, print (`scheduler.html`)
+- **Start** – today's work, this week, the next assessment with a countdown, busy weeks, school events and the next day off
+- **To-do** – every to-do across classes in Upcoming / Overdue / Done / Class material tabs, filter by class, teacher or type
+- **Task details** – click any task for a side panel: due time, teacher, status, resource buttons (Slides, Docs, Forms, Edpuzzle, IXL…), the full description with its links, planning and "Open in Toddle"
+- **To do / Done / Not homework** – Toddle's feed doesn't say what you handed in, and many entries are just class material (slides, videos, feedback). The app guesses which is which, you can change any task, and a one-time *Catch up* sorts out old work after the first import
+- **Alerts** – warnings for overdue and soon-due to-dos and for new or moved assignments (never for class material)
+- **Classes** – class tiles with teacher and progress; each class page has MYP criteria (A–D) found in task titles, filters, search, grouping by date or topic, and a colour picker
+- **Calendar** – month view (holidays as one bar, assessments highlighted) and a week view with time slots and your lessons
+- **Planner** – put work on days (drag, or pick a day), time estimates, load per day, auto-plan that skips weekends and school holidays, revision sessions before summatives (earlier in busy weeks), and your lessons and free periods per day
+- **Schedule** – build your class timetable (`scheduler.html`); link it to Toddle classes in Settings
 - **Timer** – Pomodoro focus timer that logs your study time
 - **Flashcards** – make decks (paste lists with any separator, with a preview), study by flipping, typing the answer or multiple choice, either direction, or just your hardest cards; link a deck to an assignment
-- **Progress** – completion per class, focus-time chart, day streak
-- **Settings** – theme, accent colour, timer lengths, week start, 24h time, backup/restore
+- **Progress** – completion per class, MYP criteria per class, focus-time chart, day streak
+- **Settings** – theme, accent colour, Toddle deadline (start or end of the calendar slot), timer, planner, timetable link, backup/restore
 
 Everything is stored in your browser (`localStorage`). Nothing is sent anywhere except the sync request to Toddle (see below). Planned work is in [ROADMAP.md](ROADMAP.md).
 
@@ -89,25 +92,34 @@ In Chrome, open the site and use **⋮ → Cast, save and share → Install page
 
 ## Single-file version
 
-`study-hub.html` is the whole app in one file. Double-click it to run it locally, no server needed. Regenerate it after editing the source with `node build-single.mjs`.
+`study-hub.html` is the whole app in one file. Double-click it to run it locally, no server needed. Regenerate it after editing the source with `node build-single.mjs`. The tests (and CI) fail if you forget; `node build-single.mjs --check` checks without writing.
 
 ## Files
 
 ```
 index.html          page shell and navigation
+fonts/              Nunito (SIL Open Font License, see fonts/OFL.txt), served locally so nothing loads from Google
 styles.css          all styling (light/dark, responsive)
-js/ics.js           Toddle .ics parser
+js/ics.js           Toddle .ics parser (plain and HTML descriptions)
+js/enrich.js        safe HTML, resource links, MYP criteria, to-do vs class material, topics, class colours
 js/store.js         saved state
 js/config.js        shared proxy address (edit this)
 js/sync.js          import from link / file, background sync, new/moved detection
 js/urgency.js       deadline logic: due moments (time-zone aware), overdue, due soon
 js/alerts.js        banner, Needs attention page, notifications, sync status
-js/pages.js         Start, Classes, Calendar, Progress, Settings
+js/pages.js         Start, Classes, Class, Progress, Settings
+js/todo.js          To-do list and the one-time catch-up
+js/drawer.js        task details panel
+js/calendar.js      month and week views
+js/dialog.js        in-page confirm dialogs
+js/timetable.js     reads the Schedule data (ttlogic.js: lessons, free periods, week cycles, name matching)
 js/planner.js       weekly planner (planlogic.js holds the auto-plan rules)
 scheduler.html      the Class Scheduler (self-contained, shown in the Schedule section)
 js/timer.js         focus timer
 js/cards.js         flashcards (textmatch.js: answer checking and list parsing)
-tests/              unit tests, run with: node --test tests/*.test.mjs
+tests/              unit tests, run with: node --test tests/*.test.mjs (also checks study-hub.html is rebuilt)
+tests/fixtures/     a made-up feed in Toddle's format (no real data)
+.github/workflows/  runs the tests on every push
 js/app.js           router and events
 sw.js, manifest     offline + install support
 ```

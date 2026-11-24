@@ -3,6 +3,7 @@ import { state, save, classNames, classInfo, tasks, isDone } from './store.js';
 import { esc, today, addDays, uid, download, fmtDate, displayTitle } from './util.js';
 import { actions, changes, inputs, rerender, toast } from './ui.js';
 import { emptyState } from './components.js';
+import { ask } from './dialog.js';
 import { norm, judge, parseBulk } from './textmatch.js';
 
 const INTERVALS = [0, 1, 3, 7, 14, 30, 60];
@@ -57,9 +58,9 @@ actions['deck-create'] = () => {
   save();
   location.hash = `#/flashcards/${deck.id}`;
 };
-actions['deck-delete'] = (el) => {
+actions['deck-delete'] = async (el) => {
   const d = deckById(el.dataset.id);
-  if (d && confirm(`Delete "${d.name}" and its ${d.cards.length} cards?`)) {
+  if (d && (await ask(`Delete "${d.name}" and its ${d.cards.length} cards?`, { ok: 'Delete deck', danger: true }))) {
     state.decks = state.decks.filter((x) => x.id !== d.id);
     save();
     study = null;
@@ -91,20 +92,37 @@ actions['card-delete'] = (el) => {
   save();
   rerender();
 };
+// Cards are edited in place in the list (no browser pop-ups).
+let editingCard = null;
 actions['card-edit'] = (el) => {
-  const d = deckById(el.dataset.id);
-  const c = d.cards.find((x) => x.id === el.dataset.card);
-  const front = prompt('Front', c.front);
-  if (front === null) return;
-  const back = prompt('Back', c.back);
-  if (back === null) return;
-  if (front.trim() && back.trim()) {
-    c.front = front.trim();
-    c.back = back.trim();
-    save();
-    rerender();
-  }
+  editingCard = el.dataset.card;
+  rerender();
+  document.getElementById('edit-front')?.focus();
 };
+actions['card-edit-cancel'] = () => {
+  editingCard = null;
+  rerender();
+};
+actions['card-edit-save'] = (el) => {
+  const d = deckById(el.dataset.id);
+  const c = d && d.cards.find((x) => x.id === el.dataset.card);
+  const front = document.getElementById('edit-front').value.trim();
+  const back = document.getElementById('edit-back').value.trim();
+  if (!front || !back) return toast('Both sides need some text.');
+  c.front = front;
+  c.back = back;
+  editingCard = null;
+  save();
+  rerender();
+};
+document.addEventListener('keydown', (ev) => {
+  if (!editingCard || !ev.target.closest || !ev.target.closest('.card-edit')) return;
+  if (ev.key === 'Escape') actions['card-edit-cancel']();
+  if (ev.key === 'Enter' && ev.target.tagName === 'INPUT') {
+    ev.preventDefault();
+    document.querySelector('[data-action="card-edit-save"]')?.click();
+  }
+});
 actions['deck-export'] = (el) => {
   const d = deckById(el.dataset.id);
   download(`${d.name.replace(/[^\w-]+/g, '_')}.json`, JSON.stringify({ name: d.name, cards: d.cards.map(({ front, back }) => ({ front, back })) }, null, 2));
@@ -335,7 +353,9 @@ function deckPage(d) {
   const misses = d.cards.reduce((a, c) => a + (c.miss || 0), 0);
   const accuracy = reviews ? `${Math.round(100 * (1 - misses / reviews))}% accuracy over ${reviews} reviews` : 'not studied yet';
   const cardsList = d.cards.length
-    ? `<div class="card-list">${d.cards.map((c) => `
+    ? `<div class="card-list">${d.cards.map((c) => c.id === editingCard ? `
+        <div class="card-item card-edit"><div class="grow form-row"><label class="field">Front<input id="edit-front" value="${esc(c.front)}"></label><label class="field">Back<input id="edit-back" value="${esc(c.back)}"></label></div>
+        <div class="row"><button class="btn small" data-action="card-edit-cancel">Cancel</button><button class="btn small primary" data-action="card-edit-save" data-id="${d.id}" data-card="${c.id}">Save</button></div></div>` : `
         <div class="card-item"><div><strong>${esc(c.front)}</strong><div class="muted">${esc(c.back)}</div></div>
         <div class="row"><span class="box-pill" title="Level ${c.box}${c.miss ? `, missed ${c.miss} of ${c.seen}` : ''}">Lv ${c.box}${c.miss ? ` · ${c.miss}✕` : ''}</span>
         <button class="btn small" data-action="card-edit" data-id="${d.id}" data-card="${c.id}">Edit</button>

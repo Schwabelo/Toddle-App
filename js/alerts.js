@@ -1,5 +1,8 @@
 // Alerts: what is overdue or due soon, what is new from Toddle, and a direct way to deal with each.
-import { state, save, tasks, isDone, toggleDone } from './store.js';
+import { state, save, tasks, isDone, isTodo, isCatchup, toggleDone } from './store.js';
+
+// Warnings cover to-dos only, and not the older work waiting in the one-time catch-up.
+const alertable = (e) => isTodo(e) && !isCatchup(e);
 import { classify, humanSpan, DAY } from './urgency.js';
 import { esc, today, fmtDate, fmtTime, displayTitle } from './util.js';
 import { actions, rerender, toast } from './ui.js';
@@ -19,11 +22,12 @@ export function currentAlerts(now = Date.now()) {
     assessDays: num(s.warnAssessDays, 3),
     isDone,
     isMuted: (uid) => Boolean(state.mute[uid]),
+    isTodo: alertable,
   });
   const byUid = new Map(all.map((e) => [e.uid, e]));
   const news = (state.changes || [])
     .map((c) => ({ ...c, e: byUid.get(c.uid) }))
-    .filter((c) => c.e && !isDone(c.uid) && !state.mute[c.uid] && now - c.at < 3 * DAY);
+    .filter((c) => c.e && alertable(c.e) && !isDone(c.uid) && !state.mute[c.uid] && now - c.at < 3 * DAY);
   return { ...found, news, count: found.overdue.length + found.soon.length };
 }
 
@@ -40,7 +44,7 @@ function alertRow(item, kind) {
   return `
   <div class="arow ${hot ? 'hot' : ''}">
     <div class="arow-main">
-      <a class="task-title" href="${classLink(e)}">${esc(displayTitle(e.title))}</a>
+      <button class="task-title task-open linkish" data-action="open-task" data-uid="${id}">${esc(displayTitle(e.title))}</button>
       <div class="task-meta"><span class="${hot ? 'late' : 'soonc'}">${when}</span><span>${esc(dueText(e))}</span>${tagsFor(e)}${e.classes.map(classLabel).join('')}</div>
     </div>
     <div class="arow-actions">
@@ -53,6 +57,7 @@ function alertRow(item, kind) {
           ${e.link ? `<a href="${esc(e.link)}" target="_blank" rel="noopener noreferrer">Open in Toddle ↗</a>` : ''}
           ${decks.map((d) => `<a href="#/flashcards/${d.id}">Study cards: ${esc(d.name)}</a>`).join('')}
           <button data-action="alert-timer" data-cls="${esc(cls)}">Start timer</button>
+          <button data-action="set-status" data-uid="${id}" data-s="material">Not homework</button>
           <button data-action="alert-mute" data-uid="${id}">Ignore this one</button>
         </div>
       </details>
@@ -68,10 +73,10 @@ function newsRow(c) {
   return `
   <div class="arow">
     <div class="arow-main">
-      <a class="task-title" href="${classLink(e)}">${esc(displayTitle(e.title))}</a>
+      <button class="task-title task-open linkish" data-action="open-task" data-uid="${esc(e.uid)}">${esc(displayTitle(e.title))}</button>
       <div class="task-meta"><span class="soonc">${what}</span><span>Due ${esc(dueText(e))}</span>${tagsFor(e)}${e.classes.map(classLabel).join('')}</div>
     </div>
-    <div class="arow-actions"><a class="btn small" href="${classLink(e)}">Open</a></div>
+    <div class="arow-actions"><button class="btn small" data-action="open-task" data-uid="${esc(e.uid)}">Open</button></div>
   </div>`;
 }
 
@@ -140,7 +145,7 @@ actions['changes-seen'] = () => {
 actions['mark-older-done'] = () => {
   const now = Date.now();
   const isMuted = (u) => Boolean(state.mute[u]);
-  tasks().filter((e) => classify([e], { now, isDone, isMuted }).older > 0).forEach((e) => toggleDone(e.uid, 'bulk'));
+  tasks().filter((e) => classify([e], { now, isDone, isMuted, isTodo: alertable }).older > 0).forEach((e) => toggleDone(e.uid, 'bulk'));
   rerender();
 };
 
@@ -179,7 +184,8 @@ let hiddenSig = '';
 const hash = (str) => [...str].reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0).toString(36);
 
 function bannerHtml(a) {
-  if (state.settings.alerts === false || location.hash.startsWith('#/alerts')) return '';
+  // The Start page and the alert pages already show this, so no banner there (one warning, not three).
+  if (state.settings.alerts === false || /^#\/(alerts|todo)?$|^$|^#$|^#\/todo\//.test(location.hash)) return '';
   if (!a.count && !a.news.length) return '';
   const sig = hash([...a.overdue, ...a.soon].map((x) => x.e.uid).concat(a.news.map((c) => c.uid + c.kind)).join('|'));
   if (sig === hiddenSig) return '';
@@ -220,7 +226,7 @@ function maybeNotify(a) {
 // Refresh everything that lives outside the page content. Cheap, so it runs after every render and once a minute.
 export function updateChrome() {
   const a = currentAlerts();
-  const badge = document.getElementById('nav-alerts');
+  const badge = document.getElementById('nav-todo');
   if (badge) {
     badge.textContent = a.count ? String(a.count) : '';
     badge.hidden = !a.count;

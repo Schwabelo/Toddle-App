@@ -1,7 +1,10 @@
 // Router, shell and event delegation.
 import { state } from './store.js';
 import { actions, changes, inputs, setRender } from './ui.js';
-import { startPage, classesPage, classPage, calendarPage, progressPage, settingsPage, schedulePage, applyTheme } from './pages.js';
+import { startPage, classesPage, classPage, progressPage, settingsPage, schedulePage, applyTheme } from './pages.js';
+import { calendarPage } from './calendar.js';
+import { todoPage, catchupPage } from './todo.js';
+import { renderDrawer, openTask } from './drawer.js';
 import { timerPage, updateTimerUI } from './timer.js';
 import { cardsPage } from './cards.js';
 import { plannerPage } from './planner.js';
@@ -12,7 +15,9 @@ const view = document.getElementById('view');
 
 const ROUTES = {
   '': { nav: 'start', page: startPage },
-  alerts: { nav: 'start', page: alertsPage },
+  alerts: { nav: 'todo', page: alertsPage },
+  todo: { nav: 'todo', page: todoPage },
+  catchup: { nav: 'todo', page: catchupPage },
   classes: { nav: 'classes', page: classesPage },
   class: { nav: 'classes', page: (a, b) => classPage(decodeURIComponent(a), b ? decodeURIComponent(b) : '') },
   calendar: { nav: 'calendar', page: calendarPage },
@@ -21,21 +26,22 @@ const ROUTES = {
   timer: { nav: 'timer', page: timerPage },
   flashcards: { nav: 'flashcards', page: cardsPage },
   progress: { nav: 'progress', page: progressPage },
-  settings: { nav: 'settings', page: settingsPage },
+  settings: { nav: 'settings', page: (a) => settingsPage(a) },
 };
 
 function route() {
   const [name = '', a, b] = location.hash.replace(/^#\/?/, '').split('/');
-  return { r: ROUTES[name] || ROUTES[''], a, b };
+  return { r: ROUTES[name] || ROUTES[''], a, b, name };
 }
 
 let freshNav = true; // true until the first render after a navigation, so a deep link can scroll to its target
 
 function render() {
-  const { r, a, b } = route();
+  const { r, a, b, name } = route();
   // Re-rendering would reload the scheduler frame and lose unsaved edits (e.g. when the timer ends).
   if (r.nav === 'schedule' && view.querySelector('.sched-frame')) {
     updateChrome();
+    renderDrawer();
     return;
   }
   // Keep expanded assignment details and scroll position across re-renders.
@@ -49,8 +55,11 @@ function render() {
   if (freshNav) {
     const target = view.querySelector('[data-focus]');
     if (target) target.scrollIntoView({ block: 'center' });
+    // a link to a task inside a class (#/class/<class>/<uid>) also opens its details
+    if (name === 'class' && b) openTask(decodeURIComponent(b));
     freshNav = false;
   }
+  renderDrawer();
   document.querySelectorAll('[data-nav]').forEach((el) => el.classList.toggle('active', el.dataset.nav === r.nav));
   updateTimerUI();
   updateChrome();

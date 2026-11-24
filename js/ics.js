@@ -1,5 +1,6 @@
 // Parses a Toddle calendar feed (.ics) into plain assignment objects.
 import { addDays } from './util.js';
+import { sanitizeHtml, htmlToText, extractLinks } from './enrich.js';
 
 const FIELD_RE = /^(Task Type|Classes|Description|Created By|View Task|Event Type|Location): ?(.*)$/;
 
@@ -25,7 +26,8 @@ function unescapeText(s) {
 function cleanTitle(s) {
   return unescapeText(s)
     .replace(/\\"/g, '"')
-    .replace(/\\n/g, ' ')
+    .replace(/\\[ntr]/g, ' ') // Toddle double-escapes pasted tabs and newlines ("HML: \\tIXL")
+    .replace(/\t/g, ' ')
     .replace(/\\+$/, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -64,6 +66,15 @@ export function parseFields(description) {
   return fields;
 }
 
+// The description part of Toddle's HTML version (X-ALT-DESC), which keeps links and paragraphs.
+const HTML_FIELDS = 'Task Type|Classes|Created By|View Task|Event Type|Location';
+export function htmlDescription(altDesc) {
+  if (!altDesc) return '';
+  const html = unescapeText(altDesc).replace(/\\"/g, '"').replace(/\\[tr]/g, ' ').replace(/\\n/g, '<br>');
+  const m = html.match(new RegExp(`<b>\\s*Description\\s*</b>\\s*:?\\s*([\\s\\S]*?)(?:<br>\\s*<b>\\s*(?:${HTML_FIELDS})\\s*</b>|$)`));
+  return m ? sanitizeHtml(m[1]) : '';
+}
+
 export function parseIcs(text) {
   const lines = unfold(text).split('\n');
   const events = [];
@@ -88,6 +99,9 @@ export function parseIcs(text) {
     const fields = parseFields(e.DESCRIPTION ? e.DESCRIPTION.value : '');
     const title = cleanTitle(e.SUMMARY ? e.SUMMARY.value : '(untitled)');
     const classes = splitClasses(fields.Classes);
+    const html = htmlDescription(e['X-ALT-DESC'] && e['X-ALT-DESC'].value);
+    const plain = (fields.Description || '').replace(/\\[ntr]/g, ' ');
+    const description = html ? htmlToText(html) : plain;
     const isTask = Boolean(fields['Task Type']);
     // All-day DTEND is exclusive, so the last day is one before it.
     let endDate = end ? end.date : start.date;
@@ -104,9 +118,11 @@ export function parseIcs(text) {
       kind: isTask ? 'task' : 'event',
       type: fields['Task Type'] || fields['Event Type'] || 'Event',
       classes,
-      description: fields.Description || '',
+      description,
+      html,
+      links: extractLinks(html, description),
       createdBy: fields['Created By'] || '',
-      link: fields['View Task'] || '',
+      link: /^https:\/\/[\w.-]*toddleapp\.com\//.test(fields['View Task'] || '') ? fields['View Task'] : '',
       location: e.LOCATION ? unescapeText(e.LOCATION.value) : fields.Location || '',
     });
   }

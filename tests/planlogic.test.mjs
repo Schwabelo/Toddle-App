@@ -52,3 +52,28 @@ test('earliest deadlines are placed first', () => {
   const r = autoPlan({ ...base, today: '2026-10-26', load: {}, tasks: [t('late', '2026-10-30'), t('soon', '2026-10-27')] });
   assert.ok(r.soon <= '2026-10-27');
 });
+
+import { crunchWeeks, prepTasks, isWeekend } from '../js/planlogic.js';
+
+test('skips school closures like weekends', () => {
+  const blocked = new Set(['2026-10-27', '2026-10-28']);
+  const r = autoPlan({ ...base, today: '2026-10-26', load: {}, blocked, tasks: [t('a', '2026-10-30'), t('b', '2026-10-30'), t('c', '2026-10-30')] });
+  assert.ok(Object.values(r).every((d) => !blocked.has(d)));
+});
+
+test('finds weeks with two or more summatives', () => {
+  const ws = (d) => (d < '2026-11-02' ? '2026-10-26' : '2026-11-02');
+  const w = crunchWeeks([{ date: '2026-10-29' }, { date: '2026-10-30' }, { date: '2026-11-03' }], ws);
+  assert.deepEqual(w.map((x) => [x.start, x.items.length]), [['2026-10-26', 2]]);
+});
+
+test('revision sessions land on a school day before the summative, earlier in busy weeks', () => {
+  const ws = () => '2026-11-30';
+  const avoid = (d) => isWeekend(d);
+  const [mon] = prepTasks([{ uid: 'x', title: 'Test', date: '2026-11-30', classes: [] }], { today: '2026-11-24', weekStartOf: ws, avoid });
+  assert.equal(mon.uid, 'prep:x');
+  assert.equal(mon.date, '2026-11-27'); // Sunday 29 -> Friday 27
+  const [busy] = prepTasks([{ uid: 'y', title: 'Test', date: '2026-12-03', classes: [] }], { today: '2026-11-24', weekStartOf: ws, avoid, crunchStarts: new Set(['2026-11-30']) });
+  assert.equal(busy.date, '2026-11-30'); // three days early
+  assert.equal(prepTasks([{ uid: 'z', date: '2026-11-24', classes: [] }], { today: '2026-11-24', weekStartOf: ws }).length, 0); // already today
+});

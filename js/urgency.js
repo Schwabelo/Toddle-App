@@ -25,22 +25,27 @@ export function wallToMs(date, time, tz) {
   return new Date(y, m - 1, d, hh, mm).getTime();
 }
 
+// Toddle exports each task as a 30-minute slot. Whether the deadline is the start or the end of that slot
+// is not stated in the feed, so it is a setting (start by default).
+export const dueConfig = { end: false };
+export const dueClock = (e) => (dueConfig.end && e.endTime ? e.endTime : e.time);
+
 // Items without a time are due at the end of their day.
-export const dueMs = (e) => wallToMs(e.date, e.time || '23:59', e.tz);
+export const dueMs = (e) => wallToMs(e.date, dueClock(e) || '23:59', e.tz);
 export const isOverdue = (e, now = Date.now()) => dueMs(e) < now;
-const isAssessment = (e) => /Assessment/.test(e.type);
+export const isAssessment = (e) => /Assessment/.test(e.type);
 
 /**
  * Splits open work into what is overdue and what is due soon.
  * soon = due within warnHours, or an assessment due within assessDays.
  * Overdue by more than recentDays is only counted (older), not listed.
  */
-export function classify(items, { now = Date.now(), warnHours = 24, assessDays = 3, isDone = () => false, isMuted = () => false, recentDays = 14 } = {}) {
+export function classify(items, { now = Date.now(), warnHours = 24, assessDays = 3, isDone = () => false, isMuted = () => false, recentDays = 14, isTodo = () => true } = {}) {
   const overdue = [];
   const soon = [];
   let older = 0;
   for (const e of items) {
-    if (isDone(e.uid) || isMuted(e.uid)) continue;
+    if (isDone(e.uid) || isMuted(e.uid) || !isTodo(e)) continue;
     const due = dueMs(e);
     const diff = due - now;
     if (diff < 0) {
